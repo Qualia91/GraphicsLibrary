@@ -19,7 +19,7 @@ public class Mesh {
 	private Vertex[] vertices;
 	private int[] indices;
 	private Material material;
-	private int vao, pbo, ibo, cbo, tbo;
+	private int vao, pbo, ibo, cbo, tbo, nbo;
 
 	public Mesh(Vertex[] vertices, int[] indices, Material material) {
 		this.vertices = vertices;
@@ -63,6 +63,15 @@ public class Mesh {
 			GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, 0, 0);
 		});
 
+		BiFunction<Vertex, Integer, Double> normalDataGettersBiFunc = (vertex, index) -> vertex.getNormal().getValues()[index];
+		double[] norData = createDataForBuffer(vertices.length * 3, normalDataGettersBiFunc);
+		DoubleBuffer normBuffer = createDoubleBufferAndPutData(vertices.length * 3, norData);
+		nbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
+			GL15.glBufferData(bufferType, normBuffer, GL15.GL_STATIC_DRAW);
+			// shader stuff
+			GL20.glVertexAttribPointer(3, 3, GL11.GL_DOUBLE, false, 0, 0);
+		});
+
 		IntBuffer indicesBuffer = createIntBufferAndPutData(indices.length, indices);
 		ibo = writeDataToBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, bufferType -> GL15.glBufferData(bufferType, indicesBuffer, GL15.GL_STATIC_DRAW));
 
@@ -70,6 +79,7 @@ public class Mesh {
 
 	public void destroy() {
 		material.destroy();
+		GL15.glDeleteBuffers(nbo);
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(cbo);
 		GL15.glDeleteBuffers(ibo);
@@ -144,5 +154,9 @@ public class Mesh {
 
 	public Material getMaterial() {
 		return material;
+	}
+
+	public int getNbo() {
+		return nbo;
 	}
 }

@@ -4,6 +4,7 @@ import com.nick.wood.graphics_library.game_objects.GameObject;
 import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -11,8 +12,10 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.UUID;
@@ -64,7 +67,7 @@ public class Window {
 
 		this.input = input;
 
-		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 1, 10000000000.0);
+		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.001, 1000);
 
 		this.gameObjects = gameObjects;
 	}
@@ -152,6 +155,10 @@ public class Window {
 		// creates the GLCapabilities instance and makes the OpenGL
 		// bindings available for use.
 		GL.createCapabilities();
+
+		// cull back faces
+		GL11.glEnable(GLES20.GL_CULL_FACE);
+		GL11.glCullFace(GLES20.GL_BACK);
 
 		GL11.glEnable(GL_DEPTH_TEST);
 

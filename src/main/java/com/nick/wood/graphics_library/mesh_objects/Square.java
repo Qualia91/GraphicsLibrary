@@ -9,21 +9,21 @@ import com.nick.wood.maths.objects.Vec3d;
 
 public class Square implements MeshObject{
 
-	private Vec3d position, scale;
-	private Matrix4d rotation;
+	private final MeshTransform meshTransform;
 
 	private final Mesh mesh = new Mesh(new Vertex[] {
-			new Vertex(new Vec3d(-0.5,  0.5, 0.0), new Vec3d(1.0, 0.0, 0.0), new Vec2f(0.0f, 0.0f)),
-			new Vertex(new Vec3d( 0.5,  0.5, 0.0), new Vec3d(0.0, 1.0, 0.0), new Vec2f(0.0f, 1.0f)),
-			new Vertex(new Vec3d( 0.5, -0.5, 0.0), new Vec3d(0.0, 0.0, 1.0), new Vec2f(1.0f, 1.0f)),
-			new Vertex(new Vec3d(-0.5, -0.5, 0.0), new Vec3d(1.0, 1.0, 0.0), new Vec2f(1.0f, 0.0f))
+			new Vertex(new Vec3d(-0.5,  0.5, 0.0), Vec3d.X.neg(), new Vec3d(1.0, 0.0, 0.0), new Vec2f(0.0f, 0.0f)),
+			new Vertex(new Vec3d( 0.5,  0.5, 0.0), Vec3d.X.neg(), new Vec3d(0.0, 1.0, 0.0), new Vec2f(0.0f, 1.0f)),
+			new Vertex(new Vec3d( 0.5, -0.5, 0.0), Vec3d.X.neg(), new Vec3d(0.0, 0.0, 1.0), new Vec2f(1.0f, 1.0f)),
+			new Vertex(new Vec3d(-0.5, -0.5, 0.0), Vec3d.X.neg(), new Vec3d(1.0, 1.0, 0.0), new Vec2f(1.0f, 0.0f))
 	}, new int[]{
 			0, 1, 2,
 			0, 3, 2
 	},
 			new Material("/textures/texture.png"));
 
-	public Square() {
+	public Square(MeshTransform meshTransform) {
+		this.meshTransform = meshTransform;
 	}
 
 	public Mesh getMesh() {
@@ -31,7 +31,7 @@ public class Square implements MeshObject{
 	}
 
 	@Override
-	public Matrix4d getTransformation() {
-		return Matrix4d.Identity;
+	public MeshTransform getModelTransform() {
+		return meshTransform;
 	}
 }

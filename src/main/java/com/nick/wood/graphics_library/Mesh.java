@@ -1,5 +1,7 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.Material;
+import com.nick.wood.graphics_library.Vertex;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;

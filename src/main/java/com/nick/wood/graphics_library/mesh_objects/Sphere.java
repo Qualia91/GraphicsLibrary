@@ -9,17 +9,14 @@ import com.nick.wood.maths.objects.Vec3d;
 
 public class Sphere implements MeshObject {
 
-	private Vec3d position, scale;
-	private Matrix4d rotation;
+	private final MeshTransform meshTransform;
 	private final int triangleNumber;
 
 	private Mesh mesh;
 
-	public Sphere(Vec3d translation, Vec3d dimensions, Matrix4d rotation, int triangleNumber) {
+	public Sphere(MeshTransform meshTransform, int triangleNumber) {
 
-		this.position = translation;
-		this.scale = dimensions;
-		this.rotation = rotation;
+		this.meshTransform = meshTransform;
 		this.triangleNumber = triangleNumber;
 
 		Vec3d startFrontLeft = new Vec3d(-1.0, 1.0, 0.0);
@@ -75,6 +72,7 @@ public class Sphere implements MeshObject {
 
 						vertexArray[triangleDownIndex] = new Vertex(
 								newPos.normalise().scale(0.5),
+								Vec3d.X,
 								newPos,
 								new Vec2f(xCoord, yCoord)
 						);
@@ -150,7 +148,7 @@ public class Sphere implements MeshObject {
 	}
 
 	@Override
-	public Matrix4d getTransformation() {
-		return Matrix4d.Transform(position, rotation, scale);
+	public MeshTransform getModelTransform() {
+		return meshTransform;
 	}
 }

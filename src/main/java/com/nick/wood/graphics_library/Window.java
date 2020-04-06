@@ -1,7 +1,7 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.game_objects.GameObject;
 import com.nick.wood.graphics_library.input.Inputs;
-import com.nick.wood.graphics_library.mesh_objects.Camera;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 import org.lwjgl.Version;
@@ -43,7 +43,7 @@ public class Window {
 
 	private boolean windowSizeChanged = false;
 
-	HashMap<UUID, GameObject> gameObjects = new HashMap<>();
+	HashMap<UUID, GameObject> gameObjects;
 	UUID playerObjectUUID;
 
 	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, GameObject> gameObjects, Inputs input) {
@@ -52,7 +52,6 @@ public class Window {
 		this.HEIGHT = HEIGHT;
 		this.title = title;
 		this.camera = new Camera(new Vec3d(-5, 0.0, 2),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
-		//this.camera = new Camera(new Vec3d(0.0, 10.0, 0.0),  new Vec3d(-100.0, 180.0, 90.0), 0.5, 0.1);
 
 		gameObjects.forEach(
 				(uuid, gameObject) -> {

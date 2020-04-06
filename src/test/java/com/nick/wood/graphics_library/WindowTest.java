@@ -1,53 +1,60 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.game_objects.GameObject;
 import com.nick.wood.graphics_library.input.Inputs;
+import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.mesh_objects.MeshTransform;
+import com.nick.wood.graphics_library.mesh_objects.ModelMesh;
+import com.nick.wood.graphics_library.mesh_objects.Sphere;
+import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Vec3d;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.UUID;
 
 class WindowTest {
-
-	private double simHerts = 60;
 
 	@Test
 	public void test() {
 
-			Window window = new Window(
-					100,
-					100,
-					"",
-					new HashMap<>(),
-					new Inputs());
+		HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
-			window.init();
+		MeshGroup meshGroup = new MeshGroup();
+		meshGroup.getMeshObjectArray().add(new ModelMesh(
+					new MeshTransform(
+							new Vec3d(10.0, 0.0, 0.0),
+					Vec3d.ONE,
+					Matrix4d.Identity),
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
+				"/textures/red.png"
+		));
 
-			long lastTime = System.nanoTime();
+		gameObjects.put(UUID.randomUUID(), new GameObject(
+				Vec3d.X,
+				Matrix4d.Identity,
+				Vec3d.ONE,
+				meshGroup,
+				false
+		));
 
-			double deltaSeconds = 0.0;
 
-			while (!window.shouldClose()) {
+		Window window = new Window(
+				900,
+				600,
+				"",
+				gameObjects,
+				new Inputs());
 
-				long now = System.nanoTime();
+		window.init();
 
-				deltaSeconds += (now - lastTime) / 1000000000.0;
+		while (!window.shouldClose()) {
 
-				while (deltaSeconds >= 1 / simHerts) {
+			window.loop();
 
-					window.setTitle("Iteration time: " + deltaSeconds);
+		}
 
-					deltaSeconds = 0.0;
-
-				}
-
-				window.loop();
-
-				lastTime = now;
-
-			}
-
-			window.destroy();
+		window.destroy();
 
 	}
 

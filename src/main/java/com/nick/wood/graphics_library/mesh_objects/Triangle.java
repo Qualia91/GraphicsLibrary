@@ -3,23 +3,20 @@ package com.nick.wood.graphics_library.mesh_objects;
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Mesh;
 import com.nick.wood.graphics_library.Vertex;
-import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec2f;
 import com.nick.wood.maths.objects.Vec3d;
 
 public class Triangle implements MeshObject {
 
-	private Vec3d position, scale;
-	private Matrix4d rotation;
+
+	private final MeshTransform meshTransform;
 	private final int triangleNumber;
 
 	private Mesh mesh;
 
-	public Triangle(Vec3d translation, Vec3d scale, Matrix4d rotation, int triangleNumber) {
+	public Triangle(MeshTransform meshTransform, int triangleNumber) {
 
-		this.position = translation;
-		this.scale = scale;
-		this.rotation = rotation;
+		this.meshTransform = meshTransform;
 		this.triangleNumber = triangleNumber;
 
 		Vertex[][] vertexSlicesArray = new Vertex[triangleNumber+1][];
@@ -47,6 +44,7 @@ public class Triangle implements MeshObject {
 
 				vertexArray[triangleDownIndex] = new Vertex(
 						newPos.normalise().scale(0.5),
+						Vec3d.X,
 						newPos,
 						new Vec2f(0.0f, 0.0f)
 				);
@@ -118,7 +116,7 @@ public class Triangle implements MeshObject {
 	}
 
 	@Override
-	public Matrix4d getTransformation() {
-		return Matrix4d.Transform(position, rotation, scale);
+	public MeshTransform getModelTransform() {
+		return meshTransform;
 	}
 }

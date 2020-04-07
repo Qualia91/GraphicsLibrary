@@ -37,7 +37,7 @@ public class ModelLoader {
 				AIVector3D textCoordAI = aiMesh.mTextureCoords(0).get(i);
 				texCoord = new Vec2f(textCoordAI.x(), textCoordAI.y());
 			}
-			vertexArray[i] = new Vertex(vertexVec, normalVec, Vec3d.X, texCoord);
+			vertexArray[i] = new Vertex(vertexVec, Vec3d.X, texCoord, normalVec);
 
 		}
 

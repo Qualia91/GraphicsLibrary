@@ -5,7 +5,6 @@ import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
 import com.nick.wood.graphics_library.mesh_objects.MeshTransform;
 import com.nick.wood.graphics_library.mesh_objects.ModelMesh;
-import com.nick.wood.graphics_library.mesh_objects.Sphere;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 import org.junit.jupiter.api.Test;
@@ -23,11 +22,11 @@ class WindowTest {
 		MeshGroup meshGroup = new MeshGroup();
 		meshGroup.getMeshObjectArray().add(new ModelMesh(
 					new MeshTransform(
-							new Vec3d(10.0, 0.0, 0.0),
+							new Vec3d(0.0, 0.0, 0.0),
 					Vec3d.ONE,
 					Matrix4d.Identity),
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
-				"/textures/red.png"
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
+				"/textures/white.png"
 		));
 
 		gameObjects.put(UUID.randomUUID(), new GameObject(

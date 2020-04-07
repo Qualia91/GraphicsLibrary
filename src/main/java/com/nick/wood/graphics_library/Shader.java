@@ -3,11 +3,16 @@ package com.nick.wood.graphics_library;
 import com.nick.wood.graphics_library.utils.FileUtils;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 
 public class Shader {
 
@@ -54,7 +59,7 @@ public class Shader {
 	}
 
 	public int getUniformLocation(String name) {
-		return GL20.glGetUniformLocation(programId, name);
+		return glGetUniformLocation(programId, name);
 	}
 
 	public void setUniform(String name, Matrix4d value) {
@@ -64,9 +69,15 @@ public class Shader {
 	}
 
 	public void setUniform(String name, Vec3d vec) {
-		FloatBuffer buffer = MemoryUtil.memAllocFloat(3);
-		buffer.put(vec.getValuesF()).flip();
-		GL20.glUniform3fv(getUniformLocation(name), buffer);
+		GL20.glUniform3f(getUniformLocation(name), (float) vec.getX(), (float) vec.getY(), (float) vec.getZ());
+	}
+
+	public void setUniform(String name, Vec3f vec) {
+		GL20.glUniform3f(getUniformLocation(name), vec.getX(), vec.getY(), vec.getZ());
+	}
+
+	public void setUniform(String name, float v) {
+		GL20.glUniform1f(getUniformLocation(name), v);
 	}
 
 	public void bind() {

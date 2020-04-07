@@ -21,7 +21,6 @@ public class ModelMesh implements MeshObject {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override

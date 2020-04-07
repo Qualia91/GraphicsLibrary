@@ -5,6 +5,7 @@ import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 
 public class Camera {
+	private final Vec3d initialRot;
 	private Vec3d pos;
 	private Vec3d rot;
 	private double moveSpeed;
@@ -16,10 +17,15 @@ public class Camera {
 	private GameObject gameObject;
 
 	public Camera(Vec3d pos, Vec3d rot, double moveSpeed, double sensitivity) {
+		this.initialRot = rot;
 		this.pos = pos;
 		this.rot = rot;
 		this.moveSpeed = moveSpeed;
 		this.sensitivity = sensitivity;
+	}
+
+	public Vec3d getInitialRot() {
+		return initialRot;
 	}
 
 	public void attachGameObject(GameObject gameObject) {
@@ -35,7 +41,13 @@ public class Camera {
 	}
 
 	public Vec3d getPos() {
-		return pos;
+
+		// get game object to world transformation
+		if (gameObject != null) {
+			return gameObject.getPosition();
+		} else {
+			return pos;
+		}
 	}
 
 	public void setPos(Vec3d pos) {

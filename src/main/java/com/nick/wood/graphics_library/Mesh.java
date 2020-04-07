@@ -41,15 +41,6 @@ public class Mesh {
 			GL20.glVertexAttribPointer(0, 3, GL11.GL_DOUBLE, false, 0, 0);
 		});
 
-		BiFunction<Vertex, Integer, Double> colourDataGettersBiFunc = (vertex, index) -> vertex.getCol().getValues()[index];
-		double[] colData = createDataForBuffer(vertices.length * 3, colourDataGettersBiFunc);
-		DoubleBuffer colourBuffer = createDoubleBufferAndPutData(vertices.length * 3, colData);
-		cbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
-			GL15.glBufferData(bufferType, colourBuffer, GL15.GL_STATIC_DRAW);
-			// shader stuff
-			GL20.glVertexAttribPointer(1, 3, GL11.GL_DOUBLE, false, 0, 0);
-		});
-
 		FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
 		float[] textData = new float[vertices.length * 2];
 		for (int i = 0; i < vertices.length; i++) {
@@ -60,7 +51,7 @@ public class Mesh {
 		tbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
 			GL15.glBufferData(bufferType, textureBuffer, GL15.GL_STATIC_DRAW);
 			// shader stuff
-			GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, 0, 0);
+			GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
 		});
 
 		BiFunction<Vertex, Integer, Double> normalDataGettersBiFunc = (vertex, index) -> vertex.getNormal().getValues()[index];
@@ -69,11 +60,13 @@ public class Mesh {
 		nbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
 			GL15.glBufferData(bufferType, normBuffer, GL15.GL_STATIC_DRAW);
 			// shader stuff
-			GL20.glVertexAttribPointer(3, 3, GL11.GL_DOUBLE, false, 0, 0);
+			GL20.glVertexAttribPointer(2, 3, GL11.GL_DOUBLE, false, 0, 0);
 		});
 
 		IntBuffer indicesBuffer = createIntBufferAndPutData(indices.length, indices);
-		ibo = writeDataToBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, bufferType -> GL15.glBufferData(bufferType, indicesBuffer, GL15.GL_STATIC_DRAW));
+		ibo = writeDataToBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, bufferType -> {
+			GL15.glBufferData(bufferType, indicesBuffer, GL15.GL_STATIC_DRAW);
+		});
 
 	}
 

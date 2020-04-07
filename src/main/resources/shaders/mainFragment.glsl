@@ -88,7 +88,7 @@ vec4 calcLightColour(vec3 vertexPosition, vec3 vertexNormal, float lightIntensit
 }
 
 vec4 calcPointLight(vec3 vertexPosition, vec3 vertexNormal, PointLight pointLight) {
-    vec3 toLight = pointLight.position - passVertexNormal;
+    vec3 toLight = pointLight.position - vertexPosition;
     vec3 toLightDir = normalize(toLight);
 
     // attenuation
@@ -104,7 +104,7 @@ vec4 calcPointLight(vec3 vertexPosition, vec3 vertexNormal, PointLight pointLigh
 vec4 calcSpotLight(vec3 vertexPosition, vec3 vertexNormal, SpotLight spotLight) {
 
     // can cone see object
-    vec3 toLight = spotLight.pointLight.position - passVertexNormal;
+    vec3 toLight = spotLight.pointLight.position - vertexPosition;
     vec3 toLightDir = normalize(toLight);
     vec3 fromLigthDir = -toLightDir;
     float spot_alpha = dot(fromLigthDir, normalize(spotLight.coneDirection));

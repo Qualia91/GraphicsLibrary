@@ -31,24 +31,33 @@ public class Renderer {
 		this.projectionMatrix = window.getProjectionMatrix();
 
 		// todo this obs needs to go somewhere else
-		this.pointLights.add(new PointLight(
-				new Vec3d(0.0, 1.0, 0.0),
-				new Vec3d(0.0, 0.0, -10),
-				1f));
+		//this.pointLights.add(new PointLight(
+		//		new Vec3d(0.0, 1.0, 0.0),
+		//		new Vec3d(0.0, 0.0, -10),
+		//		1f));
+		//this.directionalLights.add(new DirectionalLight(
+		//		new Vec3d(0.0, 0.0, 1.0),
+		//		new Vec3d(0.0, 0.0, 10.0),
+		//		1f));
+		//this.spotLights.add(new SpotLight(
+		//		new PointLight(
+		//				new Vec3d(1.0, 0.0, 0.0),
+		//				new Vec3d(0.0, -10.0, 0.0),
+		//				100f),
+		//		Vec3f.Y,
+		//		0.01f
+		//));
+		for (int i = 0; i < 4; i++) {
+			this.spotLights.add(new SpotLight(
+					new PointLight(
+							new Vec3d(1.0, 0.0, 0.0),
+							new Vec3d(0.0, -10.0, 0.0),
+							10000f),
+					Vec3f.Y.add(Vec3f.X.scale(i)).add(Vec3f.Z.scale(i)).normalise(),
+					0.01f
+			));
+		}
 
-		this.directionalLights.add(new DirectionalLight(
-				new Vec3d(0.0, 0.0, 1.0),
-				new Vec3d(0.0, 0.0, 10.0),
-				1f));
-
-		this.spotLights.add(new SpotLight(
-				new PointLight(
-						new Vec3d(1.0, 0.0, 0.0),
-						new Vec3d(0.0, -10.0, 0.0),
-						10f),
-				Vec3f.Y,
-				0.05f
-		));
 
 		this.worldRotation = Matrix4d.Rotation(-90.0, Vec3d.X);
 		// todo need matrix inverse function
@@ -56,6 +65,7 @@ public class Renderer {
 	}
 
 	public void renderMesh(GameObject gameObject, Camera camera) {
+
 
 		for (MeshObject meshObject : gameObject.getMeshGroup().getMeshObjectArray()) {
 
@@ -84,7 +94,7 @@ public class Renderer {
 			shader.setUniform("view", camera.getView());
 			shader.setUniform("ambientLight", new Vec3d(0.1, 0.1, 0.1));
 			shader.setUniform("specularPower", 0.5f);
-			shader.setUniform("cameraPos", worldRotationLight.multiply(camera.getPos()));
+			shader.setUniform("cameraPos", camera.getPos());
 
 			shader.setUniform("material.diffuse", meshObject.getMesh().getMaterial().getDiffuseColour());
 			shader.setUniform("material.specular", meshObject.getMesh().getMaterial().getSpecularColour());
@@ -116,13 +126,13 @@ public class Renderer {
 
 	private void createSpotLight(SpotLight spotLight, int index) {
 		createPointLight("spotLights[" + index + "].", spotLight.getPointLight(), -1);
-		shader.setUniform("spotLights[" + index + "].coneDirection", this.worldRotationLight.multiply(spotLight.getConeDirection().toVec3d()).toVec3f());
+		shader.setUniform("spotLights[" + index + "].coneDirection", spotLight.getConeDirection().toVec3d());
 		shader.setUniform("spotLights[" + index + "].coneAngleCosine", (float) Math.cos(spotLight.getConeAngle()));
 	}
 
 	private void createDirectionalLight(DirectionalLight directionalLight, int index) {
 		shader.setUniform("directionalLights[" + index + "].colour", directionalLight.getColour());
-		shader.setUniform("directionalLights[" + index + "].direction", worldRotationLight.multiply(directionalLight.getDirection()));
+		shader.setUniform("directionalLights[" + index + "].direction", directionalLight.getDirection());
 		shader.setUniform("directionalLights[" + index + "].intensity",directionalLight.getIntensity());
 	}
 
@@ -132,7 +142,7 @@ public class Renderer {
 			indexAddition = "s[" + index + "]";
 		}
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".colour", pointLight.getColour());
-		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".position", worldRotationLight.multiply(pointLight.getPosition()));
+		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".position", pointLight.getPosition());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".intensity", (float) pointLight.getIntensity());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.constant", pointLight.getAttenuation().getConstant());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.linear", pointLight.getAttenuation().getLinear());

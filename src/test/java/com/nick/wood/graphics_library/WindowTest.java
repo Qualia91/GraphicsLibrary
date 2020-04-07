@@ -15,28 +15,123 @@ import java.util.UUID;
 class WindowTest {
 
 	@Test
-	public void test() {
+	public void testWall() {
 
 		HashMap<UUID, GameObject> gameObjects = new HashMap<>();
 
 		MeshGroup meshGroup = new MeshGroup();
 		meshGroup.getMeshObjectArray().add(new ModelMesh(
-					new Transform(
-							new Vec3d(0.0, 0.0, 0.0),
-					Vec3d.ONE,
-					Matrix4d.Identity),
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
+				new Transform(
+						new Vec3d(0.0, 10.0, 0.0),
+						Vec3d.ONE,
+						Matrix4d.Identity),
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
 				"/textures/white.png"
 		));
 
+
+
 		gameObjects.put(UUID.randomUUID(), new GameObject(
-				Vec3d.X,
+				Vec3d.ZERO,
+				Matrix4d.Identity,
+				new Vec3d(100.0, 1, 100),
+				meshGroup,
+				false
+		));
+
+
+		Window window = new Window(
+				900,
+				600,
+				"",
+				gameObjects,
+				new Inputs());
+
+		window.init();
+
+		while (!window.shouldClose()) {
+
+			window.loop();
+
+		}
+
+		window.destroy();
+
+	}
+
+	@Test
+	public void testSpheresInMeshGroup() {
+
+		HashMap<UUID, GameObject> gameObjects = new HashMap<>();
+
+		MeshGroup meshGroup = new MeshGroup();
+		for (int i = 0; i < 40; i+=4) {
+			meshGroup.getMeshObjectArray().add(new ModelMesh(
+					new Transform(
+							new Vec3d(i, 0.0, 0.0),
+							Vec3d.ONE,
+							Matrix4d.Identity),
+					"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
+					"/textures/white.png"
+			));
+		}
+
+
+
+		gameObjects.put(UUID.randomUUID(), new GameObject(
+				Vec3d.ZERO,
 				Matrix4d.Identity,
 				Vec3d.ONE,
 				meshGroup,
 				false
 		));
 
+
+		Window window = new Window(
+				900,
+				600,
+				"",
+				gameObjects,
+				new Inputs());
+
+		window.init();
+
+		while (!window.shouldClose()) {
+
+			window.loop();
+
+		}
+
+		window.destroy();
+
+	}
+
+	@Test
+	public void testSpheresInGameObjectsGroup() {
+
+		HashMap<UUID, GameObject> gameObjects = new HashMap<>();
+
+		MeshGroup meshGroup = new MeshGroup();
+		meshGroup.getMeshObjectArray().add(new ModelMesh(
+				new Transform(
+						new Vec3d(0.0, 0.0, 0.0),
+						Vec3d.ONE,
+						Matrix4d.Identity),
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
+				"/textures/white.png"
+		));
+
+
+
+		for (int i = 0; i < 40; i+=4) {
+			gameObjects.put(UUID.randomUUID(), new GameObject(
+					new Vec3d(i, 0.0, 0.0),
+					Matrix4d.Identity,
+					Vec3d.ONE,
+					meshGroup,
+					false
+			));
+		}
 
 		Window window = new Window(
 				900,

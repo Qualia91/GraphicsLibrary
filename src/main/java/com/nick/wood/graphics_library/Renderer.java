@@ -1,10 +1,11 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.game_objects.GameObject;
+import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.graphics_library.lighting.DirectionalLight;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
-import com.nick.wood.graphics_library.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 import com.nick.wood.maths.objects.Vec3f;

@@ -1,14 +1,14 @@
-package com.nick.wood.graphics_library.mesh_objects;
+package com.nick.wood.graphics_library.objects;
 
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 
-public class MeshTransform {
+public class Transform {
 
 	private Vec3d position, scale;
 	private Matrix4d rotation;
 
-	public MeshTransform(Vec3d position, Vec3d scale, Matrix4d rotation) {
+	public Transform(Vec3d position, Vec3d scale, Matrix4d rotation) {
 		this.position = position;
 		this.scale = scale;
 		this.rotation = rotation;

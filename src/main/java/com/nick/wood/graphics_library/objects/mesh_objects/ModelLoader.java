@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library.mesh_objects;
+package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Mesh;
@@ -37,7 +37,7 @@ public class ModelLoader {
 				AIVector3D textCoordAI = aiMesh.mTextureCoords(0).get(i);
 				texCoord = new Vec2f(textCoordAI.x(), textCoordAI.y());
 			}
-			vertexArray[i] = new Vertex(vertexVec, Vec3d.X, texCoord, normalVec);
+			vertexArray[i] = new Vertex(vertexVec, texCoord, normalVec);
 
 		}
 

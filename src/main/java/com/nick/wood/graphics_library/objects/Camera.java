@@ -1,6 +1,6 @@
-package com.nick.wood.graphics_library;
+package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.graphics_library.game_objects.GameObject;
+import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 

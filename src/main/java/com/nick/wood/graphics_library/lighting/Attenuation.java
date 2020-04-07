@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library;
+package com.nick.wood.graphics_library.lighting;
 
 public class Attenuation {
 

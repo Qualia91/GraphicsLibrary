@@ -1,10 +1,10 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.game_objects.GameObject;
+import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -15,7 +15,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.UUID;

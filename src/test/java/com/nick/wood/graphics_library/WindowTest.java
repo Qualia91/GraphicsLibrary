@@ -1,10 +1,10 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.game_objects.GameObject;
+import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.graphics_library.input.Inputs;
-import com.nick.wood.graphics_library.mesh_objects.MeshGroup;
-import com.nick.wood.graphics_library.mesh_objects.MeshTransform;
-import com.nick.wood.graphics_library.mesh_objects.ModelMesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.objects.Transform;
+import com.nick.wood.graphics_library.objects.mesh_objects.ModelMesh;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ class WindowTest {
 
 		MeshGroup meshGroup = new MeshGroup();
 		meshGroup.getMeshObjectArray().add(new ModelMesh(
-					new MeshTransform(
+					new Transform(
 							new Vec3d(0.0, 0.0, 0.0),
 					Vec3d.ONE,
 					Matrix4d.Identity),

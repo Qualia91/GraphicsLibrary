@@ -1,6 +1,5 @@
 package com.nick.wood.graphics_library.lighting;
 
-import com.nick.wood.graphics_library.Attenuation;
 import com.nick.wood.maths.objects.Vec3d;
 
 public class PointLight {

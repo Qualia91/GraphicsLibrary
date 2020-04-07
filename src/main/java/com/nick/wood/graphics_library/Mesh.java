@@ -1,7 +1,5 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.Material;
-import com.nick.wood.graphics_library.Vertex;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
@@ -19,7 +17,7 @@ public class Mesh {
 	private Vertex[] vertices;
 	private int[] indices;
 	private Material material;
-	private int vao, pbo, ibo, cbo, tbo, nbo;
+	private int vao, pbo, ibo, tbo, nbo;
 
 	public Mesh(Vertex[] vertices, int[] indices, Material material) {
 		this.vertices = vertices;
@@ -74,7 +72,6 @@ public class Mesh {
 		material.destroy();
 		GL15.glDeleteBuffers(nbo);
 		GL15.glDeleteBuffers(pbo);
-		GL15.glDeleteBuffers(cbo);
 		GL15.glDeleteBuffers(ibo);
 		GL30.glDeleteTextures(tbo);
 		GL30.glDeleteVertexArrays(vao);
@@ -135,10 +132,6 @@ public class Mesh {
 
 	public int getIbo() {
 		return ibo;
-	}
-
-	public int getCbo() {
-		return cbo;
 	}
 
 	public int getTbo() {

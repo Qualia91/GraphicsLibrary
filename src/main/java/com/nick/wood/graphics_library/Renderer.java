@@ -26,10 +26,6 @@ public class Renderer {
 	public Renderer(Window window) {
 		this.shader = window.getShader();
 		this.projectionMatrix = window.getProjectionMatrix();
-		//new Vec3d(-90.0, 180.0, 90.0)
-		//this.worldRotation = Matrix4d.Rotation(90.0, Vec3d.Z)
-		//		.multiply(Matrix4d.Rotation(180.0, Vec3d.Y))
-		//		.multiply(Matrix4d.Rotation(-90.0, Vec3d.X));
 	}
 
 

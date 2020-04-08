@@ -33,7 +33,7 @@ class WindowTest {
 				Matrix4d.Identity
 				//Matrix4d.Rotation(90, Vec3d.X)
 				//Matrix4d.Rotation(90, Vec3d.Y)
-				//.multiply(Matrix4d.Rotation(90, Vec3d.Z))
+				//Matrix4d.Rotation(90, Vec3d.Z)
 		);
 
 		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
@@ -88,7 +88,7 @@ class WindowTest {
 		createLight(spotLight, wholeSceneTransform, new Vec3d(0.0, -10.0, 0.0), Vec3d.ONE.scale(0.5), Matrix4d.Rotation(0.0, Vec3d.Y), meshGroupLight);
 		createLight(directionalLight, wholeSceneTransform, new Vec3d(0.0, -10.0, 0), Vec3d.ONE.scale(0.5), Matrix4d.Identity, meshGroupLight);
 
-		Camera camera = new Camera(new Vec3d(-5, 0.0, 0.0), new Vec3d(-90.0, 180.0, 90.0), 0.5, 0.1);
+		Camera camera = new Camera(new Vec3d(0.0, 0.0, 10.0), new Vec3d(0.0, 0.0, 0.0), 0.5, 0.1);
 
 		CameraGameObject cameraGameObject = new CameraGameObject(wholeSceneTransform, camera, CameraType.PRIMARY);
 

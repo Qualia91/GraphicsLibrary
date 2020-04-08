@@ -4,6 +4,10 @@ import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 
 public class Camera {
+
+	// this is to get world in sensible coordinate system to start with
+	private final static Vec3d startingCameraRotation = new Vec3d(-90.0, 180.0, 90.0);
+
 	private final Vec3d initialRot;
 	private Vec3d pos;
 	private Vec3d rot;
@@ -14,6 +18,7 @@ public class Camera {
 	private double y;
 
 	public Camera(Vec3d pos, Vec3d rot, double moveSpeed, double sensitivity) {
+		rot = rot.add(startingCameraRotation);
 		this.initialRot = rot;
 		this.pos = pos;
 		this.rot = rot;
@@ -76,11 +81,33 @@ public class Camera {
 	}
 
 	public void rotate(double dx, double dy) {
-		rot = rot.add(new Vec3d(-dy*sensitivity, 0.0,-dx*sensitivity));
+		double newX = rot.getX()-dy*sensitivity;
+		double newZ = rot.getZ()-dx*sensitivity;
+
+		rot = makeSensible(newX, rot.getY(), newZ);
+
+		System.out.println(rot);
 
 		this.x = Math.cos(Math.toRadians(rot.getZ())) * moveSpeed;
 		this.y = Math.sin(Math.toRadians(rot.getZ())) * moveSpeed;
 		this.z = Math.cos(Math.toRadians(rot.getX())) * moveSpeed;
+	}
+
+	private Vec3d makeSensible(double x, double y, double z) {
+		// to keep z rotation between 0 - 360
+		if (z >= 360) {
+			z -= 360;
+		} else if (z < 0) {
+			z += 360;
+		}
+		// to stop flipping over onto head
+		if (x > 0) {
+			x = 0;
+		}
+		if (x < -180) {
+			x = -180;
+		}
+		return new Vec3d(x, y, z);
 	}
 
 	public Matrix4d getView() {

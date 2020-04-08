@@ -46,6 +46,7 @@ public class Material {
 	}
 
 	public void destroy() {
+		texture.destroy();
 		GL13.glDeleteTextures(textureId);
 	}
 

@@ -28,7 +28,7 @@ public class Renderer {
 	public Renderer(Window window) {
 		this.shader = window.getShader();
 		this.projectionMatrix = window.getProjectionMatrix();
-		this.worldRotation = Matrix4d.Rotation(0.0, Vec3d.Y);
+		this.worldRotation = Matrix4d.Rotation(-90.0, Vec3d.X);
 	}
 
 
@@ -68,7 +68,7 @@ public class Renderer {
 
 						shader.bind();
 
-						shader.setUniform("model", meshGroupTransform);
+						shader.setUniform("model", worldRotation.multiply(meshGroupTransform));
 						shader.setUniform("projection", projectionMatrix);
 						shader.setUniform("view", camera.getView());
 						shader.setUniform("ambientLight", new Vec3d(0.1, 0.1, 0.1));

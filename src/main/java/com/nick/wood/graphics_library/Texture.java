@@ -136,4 +136,8 @@ public class Texture {
 	public int getId() {
 		return id;
 	}
+
+	public void destroy() {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }

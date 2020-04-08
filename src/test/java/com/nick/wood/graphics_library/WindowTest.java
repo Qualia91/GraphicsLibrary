@@ -28,31 +28,32 @@ class WindowTest {
 		RootGameObject rootGameObject = new RootGameObject();
 
 		Transform transform = new Transform(
-				Vec3d.X.scale(10).add(Vec3d.Y.scale(10)).add(Vec3d.Z.scale(10)),
+				Vec3d.X.scale(0),
 				Vec3d.ONE,
 				//Matrix4d.Identity
 				Matrix4d.Rotation(90, Vec3d.X)
-				.multiply(Matrix4d.Rotation(90, Vec3d.Y))
-				.multiply(Matrix4d.Rotation(90, Vec3d.Z))
+				//.multiply(Matrix4d.Rotation(90, Vec3d.Y))
+				//.multiply(Matrix4d.Rotation(90, Vec3d.Z))
 		);
 
-		Transform transform2 = new Transform(
-				Vec3d.X.scale(10).add(Vec3d.Y.scale(10)).add(Vec3d.Z.scale(10)),
-				Vec3d.ONE,
-				//Matrix4d.Identity
-				Matrix4d.Rotation(90, Vec3d.X)
-						.multiply(Matrix4d.Rotation(90, Vec3d.Y))
-						.multiply(Matrix4d.Rotation(90, Vec3d.Z))
-		);
-
-		TransformGameObject wholeSceneTransform2 = new TransformGameObject(rootGameObject, transform2);
-		TransformGameObject wholeSceneTransform = new TransformGameObject(wholeSceneTransform2, transform);
+		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
 
 		MeshGroup meshGroup = new MeshGroup();
 		meshGroup.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
 				"/textures/white.png"
 		));
+
+		Transform transformMesh = new Transform(
+				Vec3d.Z.scale(-2),
+				Vec3d.ONE,
+				Matrix4d.Identity
+				//Matrix4d.Rotation(90, Vec3d.X)
+				//.multiply(Matrix4d.Rotation(90, Vec3d.Y))
+				//.multiply(Matrix4d.Rotation(90, Vec3d.Z))
+		);
+
+		TransformGameObject meshTransform = new TransformGameObject(wholeSceneTransform, transformMesh);
 
 		MeshGroup meshGroupLight = new MeshGroup();
 		meshGroupLight.getMeshObjectArray().add(new ModelMesh(
@@ -61,7 +62,7 @@ class WindowTest {
 		));
 
 		MeshGameObject meshGameObject = new MeshGameObject(
-				wholeSceneTransform,
+				meshTransform,
 				meshGroup
 		);
 
@@ -91,8 +92,8 @@ class WindowTest {
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
 		Window window = new Window(
-				900,
-				600,
+				1200,
+				800,
 				"",
 				gameObjects,
 				new Inputs());

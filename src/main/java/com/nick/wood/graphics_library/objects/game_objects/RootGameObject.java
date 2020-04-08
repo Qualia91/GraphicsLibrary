@@ -6,7 +6,7 @@ public class RootGameObject implements GameObjectNode {
 
 	public RootGameObject() {
 
-		this.gameObjectNodeData = new GameObjectNodeData(null, GameObjectType.MESH, this);
+		this.gameObjectNodeData = new GameObjectNodeData(null, GameObjectType.ROOT, this);
 	}
 
 	@Override

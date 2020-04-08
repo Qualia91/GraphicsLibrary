@@ -6,7 +6,7 @@ public class PlayerGameObject implements GameObjectNode {
 
 	public PlayerGameObject(GameObjectNode parent) {
 
-		this.gameObjectNodeData = new GameObjectNodeData(parent, GameObjectType.MESH, this);
+		this.gameObjectNodeData = new GameObjectNodeData(parent, GameObjectType.PLAYER, this);
 	}
 
 	@Override

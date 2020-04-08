@@ -7,8 +7,8 @@ public class TransformGameObject implements GameObjectNode {
 	private final GameObjectNodeData gameObjectNodeData;
 	private final Transform transform;
 
-	public TransformGameObject(GameObjectNodeData gameObjectNodeData, Transform transform) {
-		this.gameObjectNodeData = gameObjectNodeData;
+	public TransformGameObject(GameObjectNode parent, Transform transform) {
+		this.gameObjectNodeData = new GameObjectNodeData(parent, GameObjectType.TRANSFORM, this);
 		this.transform = transform;
 	}
 

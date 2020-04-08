@@ -85,10 +85,12 @@ public class Camera {
 
 	public Matrix4d getView() {
 
+		// todo this needs re-implementing
 		// get game object to world transformation
 		//if (gameObject != null) {
-		//	Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition().neg(), gameObject.getRotation().transpose(), Vec3d.ONE);
+		//	Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition(), gameObject.getRotation(), Vec3d.ONE);
 		//	return transform.multiply(Matrix4d.View(pos, rot));
+		//}
 
 		return Matrix4d.View(pos, rot);
 	}

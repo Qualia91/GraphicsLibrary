@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshGroup;
@@ -290,9 +291,7 @@ public class Window {
 			walkSceneTree(lights, meshes, cameras, rootGameObject, Matrix4d.Identity);
 		}
 
-		for (Map.Entry<MeshGroup, ArrayList<Matrix4d>> meshGroupArrayListEntry : meshes.entrySet()) {
-			renderer.renderMesh(meshGroupArrayListEntry, cameras, lights);
-		}
+		renderer.renderMesh(meshes, cameras, lights);
 
 		glfwSwapBuffers(window); // swap the color buffers
 
@@ -309,8 +308,8 @@ public class Window {
 
 					case TRANSFORM:
 						TransformGameObject transformGameObject = (TransformGameObject) child;
-						transformationSoFar = transformationSoFar.multiply(transformGameObject.getTransform().getTransform());
-						walkSceneTree(lights, meshes, cameras, transformGameObject, Matrix4d.Identity);
+						Matrix4d newTransformationSoFar = transformGameObject.getTransform().getTransform().multiply(transformationSoFar);
+						walkSceneTree(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
 						break;
 					case LIGHT:
 						LightGameObject lightGameObject = (LightGameObject) child;

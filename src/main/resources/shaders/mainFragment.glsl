@@ -124,7 +124,7 @@ vec4 calcSpotLight(vec3 vertexPosition, vec3 vertexNormal, SpotLight spotLight) 
 }
 
 vec4 calcDirectionalLight(vec3 vertexPosition, vec3 vertexNormal, DirectionalLight directionalLight) {
-    vec3 toLight = directionalLight.direction;
+    vec3 toLight = -directionalLight.direction;
     vec3 toLightDir = normalize(toLight);
 
     float intensity = directionalLight.intensity;

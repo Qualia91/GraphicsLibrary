@@ -21,7 +21,7 @@ import java.util.UUID;
 class WindowTest {
 
 	@Test
-	public void testDragon() {
+	public void test() {
 
 		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
 
@@ -30,9 +30,9 @@ class WindowTest {
 		Transform transform = new Transform(
 				Vec3d.X.scale(0),
 				Vec3d.ONE,
-				//Matrix4d.Identity
-				Matrix4d.Rotation(90, Vec3d.X)
-				//.multiply(Matrix4d.Rotation(90, Vec3d.Y))
+				Matrix4d.Identity
+				//Matrix4d.Rotation(90, Vec3d.X)
+				//Matrix4d.Rotation(90, Vec3d.Y)
 				//.multiply(Matrix4d.Rotation(90, Vec3d.Z))
 		);
 
@@ -41,9 +41,9 @@ class WindowTest {
 		MeshGroup meshGroup = new MeshGroup();
 		meshGroup.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
-				"/textures/white.png"
+				"/textures/white.png",
+				Matrix4d.Rotation(-90, Vec3d.X)
 		));
-
 		Transform transformMesh = new Transform(
 				Vec3d.Z.scale(-2),
 				Vec3d.ONE,
@@ -52,25 +52,28 @@ class WindowTest {
 				//.multiply(Matrix4d.Rotation(90, Vec3d.Y))
 				//.multiply(Matrix4d.Rotation(90, Vec3d.Z))
 		);
-
 		TransformGameObject meshTransform = new TransformGameObject(wholeSceneTransform, transformMesh);
-
-		MeshGroup meshGroupLight = new MeshGroup();
-		meshGroupLight.getMeshObjectArray().add(new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
-				"/textures/white.png"
-		));
-
 		MeshGameObject meshGameObject = new MeshGameObject(
 				meshTransform,
 				meshGroup
 		);
 
+		createAxis(wholeSceneTransform);
+
+		MeshGroup meshGroupLight = new MeshGroup();
+		meshGroupLight.getMeshObjectArray().add(new ModelMesh(
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
+				"/textures/white.png",
+				Matrix4d.Rotation(-90, Vec3d.X)
+		));
+
+
+
 		PointLight pointLight = new PointLight(
 				new Vec3d(0.0, 1.0, 0.0),
 				10f);
 		DirectionalLight directionalLight = new DirectionalLight(
-				new Vec3d(0.0, 0.0, 1.0),
+				new Vec3d(1.0, 1.0, 1.0),
 				new Vec3d(0.0, 0.0, -1.0),
 				1f);
 		SpotLight spotLight = new SpotLight(
@@ -108,6 +111,62 @@ class WindowTest {
 
 		window.destroy();
 
+	}
+
+	private void createAxis(TransformGameObject wholeSceneTransform) {
+		MeshGroup meshGroupX = new MeshGroup();
+		meshGroupX.getMeshObjectArray().add(new ModelMesh(
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
+				"/textures/red.png",
+				Matrix4d.Rotation(-90, Vec3d.X)
+		));
+
+		Transform transformMeshX = new Transform(
+				Vec3d.X.scale(5),
+				Vec3d.ONE.scale(0.1).add(Vec3d.X.scale(10)),
+				Matrix4d.Identity
+		);
+		TransformGameObject meshTransformX = new TransformGameObject(wholeSceneTransform, transformMeshX);
+		MeshGameObject meshGameObjectX = new MeshGameObject(
+				meshTransformX,
+				meshGroupX
+		);
+
+		MeshGroup meshGroupY = new MeshGroup();
+		meshGroupY.getMeshObjectArray().add(new ModelMesh(
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
+				"/textures/green.png",
+				Matrix4d.Rotation(-90, Vec3d.X)
+		));
+
+		Transform transformMeshY = new Transform(
+				Vec3d.Y.scale(5),
+				Vec3d.ONE.scale(0.1).add(Vec3d.Y.scale(10)),
+				Matrix4d.Identity
+		);
+		TransformGameObject meshTransformY = new TransformGameObject(wholeSceneTransform, transformMeshY);
+		MeshGameObject meshGameObjectY = new MeshGameObject(
+				meshTransformY,
+				meshGroupY
+		);
+
+		MeshGroup meshGroupZ = new MeshGroup();
+		meshGroupZ.getMeshObjectArray().add(new ModelMesh(
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
+				"/textures/blue.png",
+				Matrix4d.Rotation(-90, Vec3d.X)
+		));
+
+		Transform transformMeshZ = new Transform(
+				Vec3d.Z.scale(5),
+				Vec3d.ONE.scale(0.1).add(Vec3d.Z.scale(10)),
+				Matrix4d.Identity
+		);
+		TransformGameObject meshTransformZ = new TransformGameObject(wholeSceneTransform, transformMeshZ);
+		MeshGameObject meshGameObjectZ = new MeshGameObject(
+				meshTransformZ,
+				meshGroupZ
+		);
 	}
 
 	private void createLight(Light light, GameObjectNode parent, Vec3d position, Vec3d scale, Matrix4d rotation, MeshGroup meshGroup) {

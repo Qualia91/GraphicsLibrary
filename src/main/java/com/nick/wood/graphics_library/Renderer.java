@@ -2,7 +2,6 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.graphics_library.lighting.DirectionalLight;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
@@ -23,12 +22,14 @@ public class Renderer {
 
 	private final Shader shader;
 	private final Matrix4d projectionMatrix;
-	private final Matrix4d worldRotation;
 
 	public Renderer(Window window) {
 		this.shader = window.getShader();
 		this.projectionMatrix = window.getProjectionMatrix();
-		this.worldRotation = Matrix4d.Rotation(-90.0, Vec3d.X);
+		//new Vec3d(-90.0, 180.0, 90.0)
+		//this.worldRotation = Matrix4d.Rotation(90.0, Vec3d.Z)
+		//		.multiply(Matrix4d.Rotation(180.0, Vec3d.Y))
+		//		.multiply(Matrix4d.Rotation(-90.0, Vec3d.X));
 	}
 
 
@@ -68,7 +69,7 @@ public class Renderer {
 
 						shader.bind();
 
-						shader.setUniform("model", worldRotation.multiply(meshGroupTransform));
+						shader.setUniform("model", meshObject.getRotationOfModel().multiply(meshGroupTransform));
 						shader.setUniform("projection", projectionMatrix);
 						shader.setUniform("view", camera.getView());
 						shader.setUniform("ambientLight", new Vec3d(0.1, 0.1, 0.1));
@@ -89,8 +90,6 @@ public class Renderer {
 							Light light = lightArrayListEntry.getKey();
 
 							for (Matrix4d lightTransformation : lightArrayListEntry.getValue()) {
-
-								//lightTransformation = lightTransformation.multiply(worldRotation);
 
 								switch (light.getType()) {
 									case POINT:

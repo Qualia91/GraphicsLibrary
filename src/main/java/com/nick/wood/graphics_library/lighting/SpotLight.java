@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library.lighting;
 
 import com.nick.wood.maths.objects.Vec3f;
 
-public class SpotLight {
+public class SpotLight implements Light {
 
 	private PointLight pointLight;
 	private Vec3f coneDirection;
@@ -36,5 +36,10 @@ public class SpotLight {
 
 	public void setConeAngle(float coneAngle) {
 		this.coneAngle = coneAngle;
+	}
+
+	@Override
+	public LightType getType() {
+		return LightType.SPOT;
 	}
 }

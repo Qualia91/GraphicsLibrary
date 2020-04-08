@@ -1,9 +1,13 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.game_objects.GameObject;
+import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.input.Inputs;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Quaternion;
 import com.nick.wood.maths.objects.Vec3d;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -15,9 +19,13 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.MemoryStack;
 
+import java.lang.reflect.Array;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -29,7 +37,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
 	private final Inputs input;
-	private final Camera camera;
+	private Camera camera;
 	// The window handle
 	private long window;
 	private int WIDTH;
@@ -45,30 +53,44 @@ public class Window {
 
 	private boolean windowSizeChanged = false;
 
-	HashMap<UUID, GameObject> gameObjects;
+	HashMap<UUID, RootGameObject> gameObjects;
 	UUID playerObjectUUID;
 
-	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, GameObject> gameObjects, Inputs input) {
+	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootGameObject> gameRootObjects, Inputs input) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.camera = new Camera(new Vec3d(-5, 0.0, 0.0),  new Vec3d(-90.0, 180.0, 90.0), 0.5, 0.1);
 
-		gameObjects.forEach(
-				(uuid, gameObject) -> {
-					if (gameObject.isPlayer()) {
-						this.camera.attachGameObject(gameObject);
-						playerObjectUUID = uuid;
-					}
-				}
+
+		gameRootObjects.forEach(
+			(uuid, gameRootObject) -> {
+				this.camera = getPrimaryCamera(gameRootObject, null);
+			}
 		);
 
 		this.input = input;
 
-		this.projectionMatrix = Matrix4d.Projection((double)WIDTH/(double)HEIGHT, Math.toRadians(70.0), 0.001, 1000);
+		this.projectionMatrix = Matrix4d.Projection((double) WIDTH / (double) HEIGHT, Math.toRadians(70.0), 0.001, 1000);
 
-		this.gameObjects = gameObjects;
+		this.gameObjects = gameRootObjects;
+	}
+
+	private Camera getPrimaryCamera(GameObjectNode gameObjectNode, Camera camera) {
+		for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
+			if (child instanceof CameraGameObject) {
+				CameraGameObject cameraGameObject = (CameraGameObject) child;
+				if (cameraGameObject.getCameraType() == CameraType.PRIMARY) {
+					return cameraGameObject.getCamera();
+				}
+			} else {
+				Camera newCamera = getPrimaryCamera(child, camera);
+				if (newCamera != null) {
+					return newCamera;
+				}
+			}
+		}
+		return camera;
 	}
 
 	public boolean shouldClose() {
@@ -83,13 +105,27 @@ public class Window {
 
 		shader.destroy();
 
-		for (GameObject gameObject : gameObjects.values()) {
-			gameObject.getMeshGroup().getMeshObjectArray().forEach(meshObject -> meshObject.getMesh().destroy());
+		for (GameObjectNode gameObjectNode : gameObjects.values()) {
+			actOneMeshesMeshes(gameObjectNode, Mesh::destroy);
 		}
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
+	}
+
+	private void actOneMeshesMeshes(GameObjectNode gameObjectNode, Consumer<Mesh> meshFunction) {
+		if (gameObjectNode instanceof MeshGameObject) {
+			MeshGameObject meshGameObject = (MeshGameObject) gameObjectNode;
+			for (MeshObject meshObject : meshGameObject.getMeshGroup().getMeshObjectArray()) {
+				meshFunction.accept(meshObject.getMesh());
+			}
+		}
+		if (gameObjectNode.getGameObjectNodeData().containsMeshes()) {
+			for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
+				actOneMeshesMeshes(child, meshFunction);
+			}
+		}
 	}
 
 	public void init() {
@@ -105,7 +141,7 @@ public class Window {
 		GLFWErrorCallback.createPrint(System.err).set();
 
 		// Initialize GLFW. Most GLFW functions will not work before doing this.
-		if ( !glfwInit() )
+		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");
 
 		// Configure GLFW
@@ -115,13 +151,13 @@ public class Window {
 
 		// Create the window
 		window = glfwCreateWindow(WIDTH, HEIGHT, title, NULL, NULL);
-		if ( window == NULL )
+		if (window == NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 
 		createCallbacks();
 
 		// Get the thread stack and push a new frame
-		try ( MemoryStack stack = stackPush() ) {
+		try (MemoryStack stack = stackPush()) {
 			IntBuffer pWidth = stack.mallocInt(1); // int*
 			IntBuffer pHeight = stack.mallocInt(1); // int*
 
@@ -164,8 +200,8 @@ public class Window {
 		// this locks cursor to center so can always look about
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		for (GameObject gameObject : gameObjects.values()) {
-			gameObject.getMeshGroup().getMeshObjectArray().forEach(meshObject -> meshObject.getMesh().create());
+		for (GameObjectNode gameObjectNode : gameObjects.values()) {
+			actOneMeshesMeshes(gameObjectNode, Mesh::create);
 		}
 
 		shader.create();
@@ -242,12 +278,87 @@ public class Window {
 		// invoked during this call.
 		glfwPollEvents();
 
-		for (GameObject gameObject : gameObjects.values()) {
-			renderer.renderMesh(gameObject, camera);
+		// todo this will be inefficient. could improve by using ids for everything and having render lists only update data
+		// if the data in teh scene tree has been updated
+		// todo could only load thing that will be viewable by the camera
+		// get all lights, meshes and cameras in the scene in arrays to pass to renderer.
+		HashMap<Light, ArrayList<Matrix4d>> lights = new HashMap<>();
+		HashMap<MeshGroup, ArrayList<Matrix4d>> meshes = new HashMap<>();
+		HashMap<Camera, ArrayList<Matrix4d>> cameras = new HashMap<>();
+
+		for (RootGameObject rootGameObject : gameObjects.values()) {
+			walkSceneTree(lights, meshes, cameras, rootGameObject, Matrix4d.Identity);
+		}
+
+		for (Map.Entry<MeshGroup, ArrayList<Matrix4d>> meshGroupArrayListEntry : meshes.entrySet()) {
+			renderer.renderMesh(meshGroupArrayListEntry, cameras, lights);
 		}
 
 		glfwSwapBuffers(window); // swap the color buffers
 
+	}
+
+	private void walkSceneTree(HashMap<Light, ArrayList<Matrix4d>> lights, HashMap<MeshGroup, ArrayList<Matrix4d>> meshes, HashMap<Camera, ArrayList<Matrix4d>> cameras, GameObjectNode gameObjectNode, Matrix4d transformationSoFar) {
+
+
+		if (isAvailableRenderData(gameObjectNode.getGameObjectNodeData())) {
+
+			for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
+
+				switch (child.getGameObjectNodeData().getType()) {
+
+					case TRANSFORM:
+						TransformGameObject transformGameObject = (TransformGameObject) child;
+						transformationSoFar = transformationSoFar.multiply(transformGameObject.getTransform().getTransform());
+						walkSceneTree(lights, meshes, cameras, transformGameObject, Matrix4d.Identity);
+						break;
+					case LIGHT:
+						LightGameObject lightGameObject = (LightGameObject) child;
+						if (lights.containsKey(lightGameObject.getLight())) {
+							lights.get(lightGameObject.getLight()).add(transformationSoFar);
+						} else {
+							ArrayList<Matrix4d> matrix4ds = new ArrayList<>();
+							matrix4ds.add(transformationSoFar);
+							lights.put(lightGameObject.getLight(), matrix4ds);
+						}
+						walkSceneTree(lights, meshes, cameras, lightGameObject, transformationSoFar);
+						break;
+					case MESH:
+						MeshGameObject meshGameObject = (MeshGameObject) child;
+						if (meshes.containsKey(meshGameObject.getMeshGroup())) {
+							meshes.get(meshGameObject.getMeshGroup()).add(transformationSoFar);
+						} else {
+							ArrayList<Matrix4d> matrix4ds = new ArrayList<>();
+							matrix4ds.add(transformationSoFar);
+							meshes.put(meshGameObject.getMeshGroup(), matrix4ds);
+						}
+						walkSceneTree(lights, meshes, cameras, meshGameObject, transformationSoFar);
+						break;
+					case CAMERA:
+						CameraGameObject cameraGameObject = (CameraGameObject) child;
+						if (cameras.containsKey(cameraGameObject.getCamera())) {
+							cameras.get(cameraGameObject.getCamera()).add(transformationSoFar);
+						} else {
+							ArrayList<Matrix4d> matrix4ds = new ArrayList<>();
+							matrix4ds.add(transformationSoFar);
+							cameras.put(cameraGameObject.getCamera(), matrix4ds);
+						}
+						walkSceneTree(lights, meshes, cameras, cameraGameObject, transformationSoFar);
+						break;
+					default:
+						walkSceneTree(lights, meshes, cameras, child, transformationSoFar);
+						break;
+
+				}
+
+			}
+
+		}
+
+	}
+
+	private boolean isAvailableRenderData(GameObjectNodeData gameObjectNodeData) {
+		return gameObjectNodeData.containsMeshes() || gameObjectNodeData.containsCameras() || gameObjectNodeData.containsLights();
 	}
 
 	public void setTitle(String title) {
@@ -264,11 +375,5 @@ public class Window {
 
 	public Shader getShader() {
 		return shader;
-	}
-
-	public void updateDrawables(HashMap<UUID, GameObject> inputGameObject) {
-
-		gameObjects = inputGameObject;
-
 	}
 }

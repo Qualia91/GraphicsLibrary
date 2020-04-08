@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library.lighting;
 
 import com.nick.wood.maths.objects.Vec3d;
 
-public class PointLight {
+public class PointLight implements Light {
 
 	private Vec3d colour;
 	private Vec3d position;
@@ -38,5 +38,10 @@ public class PointLight {
 
 	public void setPosition(Vec3d newPos) {
 		this.position = newPos;
+	}
+
+	@Override
+	public LightType getType() {
+		return LightType.POINT;
 	}
 }

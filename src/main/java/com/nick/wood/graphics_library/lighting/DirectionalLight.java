@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library.lighting;
 
 import com.nick.wood.maths.objects.Vec3d;
 
-public class DirectionalLight {
+public class DirectionalLight implements Light {
 
 	private Vec3d colour;
 	private Vec3d direction;
@@ -36,5 +36,10 @@ public class DirectionalLight {
 
 	public void setIntensity(float intensity) {
 		this.intensity = intensity;
+	}
+
+	@Override
+	public LightType getType() {
+		return LightType.DIRECTIONAL;
 	}
 }

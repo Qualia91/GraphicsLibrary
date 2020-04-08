@@ -1,6 +1,5 @@
 package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 
@@ -14,8 +13,6 @@ public class Camera {
 	private double z;
 	private double y;
 
-	private GameObject gameObject;
-
 	public Camera(Vec3d pos, Vec3d rot, double moveSpeed, double sensitivity) {
 		this.initialRot = rot;
 		this.pos = pos;
@@ -26,10 +23,6 @@ public class Camera {
 
 	public Vec3d getInitialRot() {
 		return initialRot;
-	}
-
-	public void attachGameObject(GameObject gameObject) {
-		this.gameObject = gameObject;
 	}
 
 	public double getMoveSpeed() {
@@ -43,11 +36,7 @@ public class Camera {
 	public Vec3d getPos() {
 
 		// get game object to world transformation
-		if (gameObject != null) {
-			return gameObject.getPosition();
-		} else {
-			return pos;
-		}
+		return pos;
 	}
 
 	public void setPos(Vec3d pos) {
@@ -97,12 +86,10 @@ public class Camera {
 	public Matrix4d getView() {
 
 		// get game object to world transformation
-		if (gameObject != null) {
-			Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition().neg(), gameObject.getRotation().transpose(), Vec3d.ONE);
+		//if (gameObject != null) {
+		//	Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition().neg(), gameObject.getRotation().transpose(), Vec3d.ONE);
+		//	return transform.multiply(Matrix4d.View(pos, rot));
 
-			return transform.multiply(Matrix4d.View(pos, rot));
-		} else {
-			return Matrix4d.View(pos, rot);
-		}
+		return Matrix4d.View(pos, rot);
 	}
 }

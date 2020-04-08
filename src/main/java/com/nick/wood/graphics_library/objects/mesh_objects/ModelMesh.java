@@ -1,22 +1,20 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Mesh;
-import com.nick.wood.graphics_library.objects.Transform;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class ModelMesh implements MeshObject {
 
 	private final String filePath;
 	private final String texturePath;
-	private final Transform transform;
 	private Mesh mesh;
 
-	public ModelMesh(Transform transform, String filePath, String texturePath) {
+	public ModelMesh(String filePath, String texturePath) {
 
 		this.filePath = filePath;
 		this.texturePath = texturePath;
-		this.transform = transform;
 		try {
 			mesh = ModelLoader.loadModel(filePath, texturePath);
 		} catch (IOException e) {
@@ -30,8 +28,16 @@ public class ModelMesh implements MeshObject {
 	}
 
 	@Override
-	public Transform getModelTransform() {
-		return transform;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ModelMesh modelMesh = (ModelMesh) o;
+		return Objects.equals(filePath, modelMesh.filePath) &&
+				Objects.equals(texturePath, modelMesh.texturePath);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(filePath, texturePath);
+	}
 }

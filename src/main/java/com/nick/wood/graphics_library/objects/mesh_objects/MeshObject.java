@@ -5,5 +5,4 @@ import com.nick.wood.graphics_library.objects.Transform;
 
 public interface MeshObject {
 	Mesh getMesh();
-	Transform getModelTransform();
 }

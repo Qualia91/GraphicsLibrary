@@ -13,13 +13,13 @@ public class ModelMesh implements MeshObject {
 	private final Matrix4d rotationOfModel;
 	private Mesh mesh;
 
-	public ModelMesh(String filePath, String texturePath, Matrix4d rotationOfModel) {
+	public ModelMesh(String filePath, String texturePath, Matrix4d rotationOfModel, boolean invertedNormals) {
 
 		this.rotationOfModel = rotationOfModel;
 		this.filePath = filePath;
 		this.texturePath = texturePath;
 		try {
-			mesh = ModelLoader.loadModel(filePath, texturePath);
+			mesh = ModelLoader.loadModel(filePath, texturePath, invertedNormals);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

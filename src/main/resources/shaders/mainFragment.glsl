@@ -1,8 +1,8 @@
 #version 460 core
 
-const int MAX_POINT_LIGHTS = 5;
-const int MAX_SPOT_LIGHTS = 5;
-const int MAX_DIRECTIONAL_LIGHTS = 5;
+const int MAX_POINT_LIGHTS = 36;
+const int MAX_SPOT_LIGHTS = 36;
+const int MAX_DIRECTIONAL_LIGHTS = 36;
 
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;

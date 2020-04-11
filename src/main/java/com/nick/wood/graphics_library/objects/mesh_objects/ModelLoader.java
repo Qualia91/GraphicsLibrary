@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class ModelLoader {
 
-	public static Mesh loadModel(String filePath, String texturePath) throws IOException {
+	public static Mesh loadModel(String filePath, String texturePath, boolean invertedNormals) throws IOException {
 		// load 3d model data
 		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
 
@@ -32,6 +32,9 @@ public class ModelLoader {
 
 			Vec3d vertexVec = getVecFromData(vertices, i);
 			Vec3d normalVec = getVecFromData(normals, i);
+			if (invertedNormals) {
+				normalVec = normalVec.neg();
+			}
 			Vec2f texCoord = Vec2f.ZERO;
 			if (aiMesh.mNumUVComponents().get(0) != 0) {
 				AIVector3D textCoordAI = aiMesh.mTextureCoords(0).get(i);

@@ -63,12 +63,12 @@ public class Window {
 		this.HEIGHT = HEIGHT;
 		this.title = title;
 
-
-		gameRootObjects.forEach(
-			(uuid, gameRootObject) -> {
-				this.camera = getPrimaryCamera(gameRootObject, null);
+		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameRootObjects.entrySet()) {
+			this.camera = getPrimaryCamera(uuidRootGameObjectEntry.getValue(), null);
+			if (this.camera != null) {
+				break;
 			}
-		);
+		}
 
 		this.input = input;
 

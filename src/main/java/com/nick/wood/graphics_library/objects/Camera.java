@@ -86,8 +86,6 @@ public class Camera {
 
 		rot = makeSensible(newX, rot.getY(), newZ);
 
-		System.out.println(rot);
-
 		this.x = Math.cos(Math.toRadians(rot.getZ())) * moveSpeed;
 		this.y = Math.sin(Math.toRadians(rot.getZ())) * moveSpeed;
 		this.z = Math.cos(Math.toRadians(rot.getX())) * moveSpeed;

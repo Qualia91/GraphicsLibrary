@@ -42,7 +42,8 @@ class WindowTest {
 		meshGroup.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
 				"/textures/white.png",
-				Matrix4d.Rotation(-90, Vec3d.X)
+				Matrix4d.Rotation(-90, Vec3d.X),
+				false
 		));
 		Transform transformMesh = new Transform(
 				Vec3d.Z.scale(-2),
@@ -64,7 +65,8 @@ class WindowTest {
 		meshGroupLight.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
 				"/textures/white.png",
-				Matrix4d.Rotation(-90, Vec3d.X)
+				Matrix4d.Rotation(-90, Vec3d.X),
+				true
 		));
 
 
@@ -118,7 +120,8 @@ class WindowTest {
 		meshGroupX.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
 				"/textures/red.png",
-				Matrix4d.Rotation(-90, Vec3d.X)
+				Matrix4d.Rotation(-90, Vec3d.X),
+				false
 		));
 
 		Transform transformMeshX = new Transform(
@@ -136,7 +139,8 @@ class WindowTest {
 		meshGroupY.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
 				"/textures/green.png",
-				Matrix4d.Rotation(-90, Vec3d.X)
+				Matrix4d.Rotation(-90, Vec3d.X),
+				false
 		));
 
 		Transform transformMeshY = new Transform(
@@ -154,7 +158,8 @@ class WindowTest {
 		meshGroupZ.getMeshObjectArray().add(new ModelMesh(
 				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
 				"/textures/blue.png",
-				Matrix4d.Rotation(-90, Vec3d.X)
+				Matrix4d.Rotation(-90, Vec3d.X),
+				false
 		));
 
 		Transform transformMeshZ = new Transform(

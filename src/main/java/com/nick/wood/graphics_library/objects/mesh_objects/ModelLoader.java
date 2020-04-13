@@ -1,7 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
-import com.nick.wood.graphics_library.Mesh;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.Vec2f;
 import com.nick.wood.maths.objects.Vec3d;
@@ -55,7 +54,7 @@ public class ModelLoader {
 			indexList[i * 3 + 2] = aiFace.mIndices().get(2);
 		}
 
-		return new Mesh(vertexArray, indexList, new Material(texturePath));
+		return new SingleMesh(vertexArray, indexList, new Material(texturePath));
 	}
 
 	private static Vec3d getVecFromData(AIVector3D.Buffer buffer, int i) {

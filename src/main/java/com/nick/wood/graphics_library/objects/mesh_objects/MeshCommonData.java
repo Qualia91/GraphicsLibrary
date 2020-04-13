@@ -1,9 +1,12 @@
-package com.nick.wood.graphics_library;
+package com.nick.wood.graphics_library.objects.mesh_objects;
 
+import com.nick.wood.graphics_library.Material;
+import com.nick.wood.graphics_library.Vertex;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengles.QCOMTiledRendering;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.DoubleBuffer;
@@ -12,14 +15,14 @@ import java.nio.IntBuffer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-public class Mesh {
+public class MeshCommonData {
 
 	private Vertex[] vertices;
 	private int[] indices;
 	private Material material;
 	private int vao, pbo, ibo, tbo, nbo;
 
-	public Mesh(Vertex[] vertices, int[] indices, Material material) {
+	public MeshCommonData(Vertex[] vertices, int[] indices, Material material){
 		this.vertices = vertices;
 		this.indices = indices;
 		this.material = material;
@@ -65,7 +68,26 @@ public class Mesh {
 		ibo = writeDataToBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, bufferType -> {
 			GL15.glBufferData(bufferType, indicesBuffer, GL15.GL_STATIC_DRAW);
 		});
+	}
 
+	public void initRender() {
+		GL30.glBindVertexArray(vao);
+		// enable position attribute
+		GL30.glEnableVertexAttribArray(0);
+		// enable colour attribute
+		GL30.glEnableVertexAttribArray(1);
+		// enable texture
+		GL30.glEnableVertexAttribArray(2);
+		// enable normals
+		GL30.glEnableVertexAttribArray(3);
+	}
+
+	public void endRender() {
+		GL30.glDisableVertexAttribArray(3);
+		GL30.glDisableVertexAttribArray(2);
+		GL30.glDisableVertexAttribArray(1);
+		GL30.glDisableVertexAttribArray(0);
+		GL30.glBindVertexArray(0);
 	}
 
 	public void destroy() {
@@ -122,6 +144,10 @@ public class Mesh {
 		return indices;
 	}
 
+	public Material getMaterial() {
+		return material;
+	}
+
 	public int getVao() {
 		return vao;
 	}
@@ -138,11 +164,11 @@ public class Mesh {
 		return tbo;
 	}
 
-	public Material getMaterial() {
-		return material;
-	}
-
 	public int getNbo() {
 		return nbo;
+	}
+
+	public int getVertexCount() {
+		return indices.length;
 	}
 }

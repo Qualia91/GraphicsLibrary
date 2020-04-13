@@ -5,121 +5,112 @@ import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.lighting.DirectionalLight;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.objects.game_objects.RenderObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Vec3d;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
+import org.lwjgl.system.MemoryUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.FloatBuffer;
+import java.util.*;
 
 public class Renderer {
 
+	private static final int FLOAT_SIZE_BYTES = 4;
+	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
+	private static final int VECTOR4F_SIZE_BYTES = 4 * Renderer.FLOAT_SIZE_BYTES;
+	private static final int MATRIX_SIZE_BYTES = Renderer.MATRIX_SIZE_FLOATS * Renderer.FLOAT_SIZE_BYTES;
+
 	private final Shader shader;
 	private final Matrix4d projectionMatrix;
+
 
 	public Renderer(Window window) {
 		this.shader = window.getShader();
 		this.projectionMatrix = window.getProjectionMatrix();
 	}
 
+	public void renderMesh(WeakHashMap<UUID, RenderObject<MeshObject>> meshObjects, WeakHashMap<UUID, RenderObject<Camera>> cameras, WeakHashMap<UUID, RenderObject<Light>> lights) {
+
+		shader.bind();
+
+		int pointLightIndex = 0;
+		int spotLightIndex = 0;
+		int directionalLightIndex = 0;
+
+		for (Map.Entry<UUID, RenderObject<Light>> lightRenderObj : lights.entrySet()) {
+
+			switch (lightRenderObj.getValue().getObject().getType()) {
+				case POINT:
+					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform());
+					break;
+				case SPOT:
+					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform());
+					break;
+				case DIRECTIONAL:
+					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform());
+					break;
+				default:
+					break;
+			}
+
+		}
 
 
-	public void renderMesh(HashMap<MeshGroup, ArrayList<Matrix4d>> meshGroupArrayListEntry, HashMap<Camera, ArrayList<Matrix4d>> cameras, HashMap<Light, ArrayList<Matrix4d>> lights) {
+		shader.setUniform("ambientLight", new Vec3d(0.1, 0.1, 0.1));
+		shader.setUniform("specularPower", 0.5f);
+		shader.setUniform("projection", projectionMatrix);
 
 		// for now just use camera one
-		for (Map.Entry<Camera, ArrayList<Matrix4d>> cameraArrayListEntry : cameras.entrySet()) {
+		for (Map.Entry<UUID, RenderObject<Camera>> uuidRenderObjectCameraEntry : cameras.entrySet()) {
 
-			Camera camera = cameraArrayListEntry.getKey();
-			Matrix4d cameraTransform = cameraArrayListEntry.getValue().get(0);
+			shader.setUniform("view", uuidRenderObjectCameraEntry.getValue().getObject().getView());
+			shader.setUniform("cameraPos", uuidRenderObjectCameraEntry.getValue().getObject().getPos());
 
-			for (Map.Entry<MeshGroup, ArrayList<Matrix4d>> groupArrayListEntry : meshGroupArrayListEntry.entrySet()) {
+			// i will keep looping through the mesh objects hash map until a counter has reached length of map
+			// each iteration i will get the next mesh and if i haven't already rendered it, i will loop
+			// through rendering all same meshes together using instanced rendering
+			int meshRenderedCounter = 0;
+			ArrayList<String> meshedMeshFiles = new ArrayList<>();
 
-				ArrayList<Matrix4d> matrix4ds = groupArrayListEntry.getValue();
-				MeshGroup meshGroup = groupArrayListEntry.getKey();
+			for (Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry : meshObjects.entrySet()) {
 
-				for (Matrix4d meshGroupTransform : matrix4ds) {
+				RenderObject<MeshObject> meshObjectRenderObject = meshObjectEntry.getValue();
 
-					for (MeshObject meshObject : meshGroup.getMeshObjectArray()) {
+				meshObjectRenderObject.getObject().getMesh().initRender();
 
-						GL30.glBindVertexArray(meshObject.getMesh().getVao());
-						// enable position attribute
-						GL30.glEnableVertexAttribArray(0);
-						// enable colour attribute
-						GL30.glEnableVertexAttribArray(1);
-						// enable texture
-						GL30.glEnableVertexAttribArray(2);
-						// enable normals
-						GL30.glEnableVertexAttribArray(3);
+				meshObjectRenderObject.getObject().getMesh().getVertexCount();
 
-						GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObject.getMesh().getIbo());
+				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectRenderObject.getObject().getMesh().getIbo());
 
-						// bind texture
-						GL13.glActiveTexture(GL13.GL_TEXTURE0);
-						GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObject.getMesh().getMaterial().getTextureId());
+				// bind texture
+				GL13.glActiveTexture(GL13.GL_TEXTURE0);
+				GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectRenderObject.getObject().getMesh().getMaterial().getTextureId());
 
-						shader.bind();
+				shader.setUniform("model", meshObjectRenderObject.getObject().getRotationOfModel().multiply(meshObjectRenderObject.getTransform()));
 
-						shader.setUniform("model", meshObject.getRotationOfModel().multiply(meshGroupTransform));
-						shader.setUniform("projection", projectionMatrix);
-						shader.setUniform("view", camera.getView());
-						shader.setUniform("ambientLight", new Vec3d(0.1, 0.1, 0.1));
-						shader.setUniform("specularPower", 0.5f);
-						shader.setUniform("cameraPos", camera.getPos());
+				shader.setUniform("material.diffuse", meshObjectRenderObject.getObject().getMesh().getMaterial().getDiffuseColour());
+				shader.setUniform("material.specular", meshObjectRenderObject.getObject().getMesh().getMaterial().getSpecularColour());
+				shader.setUniform("material.shininess", meshObjectRenderObject.getObject().getMesh().getMaterial().getShininess());
+				shader.setUniform("material.reflectance", meshObjectRenderObject.getObject().getMesh().getMaterial().getReflectance());
 
-						shader.setUniform("material.diffuse", meshObject.getMesh().getMaterial().getDiffuseColour());
-						shader.setUniform("material.specular", meshObject.getMesh().getMaterial().getSpecularColour());
-						shader.setUniform("material.shininess", meshObject.getMesh().getMaterial().getShininess());
-						shader.setUniform("material.reflectance", meshObject.getMesh().getMaterial().getReflectance());
+				GL31.glDrawElements(GL11.GL_TRIANGLES, meshObjectRenderObject.getObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
-						int pointLightIndex = 0;
-						int spotLightIndex = 0;
-						int directionalLightIndex = 0;
+				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-						for (Map.Entry<Light, ArrayList<Matrix4d>> lightArrayListEntry : lights.entrySet()) {
-
-							Light light = lightArrayListEntry.getKey();
-
-							for (Matrix4d lightTransformation : lightArrayListEntry.getValue()) {
-
-								switch (light.getType()) {
-									case POINT:
-										createPointLight("", (PointLight) light, pointLightIndex++, lightTransformation);
-										break;
-									case SPOT:
-										createSpotLight((SpotLight) light, spotLightIndex++, lightTransformation);
-										break;
-									case DIRECTIONAL:
-										createDirectionalLight((DirectionalLight) light, directionalLightIndex++, lightTransformation);
-										break;
-									default:
-										break;
-								}
-							}
-
-						}
-
-						GL11.glDrawElements(GL11.GL_TRIANGLES, meshObject.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
-
-						shader.unbind();
-						GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-						GL30.glDisableVertexAttribArray(3);
-						GL30.glDisableVertexAttribArray(2);
-						GL30.glDisableVertexAttribArray(1);
-						GL30.glDisableVertexAttribArray(0);
-						GL30.glBindVertexArray(0);
-					}
-				}
+				meshObjectRenderObject.getObject().getMesh().endRender();
 			}
+
 
 			break;
 		}
+
+
+		shader.unbind();
 	}
 
 	private void createSpotLight(SpotLight spotLight, int index, Matrix4d transformation) {

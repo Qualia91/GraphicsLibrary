@@ -2,14 +2,12 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.input.Inputs;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.SingleMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Quaternion;
-import com.nick.wood.maths.objects.Vec3d;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -20,12 +18,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.MemoryStack;
 
-import java.lang.reflect.Array;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -57,6 +51,12 @@ public class Window {
 	HashMap<UUID, RootGameObject> gameObjects;
 	UUID playerObjectUUID;
 
+	// im hoping the entries that no longer exist will be removed when expungeStaleEntries() method is called within
+	// weakhashmap. it will do this when it needs to call resize as the map has got too big.
+	WeakHashMap<UUID, RenderObject<Light>> lights = new WeakHashMap<>();
+	WeakHashMap<UUID, RenderObject<MeshObject>> meshes = new WeakHashMap<>();
+	WeakHashMap<UUID, RenderObject<Camera>> cameras = new WeakHashMap<>();
+
 	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootGameObject> gameRootObjects, Inputs input) {
 
 		this.WIDTH = WIDTH;
@@ -75,6 +75,11 @@ public class Window {
 		this.projectionMatrix = Matrix4d.Projection((double) WIDTH / (double) HEIGHT, Math.toRadians(70.0), 0.001, 1000);
 
 		this.gameObjects = gameRootObjects;
+
+		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
+			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4d.Identity);
+		}
+
 	}
 
 	private Camera getPrimaryCamera(GameObjectNode gameObjectNode, Camera camera) {
@@ -107,7 +112,7 @@ public class Window {
 		shader.destroy();
 
 		for (GameObjectNode gameObjectNode : gameObjects.values()) {
-			actOneMeshesMeshes(gameObjectNode, Mesh::destroy);
+			actOnMeshes(gameObjectNode, Mesh::destroy);
 		}
 
 		// Terminate GLFW and free the error callback
@@ -115,16 +120,14 @@ public class Window {
 		glfwSetErrorCallback(null).free();
 	}
 
-	private void actOneMeshesMeshes(GameObjectNode gameObjectNode, Consumer<Mesh> meshFunction) {
+	private void actOnMeshes(GameObjectNode gameObjectNode, Consumer<Mesh> meshFunction) {
 		if (gameObjectNode instanceof MeshGameObject) {
 			MeshGameObject meshGameObject = (MeshGameObject) gameObjectNode;
-			for (MeshObject meshObject : meshGameObject.getMeshGroup().getMeshObjectArray()) {
-				meshFunction.accept(meshObject.getMesh());
-			}
+			meshFunction.accept(meshGameObject.getMeshObject().getMesh());
 		}
 		if (gameObjectNode.getGameObjectNodeData().containsMeshes()) {
 			for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
-				actOneMeshesMeshes(child, meshFunction);
+				actOnMeshes(child, meshFunction);
 			}
 		}
 	}
@@ -202,7 +205,7 @@ public class Window {
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		for (GameObjectNode gameObjectNode : gameObjects.values()) {
-			actOneMeshesMeshes(gameObjectNode, Mesh::create);
+			actOnMeshes(gameObjectNode, Mesh::create);
 		}
 
 		shader.create();
@@ -279,17 +282,8 @@ public class Window {
 		// invoked during this call.
 		glfwPollEvents();
 
-		// todo this will be inefficient. could improve by using ids for everything and having render lists only update data
-		// if the data in teh scene tree has been updated
 		// todo could only load thing that will be viewable by the camera
 		// get all lights, meshes and cameras in the scene in arrays to pass to renderer.
-		HashMap<Light, ArrayList<Matrix4d>> lights = new HashMap<>();
-		HashMap<MeshGroup, ArrayList<Matrix4d>> meshes = new HashMap<>();
-		HashMap<Camera, ArrayList<Matrix4d>> cameras = new HashMap<>();
-
-		for (RootGameObject rootGameObject : gameObjects.values()) {
-			walkSceneTree(lights, meshes, cameras, rootGameObject, Matrix4d.Identity);
-		}
 
 		renderer.renderMesh(meshes, cameras, lights);
 
@@ -297,7 +291,7 @@ public class Window {
 
 	}
 
-	private void walkSceneTree(HashMap<Light, ArrayList<Matrix4d>> lights, HashMap<MeshGroup, ArrayList<Matrix4d>> meshes, HashMap<Camera, ArrayList<Matrix4d>> cameras, GameObjectNode gameObjectNode, Matrix4d transformationSoFar) {
+	private void createInitialRenderLists(WeakHashMap<UUID, RenderObject<Light>> lights, WeakHashMap<UUID, RenderObject<MeshObject>> meshes, WeakHashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4d transformationSoFar) {
 
 
 		if (isAvailableRenderData(gameObjectNode.getGameObjectNodeData())) {
@@ -308,44 +302,29 @@ public class Window {
 
 					case TRANSFORM:
 						TransformGameObject transformGameObject = (TransformGameObject) child;
-						Matrix4d newTransformationSoFar = transformGameObject.getTransform().getTransform().multiply(transformationSoFar);
-						walkSceneTree(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
+						Matrix4d newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
+						createInitialRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
 						break;
 					case LIGHT:
 						LightGameObject lightGameObject = (LightGameObject) child;
-						if (lights.containsKey(lightGameObject.getLight())) {
-							lights.get(lightGameObject.getLight()).add(transformationSoFar);
-						} else {
-							ArrayList<Matrix4d> matrix4ds = new ArrayList<>();
-							matrix4ds.add(transformationSoFar);
-							lights.put(lightGameObject.getLight(), matrix4ds);
-						}
-						walkSceneTree(lights, meshes, cameras, lightGameObject, transformationSoFar);
+						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getGameObjectNodeData().getUuid());
+						lights.put(child.getGameObjectNodeData().getUuid(), lightRenderObject);
+						createInitialRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
 						break;
 					case MESH:
 						MeshGameObject meshGameObject = (MeshGameObject) child;
-						if (meshes.containsKey(meshGameObject.getMeshGroup())) {
-							meshes.get(meshGameObject.getMeshGroup()).add(transformationSoFar);
-						} else {
-							ArrayList<Matrix4d> matrix4ds = new ArrayList<>();
-							matrix4ds.add(transformationSoFar);
-							meshes.put(meshGameObject.getMeshGroup(), matrix4ds);
-						}
-						walkSceneTree(lights, meshes, cameras, meshGameObject, transformationSoFar);
+						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getGameObjectNodeData().getUuid());
+						meshes.put(child.getGameObjectNodeData().getUuid(), meshGroupRenderObject);
+						createInitialRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
 						break;
 					case CAMERA:
 						CameraGameObject cameraGameObject = (CameraGameObject) child;
-						if (cameras.containsKey(cameraGameObject.getCamera())) {
-							cameras.get(cameraGameObject.getCamera()).add(transformationSoFar);
-						} else {
-							ArrayList<Matrix4d> matrix4ds = new ArrayList<>();
-							matrix4ds.add(transformationSoFar);
-							cameras.put(cameraGameObject.getCamera(), matrix4ds);
-						}
-						walkSceneTree(lights, meshes, cameras, cameraGameObject, transformationSoFar);
+						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar, child.getGameObjectNodeData().getUuid());
+						cameras.put(child.getGameObjectNodeData().getUuid(), cameraRenderObject);
+						createInitialRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
 						break;
 					default:
-						walkSceneTree(lights, meshes, cameras, child, transformationSoFar);
+						createInitialRenderLists(lights, meshes, cameras, child, transformationSoFar);
 						break;
 
 				}

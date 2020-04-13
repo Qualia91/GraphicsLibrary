@@ -1,9 +1,11 @@
 package com.nick.wood.graphics_library.objects.game_objects;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class GameObjectNodeData {
 
+	private final UUID uuid = UUID.randomUUID();
 	private final GameObjectNode parent;
 	private final ArrayList<GameObjectNode> children;
 	private final GameObjectType gameObjectType;
@@ -107,4 +109,7 @@ public class GameObjectNodeData {
 		}
 	}
 
+	public UUID getUuid() {
+		return uuid;
+	}
 }

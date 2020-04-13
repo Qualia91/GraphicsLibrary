@@ -1,19 +1,19 @@
 package com.nick.wood.graphics_library.objects.game_objects;
 
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshGroup;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 
 public class MeshGameObject implements GameObjectNode {
 
 	private final GameObjectNodeData gameObjectNodeData;
-	private final MeshGroup meshGroup;
+	private final MeshObject meshObject;
 
-	public MeshGameObject(GameObjectNode parent, MeshGroup meshGroup) {
+	public MeshGameObject(GameObjectNode parent, MeshObject meshObject) {
 		this.gameObjectNodeData = new GameObjectNodeData(parent, GameObjectType.MESH, this);
-		this.meshGroup = meshGroup;
+		this.meshObject = meshObject;
 	}
 
-	public MeshGroup getMeshGroup() {
-		return meshGroup;
+	public MeshObject getMeshObject() {
+		return meshObject;
 	}
 
 	@Override

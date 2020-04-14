@@ -40,10 +40,17 @@ class WindowTest {
 				//Matrix4d.Rotation(90, Vec3d.Z)
 		);
 
+		MeshObject meshGroup = new ModelMesh(
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
+				"/textures/white.png",
+				Matrix4d.Rotation(-90, Vec3d.X),
+				false
+		);
+
 		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
 
-		for (int i = 0; i < 50; i++) {
-			createObject(Vec3d.Y.scale(i), wholeSceneTransform);
+		for (int i = 0; i < 1100; i++) {
+			createObject(Vec3d.Y.scale(i), wholeSceneTransform, meshGroup);
 		}
 
 
@@ -112,13 +119,8 @@ class WindowTest {
 
 	}
 
-	private void createObject(Vec3d pos, GameObjectNode parent) {
-		MeshObject meshGroup = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
-				"/textures/white.png",
-				Matrix4d.Rotation(-90, Vec3d.X),
-				false
-		);
+	private void createObject(Vec3d pos, GameObjectNode parent, MeshObject meshGroup) {
+
 		Transform transformMesh = new Transform(
 				pos,
 				Vec3d.ONE,

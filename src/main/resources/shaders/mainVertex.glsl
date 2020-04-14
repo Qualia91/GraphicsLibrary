@@ -3,12 +3,12 @@
 in vec3 position;
 in vec2 textureCoord;
 in vec3 normal;
+in mat4 model;
 
 out vec2 passTextureCoord;
 out vec3 passVertexNormal;
 out vec3 passVertexPos;
 
-uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 

@@ -29,6 +29,7 @@ public class RenderObject<T> {
 	}
 
 	public UUID getUuid() {
-		return null;
+		return uuid;
 	}
+
 }

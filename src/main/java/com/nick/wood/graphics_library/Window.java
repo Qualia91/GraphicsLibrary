@@ -8,6 +8,7 @@ import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.SingleMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Matrix4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -41,7 +42,7 @@ public class Window {
 
 	private Shader shader;
 	private Renderer renderer;
-	private Matrix4d projectionMatrix;
+	private Matrix4f projectionMatrix;
 	private double newMouseX, newMouseY;
 	private double oldMouseX = 0;
 	private double oldMouseY = 0;
@@ -72,7 +73,7 @@ public class Window {
 
 		this.input = input;
 
-		this.projectionMatrix = Matrix4d.Projection((double) WIDTH / (double) HEIGHT, Math.toRadians(70.0), 0.001, 1000);
+		this.projectionMatrix = Matrix4f.Projection(WIDTH / HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
 
 		this.gameObjects = gameRootObjects;
 
@@ -285,6 +286,14 @@ public class Window {
 		// todo could only load thing that will be viewable by the camera
 		// get all lights, meshes and cameras in the scene in arrays to pass to renderer.
 
+		lights.clear();
+		meshes.clear();
+		cameras.clear();
+
+		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
+			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4d.Identity);
+		}
+
 		renderer.renderMesh(meshes, cameras, lights);
 
 		glfwSwapBuffers(window); // swap the color buffers
@@ -347,7 +356,7 @@ public class Window {
 		return window;
 	}
 
-	public Matrix4d getProjectionMatrix() {
+	public Matrix4f getProjectionMatrix() {
 		return projectionMatrix;
 	}
 

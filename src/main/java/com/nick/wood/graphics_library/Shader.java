@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.utils.FileUtils;
 import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Matrix4f;
 import com.nick.wood.maths.objects.Vec3d;
 import com.nick.wood.maths.objects.Vec3f;
 import org.lwjgl.opengl.GL11;
@@ -64,6 +65,12 @@ public class Shader {
 
 	public void setUniform(String name, Matrix4d value) {
 		FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4d.SIZE * Matrix4d.SIZE);
+		matrix.put(value.getValuesF()).flip();
+		GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
+	}
+
+	public void setUniform(String name, Matrix4f value) {
+		FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
 		matrix.put(value.getValuesF()).flip();
 		GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
 	}

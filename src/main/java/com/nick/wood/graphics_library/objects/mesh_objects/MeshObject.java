@@ -5,4 +5,5 @@ import com.nick.wood.maths.objects.Matrix4d;
 public interface MeshObject {
 	Mesh getMesh();
 	Matrix4d getRotationOfModel();
+	String getStringToCompare();
 }

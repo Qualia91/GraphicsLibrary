@@ -24,6 +24,10 @@ public class ModelMesh implements MeshObject {
 		}
 	}
 
+	public String getStringToCompare() {
+		return filePath + texturePath;
+	}
+
 	@Override
 	public Mesh getMesh() {
 		return mesh;

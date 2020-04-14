@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengles.QCOMTiledRendering;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.DoubleBuffer;
@@ -33,13 +32,13 @@ public class MeshCommonData {
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
 
-		BiFunction<Vertex, Integer, Double> positionDataGettersBiFunc = (vertex, index) -> vertex.getPos().getValues()[index];
-		double[] posData = createDataForBuffer(vertices.length * 3, positionDataGettersBiFunc);
-		DoubleBuffer positionBuffer = createDoubleBufferAndPutData(vertices.length * 3, posData);
+		BiFunction<Vertex, Integer, Float> positionDataGettersBiFunc = (vertex, index) -> (float) vertex.getPos().getValues()[index];
+		float[] posData = createDataForBuffer(vertices.length * 3, positionDataGettersBiFunc);
+		FloatBuffer positionBuffer = createFloatBufferAndPutData(vertices.length * 3, posData);
 		pbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
 			GL15.glBufferData(bufferType, positionBuffer, GL15.GL_STATIC_DRAW);
 			// shader stuff
-			GL20.glVertexAttribPointer(0, 3, GL11.GL_DOUBLE, false, 0, 0);
+			GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 		});
 
 		FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
@@ -55,13 +54,13 @@ public class MeshCommonData {
 			GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
 		});
 
-		BiFunction<Vertex, Integer, Double> normalDataGettersBiFunc = (vertex, index) -> vertex.getNormal().getValues()[index];
-		double[] norData = createDataForBuffer(vertices.length * 3, normalDataGettersBiFunc);
-		DoubleBuffer normBuffer = createDoubleBufferAndPutData(vertices.length * 3, norData);
+		BiFunction<Vertex, Integer, Float> normalDataGettersBiFunc = (vertex, index) -> (float) vertex.getNormal().getValues()[index];
+		float[] norData = createDataForBuffer(vertices.length * 3, normalDataGettersBiFunc);
+		FloatBuffer normBuffer = createFloatBufferAndPutData(vertices.length * 3, norData);
 		nbo = writeDataToBuffer(GL15.GL_ARRAY_BUFFER, bufferType -> {
 			GL15.glBufferData(bufferType, normBuffer, GL15.GL_STATIC_DRAW);
 			// shader stuff
-			GL20.glVertexAttribPointer(2, 3, GL11.GL_DOUBLE, false, 0, 0);
+			GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 0, 0);
 		});
 
 		IntBuffer indicesBuffer = createIntBufferAndPutData(indices.length, indices);
@@ -99,6 +98,12 @@ public class MeshCommonData {
 		GL30.glDeleteVertexArrays(vao);
 	}
 
+	private FloatBuffer createFloatBufferAndPutData(int amount, float[] data) {
+		FloatBuffer buffer = MemoryUtil.memAllocFloat(amount);
+		buffer.put(data).flip();
+		return buffer;
+	}
+
 	private DoubleBuffer createDoubleBufferAndPutData(int amount, double[] data) {
 		DoubleBuffer buffer = MemoryUtil.memAllocDouble(amount);
 		buffer.put(data).flip();
@@ -111,8 +116,8 @@ public class MeshCommonData {
 		return buffer;
 	}
 
-	private double[] createDataForBuffer(int amount, BiFunction<Vertex, Integer, Double> getDataFunctionArray) {
-		double[] data = new double[amount];
+	private float[] createDataForBuffer(int amount, BiFunction<Vertex, Integer, Float> getDataFunctionArray) {
+		float[] data = new float[amount];
 
 		for (int i = 0; i < vertices.length; i++) {
 			data[i * 3] =     getDataFunctionArray.apply(vertices[i], 0);

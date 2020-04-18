@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
-public class InstancedMesh implements Mesh {
+public class InstancedMesh {
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
@@ -35,7 +35,6 @@ public class InstancedMesh implements Mesh {
 		this.numInstances = numInstances;
 	}
 
-	@Override
 	public void create() {
 		meshCommonData.create();
 
@@ -52,7 +51,6 @@ public class InstancedMesh implements Mesh {
 
 	}
 
-	@Override
 	public void initRender() {
 		meshCommonData.initRender();
 		int start = 3;
@@ -62,12 +60,10 @@ public class InstancedMesh implements Mesh {
 		}
 	}
 
-	@Override
 	public void endRender() {
 		meshCommonData.endRender();
 	}
 
-	@Override
 	public int getVertexCount() {
 		return 0;
 	}

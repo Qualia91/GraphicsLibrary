@@ -6,10 +6,10 @@ public class Inputs {
 
 	private boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
 	private boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
-	private double mouseX;
-	private double mouseY;
-	private double offsetX;
-	private double offsetY;
+	private float mouseX;
+	private float mouseY;
+	private float offsetX;
+	private float offsetY;
 
 	private GLFWKeyCallback keyboard;
 	private GLFWCursorPosCallback mouseMove;
@@ -28,8 +28,8 @@ public class Inputs {
 		mouseMove = new GLFWCursorPosCallback() {
 			@Override
 			public void invoke(long window, double xPos, double yPos) {
-				mouseX = xPos;
-				mouseY = yPos;
+				mouseX = (float) xPos;
+				mouseY = (float) yPos;
 			}
 		};
 
@@ -57,19 +57,19 @@ public class Inputs {
 		return buttons;
 	}
 
-	public double getMouseX() {
+	public float getMouseX() {
 		return mouseX;
 	}
 
-	public double getMouseY() {
+	public float getMouseY() {
 		return mouseY;
 	}
 
-	public double getOffsetX() {
+	public float getOffsetX() {
 		return offsetX;
 	}
 
-	public double getOffsetY() {
+	public float getOffsetY() {
 		return offsetY;
 	}
 

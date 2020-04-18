@@ -1,32 +1,32 @@
 package com.nick.wood.graphics_library.lighting;
 
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.Vec3f;
 
 public class DirectionalLight implements Light {
 
-	private Vec3d colour;
-	private Vec3d direction;
+	private Vec3f colour;
+	private Vec3f direction;
 	private float intensity;
 
-	public DirectionalLight(Vec3d colour, Vec3d direction, float intensity) {
+	public DirectionalLight(Vec3f colour, Vec3f direction, float intensity) {
 		this.colour = colour;
 		this.direction = direction;
 		this.intensity = intensity;
 	}
 
-	public Vec3d getColour() {
+	public Vec3f getColour() {
 		return colour;
 	}
 
-	public void setColour(Vec3d colour) {
+	public void setColour(Vec3f colour) {
 		this.colour = colour;
 	}
 
-	public Vec3d getDirection() {
+	public Vec3f getDirection() {
 		return direction;
 	}
 
-	public void setDirection(Vec3d direction) {
+	public void setDirection(Vec3f direction) {
 		this.direction = direction;
 	}
 

@@ -3,7 +3,7 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.Vec2f;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.Vec3f;
 import org.lwjgl.assimp.*;
 
 import java.io.IOException;
@@ -29,8 +29,8 @@ public class ModelLoader {
 
 		for (int i = 0; i < vertexCount; i++) {
 
-			Vec3d vertexVec = getVecFromData(vertices, i);
-			Vec3d normalVec = getVecFromData(normals, i);
+			Vec3f vertexVec = getVecFromData(vertices, i);
+			Vec3f normalVec = getVecFromData(normals, i);
 			if (invertedNormals) {
 				normalVec = normalVec.neg();
 			}
@@ -54,11 +54,11 @@ public class ModelLoader {
 			indexList[i * 3 + 2] = aiFace.mIndices().get(2);
 		}
 
-		return new SingleMesh(vertexArray, indexList, new Material(texturePath));
+		return new Mesh(vertexArray, indexList, new Material(texturePath));
 	}
 
-	private static Vec3d getVecFromData(AIVector3D.Buffer buffer, int i) {
+	private static Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {
 		AIVector3D aiVector3D = buffer.get(i);
-		return new Vec3d(aiVector3D.x(), aiVector3D.y(), aiVector3D.z());
+		return new Vec3f(aiVector3D.x(), aiVector3D.y(), aiVector3D.z());
 	}
 }

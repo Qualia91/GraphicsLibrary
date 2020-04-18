@@ -1,23 +1,25 @@
 package com.nick.wood.graphics_library.objects;
 
+import com.nick.wood.maths.objects.Matrix3d;
 import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.Matrix4f;
+import com.nick.wood.maths.objects.Vec3f;
 
 public class Camera {
 
 	// this is to get world in sensible coordinate system to start with
-	private final static Vec3d startingCameraRotation = new Vec3d(-90.0, 180.0, 90.0);
+	private final static Vec3f startingCameraRotation = new Vec3f(-90.0f, 180.0f, 90.0f);
 
-	private final Vec3d initialRot;
-	private Vec3d pos;
-	private Vec3d rot;
-	private double moveSpeed;
-	private double sensitivity;
-	private double x;
-	private double z;
-	private double y;
+	private final Vec3f initialRot;
+	private Vec3f pos;
+	private Vec3f rot;
+	private float moveSpeed;
+	private float sensitivity;
+	private float x;
+	private float z;
+	private float y;
 
-	public Camera(Vec3d pos, Vec3d rot, double moveSpeed, double sensitivity) {
+	public Camera(Vec3f pos, Vec3f rot, float moveSpeed, float sensitivity) {
 		rot = rot.add(startingCameraRotation);
 		this.initialRot = rot;
 		this.pos = pos;
@@ -26,7 +28,7 @@ public class Camera {
 		this.sensitivity = sensitivity;
 	}
 
-	public Vec3d getInitialRot() {
+	public Vec3f getInitialRot() {
 		return initialRot;
 	}
 
@@ -34,64 +36,64 @@ public class Camera {
 		return moveSpeed;
 	}
 
-	public void setMoveSpeed(double moveSpeed) {
+	public void setMoveSpeed(float moveSpeed) {
 		this.moveSpeed = moveSpeed;
 	}
 
-	public Vec3d getPos() {
+	public Vec3f getPos() {
 
 		// get game object to world transformation
 		return pos;
 	}
 
-	public void setPos(Vec3d pos) {
+	public void setPos(Vec3f pos) {
 		this.pos = pos;
 	}
 
-	public Vec3d getRot() {
+	public Vec3f getRot() {
 		return rot;
 	}
 
-	public void setRot(Vec3d rot) {
+	public void setRot(Vec3f rot) {
 		this.rot = rot;
 	}
 
 	public void left() {
-		pos = pos.add(new Vec3d(x, y, 0.0));
+		pos = pos.add(new Vec3f(x, y, 0.0f));
 	}
 
 	public void right() {
-		pos = pos.add(new Vec3d(-x, -y, 0.0));
+		pos = pos.add(new Vec3f(-x, -y, 0.0f));
 	}
 
 	public void forward() {
-		pos = pos.add(new Vec3d(y, -x, z));
+		pos = pos.add(new Vec3f(y, -x, z));
 	}
 
 	public void back() {
-		pos = pos.add(new Vec3d(-y, x, -z));
+		pos = pos.add(new Vec3f(-y, x, -z));
 	}
 
 	public void up() {
-		pos = pos.add(new Vec3d(0.0, 0.0, moveSpeed));
+		pos = pos.add(new Vec3f(0.0f, 0.0f, moveSpeed));
 	}
 
 	public void down() {
-		pos = pos.add(new Vec3d(0.0, 0.0, -moveSpeed));
+		pos = pos.add(new Vec3f(0.0f, 0.0f, -moveSpeed));
 	}
 
-	public void rotate(double dx, double dy) {
-		double newX = rot.getX()-dy*sensitivity;
-		double newZ = rot.getZ()-dx*sensitivity;
+	public void rotate(float dx, float dy) {
+		float newX = rot.getX()-dy*sensitivity;
+		float newZ = rot.getZ()-dx*sensitivity;
 
 		rot = makeSensible(newX, rot.getY(), newZ);
 
-		this.x = Math.cos(Math.toRadians(rot.getZ())) * moveSpeed;
-		this.y = Math.sin(Math.toRadians(rot.getZ())) * moveSpeed;
-		this.z = Math.cos(Math.toRadians(rot.getX())) * moveSpeed;
+		this.x = (float) Math.cos(Math.toRadians(rot.getZ())) * moveSpeed;
+		this.y = (float) Math.sin(Math.toRadians(rot.getZ())) * moveSpeed;
+		this.z = (float) Math.cos(Math.toRadians(rot.getX())) * moveSpeed;
 	}
 
-	private Vec3d makeSensible(double x, double y, double z) {
+	private Vec3f makeSensible(float x, float y, float z) {
 		// to keep z rotation between 0 - 360
 		if (z >= 360) {
 			z -= 360;
@@ -105,18 +107,11 @@ public class Camera {
 		if (x < -180) {
 			x = -180;
 		}
-		return new Vec3d(x, y, z);
+		return new Vec3f(x, y, z);
 	}
 
-	public Matrix4d getView() {
+	public Matrix4f getView(Matrix4f cameraTransform) {
 
-		// todo this needs re-implementing
-		// get game object to world transformation
-		//if (gameObject != null) {
-		//	Matrix4d transform = Matrix4d.InverseTransformation(gameObject.getPosition(), gameObject.getRotation(), Vec3d.ONE);
-		//	return transform.multiply(Matrix4d.View(pos, rot));
-		//}
-
-		return Matrix4d.View(pos, rot);
+		return Matrix4f.View(cameraTransform.multiply(pos), cameraTransform.rotate(rot));
 	}
 }

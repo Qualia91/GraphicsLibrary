@@ -1,8 +1,8 @@
 package com.nick.wood.graphics_library.objects.game_objects;
 
 import com.nick.wood.graphics_library.objects.Transform;
-import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.Matrix4f;
+import com.nick.wood.maths.objects.Vec3f;
 
 public class TransformGameObject implements GameObjectNode {
 
@@ -15,22 +15,22 @@ public class TransformGameObject implements GameObjectNode {
 		this.transform = transform;
 	}
 
-	public Matrix4d getTransformForRender() {
+	public Matrix4f getTransformForRender() {
 		changedSinceRender = false;
 		return transform.getTransform();
 	}
 
-	public void setPosition(Vec3d pos) {
+	public void setPosition(Vec3f pos) {
 		changedSinceRender = true;
 		transform.setPosition(pos);
 	}
 
-	public void setRotation(Matrix4d rot) {
+	public void setRotation(Matrix4f rot) {
 		changedSinceRender = true;
 		transform.setRotation(rot);
 	}
 
-	public void setScale(Vec3d scale) {
+	public void setScale(Vec3f scale) {
 		changedSinceRender = true;
 		transform.setScale(scale);
 	}

@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.game_objects;
 
-import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Matrix4f;
 
 import java.util.UUID;
 
@@ -8,9 +8,9 @@ public class RenderObject<T> {
 
 	private final T object;
 	private final UUID uuid;
-	private Matrix4d transform;
+	private Matrix4f transform;
 
-	public RenderObject(T object, Matrix4d transform, UUID uuid) {
+	public RenderObject(T object, Matrix4f transform, UUID uuid) {
 		this.object = object;
 		this.transform = transform;
 		this.uuid = uuid;
@@ -20,11 +20,11 @@ public class RenderObject<T> {
 		return object;
 	}
 
-	public Matrix4d getTransform() {
+	public Matrix4f getTransform() {
 		return transform;
 	}
 
-	public void setTransform(Matrix4d transform) {
+	public void setTransform(Matrix4f transform) {
 		this.transform = transform;
 	}
 

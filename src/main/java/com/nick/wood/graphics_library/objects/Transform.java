@@ -1,44 +1,46 @@
 package com.nick.wood.graphics_library.objects;
 
 import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Matrix4f;
 import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.Vec3f;
 
 public class Transform {
 
-	private Vec3d position, scale;
-	private Matrix4d rotation;
+	private Vec3f position, scale;
+	private Matrix4f rotation;
 
-	public Transform(Vec3d position, Vec3d scale, Matrix4d rotation) {
+	public Transform(Vec3f position, Vec3f scale, Matrix4f rotation) {
 		this.position = position;
 		this.scale = scale;
 		this.rotation = rotation;
 	}
 
-	public Matrix4d getTransform() {
-		return Matrix4d.Transform(position, rotation, scale);
+	public Matrix4f getTransform() {
+		return Matrix4f.Transform(position, rotation, scale);
 	}
 
-	public Vec3d getPosition() {
+	public Vec3f getPosition() {
 		return position;
 	}
 
-	public void setPosition(Vec3d position) {
+	public void setPosition(Vec3f position) {
 		this.position = position;
 	}
 
-	public Vec3d getScale() {
+	public Vec3f getScale() {
 		return scale;
 	}
 
-	public void setScale(Vec3d scale) {
+	public void setScale(Vec3f scale) {
 		this.scale = scale;
 	}
 
-	public Matrix4d getRotation() {
+	public Matrix4f getRotation() {
 		return rotation;
 	}
 
-	public void setRotation(Matrix4d rotation) {
+	public void setRotation(Matrix4f rotation) {
 		this.rotation = rotation;
 	}
 }

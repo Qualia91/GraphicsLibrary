@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.Matrix4f;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -9,10 +9,10 @@ public class ModelMesh implements MeshObject {
 
 	private final String filePath;
 	private final String texturePath;
-	private final Matrix4d rotationOfModel;
+	private final Matrix4f rotationOfModel;
 	private Mesh mesh;
 
-	public ModelMesh(String filePath, String texturePath, Matrix4d rotationOfModel, boolean invertedNormals) {
+	public ModelMesh(String filePath, String texturePath, Matrix4f rotationOfModel, boolean invertedNormals) {
 
 		this.rotationOfModel = rotationOfModel;
 		this.filePath = filePath;
@@ -48,7 +48,7 @@ public class ModelMesh implements MeshObject {
 	}
 
 	@Override
-	public Matrix4d getRotationOfModel() {
+	public Matrix4f getRotationOfModel() {
 		return rotationOfModel;
 	}
 }

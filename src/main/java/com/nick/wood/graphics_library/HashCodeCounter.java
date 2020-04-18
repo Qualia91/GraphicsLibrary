@@ -1,22 +1,19 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Matrix4f;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class HashCodeCounter {
 
 	private final String stringToCompare;
 	private final MeshObject meshObject;
 	private int amount;
-	private final Matrix4d rotationOfModel;
-	ArrayList<Matrix4d> transforms = new ArrayList<>();
+	private final Matrix4f rotationOfModel;
+	ArrayList<Matrix4f> transforms = new ArrayList<>();
 
-	public HashCodeCounter(String stringToCompare, MeshObject meshObject, Matrix4d rotationOfModel, Matrix4d transform) {
+	public HashCodeCounter(String stringToCompare, MeshObject meshObject, Matrix4f rotationOfModel, Matrix4f transform) {
 		this.stringToCompare = stringToCompare;
 		this.meshObject = meshObject;
 		this.rotationOfModel = rotationOfModel;
@@ -28,11 +25,11 @@ public class HashCodeCounter {
 		return meshObject;
 	}
 
-	public Matrix4d getRotationOfModel() {
+	public Matrix4f getRotationOfModel() {
 		return rotationOfModel;
 	}
 
-	public ArrayList<Matrix4d> getTransforms() {
+	public ArrayList<Matrix4f> getTransforms() {
 		return transforms;
 	}
 
@@ -44,7 +41,7 @@ public class HashCodeCounter {
 		return stringToCompare;
 	}
 
-	public void addInstance(Matrix4d transform) {
+	public void addInstance(Matrix4f transform) {
 		amount++;
 		this.transforms.add(transform);
 	}

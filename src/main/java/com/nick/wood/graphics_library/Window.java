@@ -5,9 +5,7 @@ import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.SingleMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.maths.objects.Matrix4d;
 import com.nick.wood.maths.objects.Matrix4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -43,9 +41,9 @@ public class Window {
 	private Shader shader;
 	private Renderer renderer;
 	private Matrix4f projectionMatrix;
-	private double newMouseX, newMouseY;
-	private double oldMouseX = 0;
-	private double oldMouseY = 0;
+	private float newMouseX, newMouseY;
+	private float oldMouseX = 0;
+	private float oldMouseY = 0;
 
 	private boolean windowSizeChanged = false;
 
@@ -73,12 +71,12 @@ public class Window {
 
 		this.input = input;
 
-		this.projectionMatrix = Matrix4f.Projection(WIDTH / HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
+		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
 
 		this.gameObjects = gameRootObjects;
 
 		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4d.Identity);
+			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
 	}
@@ -137,7 +135,6 @@ public class Window {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		renderer = new Renderer(this);
-
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
@@ -239,11 +236,11 @@ public class Window {
 		if (playerObjectUUID == null) {
 			newMouseX = input.getMouseX();
 			newMouseY = input.getMouseY();
-			double dx = newMouseX - oldMouseX;
-			double dy = newMouseY - oldMouseY;
+			float dx = newMouseX - oldMouseX;
+			float dy = newMouseY - oldMouseY;
 			if (oldMouseX == 0 && oldMouseY == 0) {
-				dx = 0.0;
-				dy = 0.0;
+				dx = 0.0f;
+				dy = 0.0f;
 			}
 			oldMouseX = newMouseX;
 			oldMouseY = newMouseY;
@@ -291,17 +288,16 @@ public class Window {
 		cameras.clear();
 
 		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4d.Identity);
+			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
-		renderer.renderMesh(meshes, cameras, lights);
+		renderer.renderMesh(meshes, cameras, lights, WIDTH, HEIGHT);
 
 		glfwSwapBuffers(window); // swap the color buffers
 
 	}
 
-	private void createInitialRenderLists(WeakHashMap<UUID, RenderObject<Light>> lights, WeakHashMap<UUID, RenderObject<MeshObject>> meshes, WeakHashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4d transformationSoFar) {
-
+	private void createInitialRenderLists(WeakHashMap<UUID, RenderObject<Light>> lights, WeakHashMap<UUID, RenderObject<MeshObject>> meshes, WeakHashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4f transformationSoFar) {
 
 		if (isAvailableRenderData(gameObjectNode.getGameObjectNodeData())) {
 
@@ -311,7 +307,7 @@ public class Window {
 
 					case TRANSFORM:
 						TransformGameObject transformGameObject = (TransformGameObject) child;
-						Matrix4d newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
+						Matrix4f newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
 						createInitialRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
 						break;
 					case LIGHT:

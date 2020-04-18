@@ -11,9 +11,8 @@ import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.CubeMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.ModelMesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.SphereMesh;
 import com.nick.wood.maths.objects.Matrix4f;
-import com.nick.wood.maths.objects.Matrix4f;
-import com.nick.wood.maths.objects.Vec3f;
 import com.nick.wood.maths.objects.Vec3f;
 import org.junit.jupiter.api.Test;
 
@@ -96,9 +95,10 @@ class WindowTest {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, cubeMesh);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), Matrix4f.Rotation(0.0f, Vec3f.Y), cubeMesh);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, cubeMesh);
+		MeshObject sphereMesh = new SphereMesh(10, new Material("/textures/texture.png"), true);
+		createLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(10f), Matrix4f.Rotation(0.0f, Vec3f.Y), sphereMesh);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, sphereMesh);
 
 		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 

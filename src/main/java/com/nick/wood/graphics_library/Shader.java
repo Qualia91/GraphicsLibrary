@@ -1,10 +1,9 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.utils.FileUtils;
-import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Matrix4f;
-import com.nick.wood.maths.objects.Vec3d;
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3d;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
@@ -61,20 +60,10 @@ public class Shader {
 		return glGetUniformLocation(programId, name);
 	}
 
-	public void setUniform(String name, Matrix4d value) {
-		FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4d.SIZE * Matrix4d.SIZE);
-		matrix.put(value.getValuesF()).flip();
-		glUniformMatrix4fv(getUniformLocation(name), true, matrix);
-	}
-
 	public void setUniform(String name, Matrix4f value) {
 		FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
 		matrix.put(value.getValues()).flip();
 		glUniformMatrix4fv(getUniformLocation(name), true, matrix);
-	}
-
-	public void setUniform(String name, Vec3d vec) {
-		glUniform3f(getUniformLocation(name), (float) vec.getX(), (float) vec.getY(), (float) vec.getZ());
 	}
 
 	public void setUniform(String name, Vec3f vec) {

@@ -7,9 +7,8 @@ import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.game_objects.RenderObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.maths.objects.Matrix3d;
-import com.nick.wood.maths.objects.Matrix4f;
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
@@ -29,7 +28,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	private final static int MAX_INSTANCE = 1000;
+	private final static int MAX_INSTANCE = 0;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
@@ -59,18 +58,9 @@ public class Renderer {
 		);
 	}
 
-	private Shader depthShaderProgram;
-	private ShadowMap shadowMap;
-
-
 	public Renderer(Window window) {
 		this.shader = window.getShader();
 		this.projectionMatrix = window.getProjectionMatrix();
-	}
-
-	private void setupDepthShader() {
-		depthShaderProgram = new Shader("/shaders/depthVertex.glsl", "/shaders/depthFragment.glsl");
-		depthShaderProgram.create();
 	}
 
 	private void addToInstance(HashMap<String, HashCodeCounter> meshedMeshFiles, Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry, String appendString) {
@@ -94,18 +84,6 @@ public class Renderer {
 		for (Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry : meshObjects.entrySet()) {
 			addToInstance(meshedMeshFiles, meshObjectEntry, "");
 		}
-
-		//try {
-		//	shadowMap = new ShadowMap();
-		//	setupDepthShader();
-		//	// render shadow maps
-		//	renderShadowMaps(lights, meshedMeshFiles);
-		//} catch (Exception e) {
-		//	e.printStackTrace();
-		//}
-
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glViewport(0, 0, WIDTH, HEIGHT);
 
 		shader.bind();
 
@@ -152,8 +130,6 @@ public class Renderer {
 				// bind texture
 				GL13.glActiveTexture(GL13.GL_TEXTURE0);
 				GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshHashCode.getMeshObject().getMesh().getMaterial().getTextureId());
-				//GL13.glActiveTexture(GL13.GL_TEXTURE1);
-				//GL13.glBindTexture(GL11.GL_TEXTURE_2D, shadowMap.getDepthMapTexture().getId());
 
 				shader.setUniform("material.diffuse", meshHashCode.getMeshObject().getMesh().getMaterial().getDiffuseColour());
 				shader.setUniform("material.specular", meshHashCode.getMeshObject().getMesh().getMaterial().getSpecularColour());
@@ -190,70 +166,6 @@ public class Renderer {
 		}
 
 		shader.unbind();
-	}
-
-	private void renderShadowMaps(WeakHashMap<UUID, RenderObject<Light>> lights, HashMap<String, HashCodeCounter> meshedMeshFiles) {
-
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.getDepthMapFBO());
-		glViewport(0, 0, ShadowMap.SHADOW_MAP_WIDTH, ShadowMap.SHADOW_MAP_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		depthShaderProgram.bind();
-		for (Map.Entry<UUID, RenderObject<Light>> lightRenderObj : lights.entrySet()) {
-			switch (lightRenderObj.getValue().getObject().getType()) {
-				case POINT:
-					lightViewMatrix = Matrix4f.View(lightRenderObj.getValue().getTransform().multiply(Vec3f.ZERO), lightRenderObj.getValue().getTransform().rotate(Vec3f.X));
-					depthShaderProgram.setUniform("lightTransformationView",  lightViewMatrix);
-					depthShaderProgram.setUniform("orthoProj", orthoProjectionMatrix);
-					for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
-
-						HashCodeCounter meshHashCode = stringHashCodeCounterEntry.getValue();
-
-						meshHashCode.getMeshObject().getMesh().initRender();
-						GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshHashCode.getMeshObject().getMesh().getIbo());
-
-						// bind texture
-						GL13.glActiveTexture(GL13.GL_TEXTURE0);
-						GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshHashCode.getMeshObject().getMesh().getMaterial().getTextureId());
-
-						int modelViewVBO = glGenBuffers();
-						glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-						int start = 3;
-						for (int i = 0; i < 4; i++) {
-							glEnableVertexAttribArray(start);
-							glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-							glVertexAttribDivisor(start, 1);
-							start++;
-						}
-
-						FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshHashCode.getAmount() * MATRIX_SIZE_FLOATS);
-						int index = 0;
-						for (Matrix4f transform : meshHashCode.getTransforms()) {
-							modelViewBuffer.put(index * 16, meshHashCode.getRotationOfModel().multiply(transform).transpose().getValues());
-							index++;
-						}
-						glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-						glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
-						GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
-
-						GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-						meshHashCode.getMeshObject().getMesh().endRender();
-
-					}
-					break;
-				case SPOT:
-
-					break;
-				//case DIRECTIONAL:
-				//	createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform());
-				//	break;
-				default:
-					break;
-			}
-		}
-
-		depthShaderProgram.unbind();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	private void createSpotLight(SpotLight spotLight, int index, Matrix4f transformation) {

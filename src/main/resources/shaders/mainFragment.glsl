@@ -7,8 +7,6 @@ const int MAX_DIRECTIONAL_LIGHTS = 36;
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;
 in vec3 passVertexPos;
-in vec4 mlightviewVertexPos;
-in mat4 outModelViewMatrix;
 
 out vec4 outColour;
 
@@ -62,7 +60,6 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform vec3 cameraPos;
 uniform DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
-uniform sampler2D shadowMap;
 
 vec4 ambientC;
 vec4 diffuseC;
@@ -136,21 +133,6 @@ vec4 calcDirectionalLight(vec3 vertexPosition, vec3 vertexNormal, DirectionalLig
     return calcLightColour(vertexPosition, vertexNormal, intensity, toLightDir, colour);
 }
 
-float calcShadow(vec4 position)
-{
-    float shadowFactor = 1.0;
-    vec3 projCoords = position.xyz;
-    // Transform from screen coordinates to texture coordinates
-    projCoords = projCoords * 0.5 + 0.5;
-    if ( projCoords.z < texture(shadowMap, projCoords.xy).r )
-    {
-        // Current fragment is not in shade
-        shadowFactor = 0;
-    }
-
-    return 1 - shadowFactor;
-}
-
 void main() {
     setupColours();
     vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
@@ -179,9 +161,5 @@ void main() {
         }
     }
 
-    //float shadow = calcShadow(mlightviewVertexPos);
-
-    //outColour = clamp(ambientC * vec4(ambientLight, 1.0) + diffuseSpecularComp * shadow, 0, 1);
     outColour = ambientC * vec4(ambientLight, 1.0) + diffuseSpecularComp;
-   // outColour = ambientC;
 }

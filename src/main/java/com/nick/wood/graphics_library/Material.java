@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 

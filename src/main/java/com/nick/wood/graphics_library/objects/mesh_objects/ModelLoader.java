@@ -2,8 +2,8 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Vertex;
-import com.nick.wood.maths.objects.Vec2f;
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec2f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.assimp.*;
 
 import java.io.IOException;

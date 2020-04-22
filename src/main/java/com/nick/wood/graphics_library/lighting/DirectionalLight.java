@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.lighting;
 
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class DirectionalLight implements Light {
 

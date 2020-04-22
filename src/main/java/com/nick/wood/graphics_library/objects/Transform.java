@@ -1,9 +1,7 @@
 package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Matrix4f;
-import com.nick.wood.maths.objects.Vec3d;
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class Transform {
 

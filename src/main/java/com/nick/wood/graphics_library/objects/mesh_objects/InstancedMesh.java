@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Vertex;
-import com.nick.wood.maths.objects.Matrix4d;
+import com.nick.wood.maths.objects.matrix.Matrix4d;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;

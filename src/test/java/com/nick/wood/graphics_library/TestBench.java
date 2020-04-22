@@ -12,8 +12,8 @@ import com.nick.wood.graphics_library.objects.mesh_objects.CubeMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.ModelMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.SphereMesh;
-import com.nick.wood.maths.objects.Matrix4f;
-import com.nick.wood.maths.objects.Vec3f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -21,10 +21,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-class WindowTest {
+class TestBench {
 
 	@Test
-	public void shadowTest() {
+	public void shadow() {
 
 		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
 
@@ -48,7 +48,7 @@ class WindowTest {
 		//		false
 		//);
 		
-		MeshObject cubeMesh = new CubeMesh(false, new Material("/textures/texture.png"));
+		MeshObject cubeMesh = new CubeMesh(false, new Material("/textures/white.png"));
 		Transform transformMesh = new Transform(
 				Vec3f.Z.scale(0),
 				Vec3f.ONE,
@@ -90,15 +90,15 @@ class WindowTest {
 		SpotLight spotLight = new SpotLight(
 				new PointLight(
 						new Vec3f(1.0f, 0.0f, 0.0f),
-						100f),
+						10f),
 				Vec3f.Y,
-				0.1f
+				0.005f
 		);
 
-		MeshObject sphereMesh = new SphereMesh(10, new Material("/textures/texture.png"), true);
+		MeshObject sphereMesh = new SphereMesh(10, new Material("/textures/texture.png"), false);
 		createLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(10f), Matrix4f.Rotation(0.0f, Vec3f.Y), sphereMesh);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, sphereMesh);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -15.0f, 0.0f), Vec3f.ONE, Matrix4f.Rotation(0.0f, Vec3f.Y), sphereMesh);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
 
 		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
@@ -137,7 +137,7 @@ class WindowTest {
 	}
 
 	@Test
-	public void stressTest() {
+	public void stress() {
 
 		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
 
@@ -249,7 +249,7 @@ class WindowTest {
 	}
 
 	@Test
-	public void test() {
+	public void normal() {
 
 		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
 
@@ -267,13 +267,13 @@ class WindowTest {
 		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
 
 		MeshObject meshGroup = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
+				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
 				"/textures/white.png",
 				Matrix4f.Rotation(-90, Vec3f.X),
 				false
 		);
 		Transform transformMesh = new Transform(
-				Vec3f.Z.scale(-2),
+				Vec3f.Z.scale(0),
 				Vec3f.ONE,
 				Matrix4f.Identity
 				//Matrix4f.Rotation(90, Vec3f.X)
@@ -309,7 +309,7 @@ class WindowTest {
 						new Vec3f(1.0f, 0.0f, 0.0f),
 						100f),
 				Vec3f.Y,
-				0.02f
+				0.1f
 		);
 
 		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);

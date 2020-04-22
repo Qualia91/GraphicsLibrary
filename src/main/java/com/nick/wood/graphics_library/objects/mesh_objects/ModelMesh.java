@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.maths.objects.Matrix4f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 import java.io.IOException;
 import java.util.Objects;

@@ -1,7 +1,7 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.maths.objects.Matrix4f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 import java.util.ArrayList;
 

@@ -6,7 +6,7 @@ import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.input.Inputs;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.maths.objects.Matrix4f;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;

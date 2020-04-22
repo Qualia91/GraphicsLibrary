@@ -1,7 +1,7 @@
 package com.nick.wood.graphics_library.input;
 
-import com.nick.wood.maths.objects.Matrix4d;
-import com.nick.wood.maths.objects.Vec3d;
+import com.nick.wood.maths.objects.matrix.Matrix4d;
+import com.nick.wood.maths.objects.vector.Vec3d;
 
 public interface Control {
 

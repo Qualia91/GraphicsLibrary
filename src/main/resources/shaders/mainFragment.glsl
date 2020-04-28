@@ -77,12 +77,18 @@ vec4 calcLightColour(vec3 vertexPosition, vec3 vertexNormal, float lightIntensit
     float diffuseFactor = max(dot(vertexNormal, toLightDirection), 0.0);
     vec4 diffuseLight = diffuseC * vec4(lightColour, 1.0) * lightIntensity * diffuseFactor;
 
-    // specular
-    vec3 fromLightDir = -toLightDirection;
-    vec3 reflectedLight = reflect(fromLightDir, vertexNormal);
-    vec3 cameraDirection = normalize(cameraPos - vertexPosition);
-    float specularFactor = pow(max(dot(cameraDirection, reflectedLight), 0.0), specularPower);
-    vec4 specularLight = speculrC * vec4(lightColour, 1.0) * lightIntensity * specularFactor;
+    // check if its the backside of the object as reflect does weird stuff
+    vec4 specularLight = vec4(0.0, 0.0, 0.0, 0.0);
+    if (diffuseFactor > 0.0) {
+
+        // specular
+        vec3 fromLightDir = -toLightDirection;
+        vec3 reflectedLight = reflect(fromLightDir, vertexNormal);
+        vec3 cameraDirection = normalize(cameraPos - vertexPosition);
+        float specularFactor = pow(max(dot(cameraDirection, reflectedLight), 0.0), specularPower);
+        specularLight = speculrC * vec4(lightColour, 1.0) * lightIntensity * specularFactor;
+
+    }
 
     return (diffuseLight + specularLight);
 }

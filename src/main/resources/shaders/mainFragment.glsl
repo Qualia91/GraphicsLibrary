@@ -77,7 +77,8 @@ vec4 calcLightColour(vec3 vertexPosition, vec3 vertexNormal, float lightIntensit
     float diffuseFactor = max(dot(vertexNormal, toLightDirection), 0.0);
     vec4 diffuseLight = diffuseC * vec4(lightColour, 1.0) * lightIntensity * diffuseFactor;
 
-    // check if its the backside of the object as reflect does weird stuff
+    // check if its the backside of the object as reflect is insensitive to sign of normal:
+    // reflect(I, N) = I - 2.0 * dot(N, I) * N
     vec4 specularLight = vec4(0.0, 0.0, 0.0, 0.0);
     if (diffuseFactor > 0.0) {
 

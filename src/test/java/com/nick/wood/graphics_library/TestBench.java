@@ -266,10 +266,8 @@ class TestBench {
 
 		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
 
-		MeshObject meshGroup = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
-				"/textures/white.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
+		MeshObject meshGroup = new SphereMesh(10,
+				new Material("/textures/white.png"),
 				false
 		);
 		Transform transformMesh = new Transform(
@@ -288,14 +286,10 @@ class TestBench {
 
 		createAxis(wholeSceneTransform);
 
-		MeshObject meshGroupLight = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
-				"/textures/white.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
-				true
+		MeshObject meshGroupLight =  new SphereMesh(10,
+				new Material("/textures/white.png"),
+				false
 		);
-
-
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),

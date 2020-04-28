@@ -12,7 +12,7 @@ public class SphereMesh implements MeshObject {
 
 	public SphereMesh(int triangleNumber, Material material, boolean invertedNormals ) {
 
-		int normalSign = invertedNormals ? 1 : -1;
+		int normalSign = invertedNormals ? -1 : 1;
 
 		Vec3f startFrontLeft = new Vec3f(-1.0f, 1.0f, 0.0f);
 		Vec3f startFrontRight = new Vec3f(-1.0f, -1.0f, 0.0f);

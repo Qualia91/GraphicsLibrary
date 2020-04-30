@@ -1,10 +1,14 @@
 package com.nick.wood.graphics_library.input;
 
 import com.nick.wood.maths.objects.matrix.Matrix4d;
+import com.nick.wood.maths.objects.vector.Vec;
 import com.nick.wood.maths.objects.vector.Vec3d;
+
+import java.util.UUID;
 
 public interface Control {
 
+	UUID getUuid();
 	void reset();
 	void mouseMove(double dx, double dy, boolean shiftPressed);
 	void leftLinear();
@@ -20,7 +24,7 @@ public interface Control {
 	void leftYaw();
 	void rightYaw();
 	void action();
+	Vec getForce();
+	Vec getTorque();
 
-	Vec3d getLinearMomentum(Matrix4d rotation, Vec3d currentLinearMomentum);
-	Vec3d getAngularMomentum(Matrix4d rotation, Vec3d currentAngularMomentum);
 }

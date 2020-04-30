@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.objects;
 
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class Camera {
@@ -109,7 +110,6 @@ public class Camera {
 	}
 
 	public Matrix4f getView(Matrix4f cameraTransform) {
-
-		return Matrix4f.View(cameraTransform.multiply(pos), cameraTransform.rotate(rot));
+		return cameraTransform.multiply(Matrix4f.View(pos, rot));
 	}
 }

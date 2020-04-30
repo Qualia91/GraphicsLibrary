@@ -31,6 +31,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
 	private final Inputs input;
+	private final boolean enableCameraViewControls;
+	private final boolean enableCameraMoveControls;
 	private Camera camera;
 	// The window handle
 	private long window;
@@ -48,7 +50,6 @@ public class Window {
 	private boolean windowSizeChanged = false;
 
 	HashMap<UUID, RootGameObject> gameObjects;
-	UUID playerObjectUUID;
 
 	// im hoping the entries that no longer exist will be removed when expungeStaleEntries() method is called within
 	// weakhashmap. it will do this when it needs to call resize as the map has got too big.
@@ -56,11 +57,13 @@ public class Window {
 	WeakHashMap<UUID, RenderObject<MeshObject>> meshes = new WeakHashMap<>();
 	WeakHashMap<UUID, RenderObject<Camera>> cameras = new WeakHashMap<>();
 
-	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootGameObject> gameRootObjects, Inputs input) {
+	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootGameObject> gameRootObjects, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
+		this.enableCameraViewControls = enableCameraViewControls;
+		this.enableCameraMoveControls = enableCameraMoveControls;
 
 		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameRootObjects.entrySet()) {
 			this.camera = getPrimaryCamera(uuidRootGameObjectEntry.getValue(), null);
@@ -233,7 +236,7 @@ public class Window {
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		if (playerObjectUUID == null) {
+		if (enableCameraViewControls) {
 			newMouseX = input.getMouseX();
 			newMouseY = input.getMouseY();
 			float dx = newMouseX - oldMouseX;
@@ -246,6 +249,8 @@ public class Window {
 			oldMouseY = newMouseY;
 
 			camera.rotate(dx, dy);
+		}
+		if (enableCameraMoveControls) {
 			if (input.isKeyPressed(GLFW_KEY_A)) {
 				camera.left();
 			}
@@ -324,7 +329,7 @@ public class Window {
 						break;
 					case CAMERA:
 						CameraGameObject cameraGameObject = (CameraGameObject) child;
-						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar, child.getGameObjectNodeData().getUuid());
+						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getGameObjectNodeData().getUuid());
 						cameras.put(child.getGameObjectNodeData().getUuid(), cameraRenderObject);
 						createInitialRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
 						break;

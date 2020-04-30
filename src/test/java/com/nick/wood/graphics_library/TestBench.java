@@ -122,7 +122,8 @@ class TestBench {
 				800,
 				"",
 				gameObjects,
-				new Inputs());
+				new Inputs(),
+				true, true);
 
 		window.init();
 
@@ -209,7 +210,8 @@ class TestBench {
 				800,
 				"",
 				gameObjects,
-				new Inputs());
+				new Inputs(),
+				true, true);
 
 		window.init();
 
@@ -271,10 +273,10 @@ class TestBench {
 				false
 		);
 		Transform transformMesh = new Transform(
-				Vec3f.Z.scale(0),
+				Vec3f.Z.scale(1),
 				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
+				//Matrix4f.Identity
+				Matrix4f.Rotation(90, Vec3f.X)
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
 		);
@@ -310,13 +312,13 @@ class TestBench {
 		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), Matrix4f.Rotation(0.0f, Vec3f.Y), meshGroupLight);
 		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);
 
-		Camera camera = new Camera(new Vec3f(0.0f, 0.0f, 10.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(0),
+				Vec3f.X.scale(10),
 				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
+				//Matrix4f.Identity
+				Matrix4f.Rotation(90, Vec3f.X)
 				//Matrix4f.Rotation(90, Vec3f.Y)
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
@@ -332,7 +334,8 @@ class TestBench {
 				800,
 				"",
 				gameObjects,
-				new Inputs());
+				new Inputs(),
+				true, true);
 
 		window.init();
 

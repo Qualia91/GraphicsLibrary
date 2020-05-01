@@ -8,10 +8,10 @@ module com.nick.wood.graphics_library {
 	requires org.lwjgl.opengl.natives;
 	requires org.lwjgl.glfw.natives;
 	requires org.lwjgl.natives;
-	exports com.nick.wood.graphics_library;
-	exports com.nick.wood.graphics_library.objects;
-	exports com.nick.wood.graphics_library.objects.game_objects;
-	exports com.nick.wood.graphics_library.input;
-	exports com.nick.wood.graphics_library.lighting;
-	exports com.nick.wood.graphics_library.objects.mesh_objects;
+	exports com.nick.wood.graphics_library_3d;
+	exports com.nick.wood.graphics_library_3d.objects;
+	exports com.nick.wood.graphics_library_3d.objects.game_objects;
+	exports com.nick.wood.graphics_library_3d.input;
+	exports com.nick.wood.graphics_library_3d.lighting;
+	exports com.nick.wood.graphics_library_3d.objects.mesh_objects;
 }

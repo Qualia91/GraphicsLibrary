@@ -47,11 +47,20 @@ public class ModelLoader {
 		AIFace.Buffer indices = aiMesh.mFaces();
 		int[] indexList = new int[faceCount * 3];
 
-		for (int i = 0; i < faceCount; i++) {
-			AIFace aiFace = indices.get(i);
-			indexList[i * 3 + 0] = aiFace.mIndices().get(0);
-			indexList[i * 3 + 1] = aiFace.mIndices().get(1);
-			indexList[i * 3 + 2] = aiFace.mIndices().get(2);
+		if (invertedNormals) {
+			for (int i = faceCount - 1; i <= 0; i--) {
+				AIFace aiFace = indices.get(i);
+				indexList[i * 3 + 2] = aiFace.mIndices().get(0);
+				indexList[i * 3 + 1] = aiFace.mIndices().get(1);
+				indexList[i * 3 + 0] = aiFace.mIndices().get(2);
+			}
+		} else {
+			for (int i = 0; i < faceCount; i++) {
+				AIFace aiFace = indices.get(i);
+				indexList[i * 3 + 0] = aiFace.mIndices().get(0);
+				indexList[i * 3 + 1] = aiFace.mIndices().get(1);
+				indexList[i * 3 + 2] = aiFace.mIndices().get(2);
+			}
 		}
 
 		return new Mesh(vertexArray, indexList, new Material(texturePath));

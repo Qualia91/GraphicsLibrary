@@ -202,6 +202,10 @@ public class Window {
 
 		GL11.glEnable(GL_DEPTH_TEST);
 
+		// support for transparencies
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		// this locks cursor to center so can always look about
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 

@@ -7,6 +7,7 @@ import com.nick.wood.graphics_library_3d.lighting.PointLight;
 import com.nick.wood.graphics_library_3d.lighting.SpotLight;
 import com.nick.wood.graphics_library_3d.objects.game_objects.RenderObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library_3d.objects.mesh_objects.TextItem;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
@@ -48,9 +49,9 @@ public class Renderer {
 		float near = -10;
 
 		return new Matrix4f(
-				2.0f/(right - left), 0f, 0f, -(right+left)/(right-left),
-				0f, 2.0f/(top - bottom), 0f, -(top+bottom)/(top-bottom),
-				0f, 0f, -2.0f/(far - near), -(far+near)/(far-near),
+				2.0f / (right - left), 0f, 0f, -(right + left) / (right - left),
+				0f, 2.0f / (top - bottom), 0f, -(top + bottom) / (top - bottom),
+				0f, 0f, -2.0f / (far - near), -(far + near) / (far - near),
 				0f, 0f, 0f, 1.0f
 		);
 	}
@@ -70,10 +71,6 @@ public class Renderer {
 				addToInstance(meshedMeshFiles, meshObjectEntry, appendString + "1");
 			}
 		}
-	}
-
-	public void renderGui() {
-
 	}
 
 	public void renderMesh(WeakHashMap<UUID, RenderObject<MeshObject>> meshObjects, WeakHashMap<UUID, RenderObject<Camera>> cameras, WeakHashMap<UUID, RenderObject<Light>> lights, int WIDTH, int HEIGHT) {
@@ -110,7 +107,7 @@ public class Renderer {
 
 		}
 
-		shader.setUniform("ambientLight", new Vec3f(0.1f, 0.1f, 0.1f));
+		shader.setUniform("ambientLight", new Vec3f(0.5f, 0.5f, 0.5f));
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
@@ -121,52 +118,66 @@ public class Renderer {
 			shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 			shader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
 
+			// do all but text
 			for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
-
-				HashCodeCounter meshHashCode = stringHashCodeCounterEntry.getValue();
-
-				meshHashCode.getMeshObject().getMesh().initRender();
-				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshHashCode.getMeshObject().getMesh().getIbo());
-
-				// bind texture
-				GL13.glActiveTexture(GL13.GL_TEXTURE0);
-				GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshHashCode.getMeshObject().getMesh().getMaterial().getTextureId());
-
-				shader.setUniform("material.diffuse", meshHashCode.getMeshObject().getMesh().getMaterial().getDiffuseColour());
-				shader.setUniform("material.specular", meshHashCode.getMeshObject().getMesh().getMaterial().getSpecularColour());
-				shader.setUniform("material.shininess", meshHashCode.getMeshObject().getMesh().getMaterial().getShininess());
-				shader.setUniform("material.reflectance", meshHashCode.getMeshObject().getMesh().getMaterial().getReflectance());
-
-				int modelViewVBO = glGenBuffers();
-				glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-				int start = 3;
-				for (int i = 0; i < 4; i++) {
-					glEnableVertexAttribArray(start);
-					glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-					glVertexAttribDivisor(start, 1);
-					start++;
+				if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
+					renderInstance(stringHashCodeCounterEntry);
 				}
-
-				FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshHashCode.getAmount() * MATRIX_SIZE_FLOATS);
-				int index = 0;
-				for (Matrix4f transform : meshHashCode.getTransforms()) {
-					modelViewBuffer.put(index * 16, meshHashCode.getRotationOfModel().multiply(transform).transpose().getValues());
-					index++;
-				}
-				glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-				glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
-				GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
-
-				GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-				meshHashCode.getMeshObject().getMesh().endRender();
-
 			}
+			// do all text ones last as the background wont be see through properly if they dont
+			for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
+				if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
+					renderInstance(stringHashCodeCounterEntry);
+				}
+			}
+
 
 			break;
 		}
 
 		shader.unbind();
+	}
+
+	private void renderInstance(Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry) {
+
+		HashCodeCounter meshHashCode = stringHashCodeCounterEntry.getValue();
+
+		meshHashCode.getMeshObject().getMesh().initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshHashCode.getMeshObject().getMesh().getIbo());
+
+		// bind texture
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshHashCode.getMeshObject().getMesh().getMaterial().getTextureId());
+
+		shader.setUniform("material.diffuse", meshHashCode.getMeshObject().getMesh().getMaterial().getDiffuseColour());
+		shader.setUniform("material.specular", meshHashCode.getMeshObject().getMesh().getMaterial().getSpecularColour());
+		shader.setUniform("material.shininess", meshHashCode.getMeshObject().getMesh().getMaterial().getShininess());
+		shader.setUniform("material.reflectance", meshHashCode.getMeshObject().getMesh().getMaterial().getReflectance());
+
+		int modelViewVBO = glGenBuffers();
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		int start = 3;
+		for (int i = 0; i < 4; i++) {
+			glEnableVertexAttribArray(start);
+			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+			glVertexAttribDivisor(start, 1);
+			start++;
+		}
+
+		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshHashCode.getAmount() * MATRIX_SIZE_FLOATS);
+		int index = 0;
+		for (Matrix4f transform : meshHashCode.getTransforms()) {
+			modelViewBuffer.put(index * 16, meshHashCode.getRotationOfModel().multiply(transform).transpose().getValues());
+			index++;
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
+
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		meshHashCode.getMeshObject().getMesh().endRender();
+
 	}
 
 	private void createSpotLight(SpotLight spotLight, int index, Matrix4f transformation) {

@@ -65,9 +65,14 @@ public class SphereMesh implements MeshObject {
 
 						Vec3f newPosNorm = startingPos.add(topToFrontRightVec.scale(triangleDownIndex)).normalise();
 
+						Vec3f pos = newPosNorm.scale(0.5f);
+						Vec3f n = pos.normalise();
+						float u = (float) (Math.atan2(n.getX(), n.getY()) / (2 * Math.PI) + 0.5);
+						float v = (float) (n.getZ() * 0.5 + 0.5);
+
 						vertexArray[triangleDownIndex] = new Vertex(
 								newPosNorm.scale(0.5f),
-								new Vec2f(xCoord, yCoord),
+								new Vec2f(u, v),
 								newPosNorm.scale(normalSign)
 						);
 
@@ -132,7 +137,6 @@ public class SphereMesh implements MeshObject {
 
 			}
 		}
-
 
 		// now reverse order on index so triangles are drawn correctly (because i did it wrong...)
 		if (!invertedNormals) {

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class Material {
 
-	private Texture texture;
+	private Texture texture = null;
 	private float width, height;
 	private int textureId;
 	private String path;
@@ -35,7 +35,7 @@ public class Material {
 
 	public void create() {
 		try {
-			texture = new Texture(path.split("[.]")[1], Material.class.getResourceAsStream(path), GL11.GL_LINEAR);
+			texture = new Texture(path, GL11.GL_LINEAR);
 		} catch (IOException e) {
 			System.err.println("Cant find texture at " + path);
 		}

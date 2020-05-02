@@ -8,10 +8,7 @@ import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.objects.game_objects.*;
 import com.nick.wood.graphics_library_3d.input.Inputs;
 import com.nick.wood.graphics_library_3d.objects.Transform;
-import com.nick.wood.graphics_library_3d.objects.mesh_objects.CubeMesh;
-import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library_3d.objects.mesh_objects.ModelMesh;
-import com.nick.wood.graphics_library_3d.objects.mesh_objects.SphereMesh;
+import com.nick.wood.graphics_library_3d.objects.mesh_objects.*;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
@@ -90,14 +87,15 @@ class TestBench {
 		SpotLight spotLight = new SpotLight(
 				new PointLight(
 						new Vec3f(1.0f, 0.0f, 0.0f),
-						10f),
+						100f),
 				Vec3f.Y,
-				0.005f
+				0.02f
 		);
 
-		MeshObject sphereMesh = new SphereMesh(10, new Material("/textures/texture.png"), false);
+		MeshObject sphereMesh = new SphereMesh(10, new Material("/textures/sand.jpg"), true);
+
 		createLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -15.0f, 0.0f), Vec3f.ONE, Matrix4f.Rotation(0.0f, Vec3f.Y), sphereMesh);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -15.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
 		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
 
 		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
@@ -257,6 +255,18 @@ class TestBench {
 
 		RootGameObject rootGameObject = new RootGameObject();
 
+		Transform hudTransform = new Transform(
+				Vec3f.X,
+				Vec3f.ONE.scale(10),
+				Matrix4f.Identity
+		);
+
+		TransformGameObject hudTransformGameObject = new TransformGameObject(rootGameObject, hudTransform);
+
+		TextItem textItem = new TextItem("hello", "/font/gothic.bmp", 15, 17);
+
+		MeshGameObject textMeshObject = new MeshGameObject(hudTransformGameObject, textItem);
+
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
 				Vec3f.ONE,
@@ -267,26 +277,6 @@ class TestBench {
 		);
 
 		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
-
-		MeshObject meshGroup = new SphereMesh(10,
-				new Material("/textures/white.png"),
-				false
-		);
-		Transform transformMesh = new Transform(
-				Vec3f.Z.scale(1),
-				Vec3f.ONE,
-				//Matrix4f.Identity
-				Matrix4f.Rotation(90, Vec3f.X)
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
-		);
-		TransformGameObject meshTransform = new TransformGameObject(wholeSceneTransform, transformMesh);
-		MeshGameObject meshGameObject = new MeshGameObject(
-				meshTransform,
-				meshGroup
-		);
-
-		createAxis(wholeSceneTransform);
 
 		MeshObject meshGroupLight =  new SphereMesh(10,
 				new Material("/textures/white.png"),

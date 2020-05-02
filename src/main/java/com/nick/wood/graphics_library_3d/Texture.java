@@ -38,7 +38,11 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	public Texture(String imagePath, InputStream resourceAsStream, int parameter) throws IOException {
+	public Texture(String path, int parameter) throws IOException {
+
+		String imagePath = path.split("[.]")[1];
+		InputStream resourceAsStream = Texture.class.getResourceAsStream(path);
+
 		ByteBuffer imageData = ioResourceToByteBuffer(imagePath, 1024, resourceAsStream);
 
 		try (MemoryStack stack = stackPush()) {

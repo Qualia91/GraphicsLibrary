@@ -9,9 +9,10 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 public class SphereMesh implements MeshObject {
 
 	private Mesh mesh;
+	private final int triangleNumber;
 
 	public SphereMesh(int triangleNumber, Material material, boolean invertedNormals ) {
-
+		this.triangleNumber = triangleNumber;
 		int normalSign = invertedNormals ? -1 : 1;
 
 		Vec3f startFrontLeft = new Vec3f(-1.0f, 1.0f, 0.0f);
@@ -28,15 +29,12 @@ public class SphereMesh implements MeshObject {
 		int[] indexList = new int[numOfIndices];
 
 		float spacingBetweenTextCoord = 1.0f / (triangleNumber * 8.0f);
-		float xCoord = 0.0f;
 
 		Vertex[] vertices = new Vertex[numOfVerts];
 
 		for (int zRotation = 0; zRotation < 360; zRotation+= 90) {
 
 			Matrix4f zRotationMatrix = Matrix4f.Rotation(zRotation, Vec3f.Z);
-
-			float yCoord = 0.0f;
 
 			for (int yRotation = 0; yRotation < 360; yRotation+= 180) {
 
@@ -75,8 +73,6 @@ public class SphereMesh implements MeshObject {
 								new Vec2f(u, v),
 								newPosNorm.scale(normalSign)
 						);
-
-						yCoord += spacingBetweenTextCoord;
 
 					}
 
@@ -133,8 +129,6 @@ public class SphereMesh implements MeshObject {
 
 				vertexStartingNumber += pascalNum;
 
-				xCoord += spacingBetweenTextCoord;
-
 			}
 		}
 
@@ -162,7 +156,7 @@ public class SphereMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SPHERE";
+		return "SPHERE" + mesh.getMaterial().getPath() + triangleNumber;
 	}
 
 }

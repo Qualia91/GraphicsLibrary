@@ -36,6 +36,6 @@ public class Square implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SQUARE";
+		return "SQUARE" + mesh.getMaterial().getPath();
 	}
 }

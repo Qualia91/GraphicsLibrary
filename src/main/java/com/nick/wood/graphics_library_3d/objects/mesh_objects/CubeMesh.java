@@ -102,7 +102,7 @@ public class CubeMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "CUBE";
+		return "CUBE" + mesh.getMaterial().getPath();
 	}
 
 }

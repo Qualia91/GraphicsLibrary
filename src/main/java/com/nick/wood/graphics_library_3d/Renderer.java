@@ -26,7 +26,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	private final static int MAX_INSTANCE = 0;
+	private final static int MAX_INSTANCE = 100;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;

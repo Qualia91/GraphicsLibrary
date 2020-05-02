@@ -263,7 +263,7 @@ class TestBench {
 
 		TransformGameObject hudTransformGameObject = new TransformGameObject(rootGameObject, hudTransform);
 
-		TextItem textItem = new TextItem("hello", "/font/gothic.bmp", 15, 17);
+		TextItem textItem = new TextItem("hello", "/font/gothic.bmp", 16, 16);
 
 		MeshGameObject textMeshObject = new MeshGameObject(hudTransformGameObject, textItem);
 

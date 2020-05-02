@@ -26,7 +26,7 @@ public class Texture {
 	private int height;
 	private int id;
 
-	public Texture(int width, int height, int pixelFormat) throws Exception {
+	public Texture(int width, int height, int pixelFormat) {
 		this.id = glGenTextures();
 		this.width = width;
 		this.height = height;
@@ -140,6 +140,7 @@ public class Texture {
 	}
 
 	public void destroy() {
+		glDeleteTextures(id);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }

@@ -29,6 +29,10 @@ public class MeshCommonData {
 
 	public void create() {
 		material.create();
+		createWithoutMaterialGen();
+	}
+
+	public void createWithoutMaterialGen() {
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
 
@@ -91,6 +95,14 @@ public class MeshCommonData {
 
 	public void destroy() {
 		material.destroy();
+		GL15.glDeleteBuffers(nbo);
+		GL15.glDeleteBuffers(pbo);
+		GL15.glDeleteBuffers(ibo);
+		GL30.glDeleteTextures(tbo);
+		GL30.glDeleteVertexArrays(vao);
+	}
+
+	public void destroyWithoutMaterialDes() {
 		GL15.glDeleteBuffers(nbo);
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(ibo);

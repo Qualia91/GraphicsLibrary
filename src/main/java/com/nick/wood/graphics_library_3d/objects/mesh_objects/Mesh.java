@@ -15,8 +15,16 @@ public class Mesh {
 		meshCommonData.create();
 	}
 
+	public void createWithoutMaterialGen() {
+		meshCommonData.createWithoutMaterialGen();
+	}
+
 	public void destroy() {
 		meshCommonData.destroy();
+	}
+
+	public void destroyWithoutMaterialGen() {
+		meshCommonData.destroyWithoutMaterialDes();
 	}
 
 	public Vertex[] getVertices() {

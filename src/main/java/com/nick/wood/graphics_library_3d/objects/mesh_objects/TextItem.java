@@ -31,10 +31,10 @@ public class TextItem implements MeshObject {
 	}
 
 	public void changeText(String text) {
-		mesh.destroy();
+		mesh.destroyWithoutMaterialGen();
 		this.text = text;
 		mesh = buildMesh(numCols, numRows);
-		mesh.create();
+		mesh.createWithoutMaterialGen();
 	}
 
 	private Mesh buildMesh(int numCols, int numRows) {
@@ -60,7 +60,7 @@ public class TextItem implements MeshObject {
 			// Left Top vertex
 			vertex[i * 4] =
 					new Vertex(
-							new Vec3f((float)i*tileWidth, 0.0f, ZPOS),
+							new Vec3f(ZPOS, tileHeight, (float)i*tileWidth),
 							new Vec2f((float)col / (float)numCols, (float)row / (float)numRows),
 							//new Vec2f(0, 0),
 							Vec3f.X.neg());
@@ -69,7 +69,7 @@ public class TextItem implements MeshObject {
 			// Left Bottom vertex
 			vertex[i * 4 + 1] =
 					new Vertex(
-							new Vec3f((float)i*tileWidth, tileHeight, ZPOS),
+							new Vec3f(ZPOS,  0.0f,(float)i*tileWidth),
 							new Vec2f((float)col / (float)numCols, (float)(row + 1) / (float)numRows),
 							//new Vec2f(0, 1),
 							Vec3f.X.neg());
@@ -78,7 +78,7 @@ public class TextItem implements MeshObject {
 			// Right Bottom vertex
 			vertex[i * 4 + 2] =
 					new Vertex(
-							new Vec3f((float)i*tileWidth + tileWidth, tileHeight, ZPOS),
+							new Vec3f(ZPOS, 0.0f, (float)i*tileWidth + tileWidth),
 							new Vec2f((float)(col + 1) / (float)numCols, (float)(row + 1) / (float)numRows),
 							//new Vec2f(1, 1),
 							Vec3f.X.neg());
@@ -87,7 +87,7 @@ public class TextItem implements MeshObject {
 			// Right Top vertex
 			vertex[i * 4 + 3] =
 					new Vertex(
-							new Vec3f((float)i*tileWidth + tileWidth, 0.0f, ZPOS),
+							new Vec3f(ZPOS, tileHeight, (float)i*tileWidth + tileWidth),
 							new Vec2f((float)(col + 1) / (float)numCols, (float)row / (float)numRows),
 							//new Vec2f(1, 0),
 							Vec3f.X.neg());
@@ -113,7 +113,7 @@ public class TextItem implements MeshObject {
 
 	@Override
 	public Matrix4f getRotationOfModel() {
-		return Matrix4f.Rotation(180, Vec3f.X).multiply(Matrix4f.Rotation(90, Vec3f.Y));
+		return Matrix4f.Identity;
 	}
 
 	@Override

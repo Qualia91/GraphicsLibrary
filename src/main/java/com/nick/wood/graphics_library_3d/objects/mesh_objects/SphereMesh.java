@@ -28,8 +28,6 @@ public class SphereMesh implements MeshObject {
 		int numOfIndices = (3 * ((triangleNumber + 1) * (triangleNumber + 1))) * 8;
 		int[] indexList = new int[numOfIndices];
 
-		float spacingBetweenTextCoord = 1.0f / (triangleNumber * 8.0f);
-
 		Vertex[] vertices = new Vertex[numOfVerts];
 
 		for (int zRotation = 0; zRotation < 360; zRotation+= 90) {

@@ -41,6 +41,7 @@ public class Renderer {
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
 	private final Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+	private final Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
 
 	private Matrix4f createOrthoProjMatrix() {
 
@@ -143,7 +144,7 @@ public class Renderer {
 		shader.unbind();
 	}
 
-	public void renderMiniMap(HashMap<UUID, RenderObject<MeshObject>> meshObjects, HashMap<UUID, RenderObject<Camera>> cameras) {
+	public void renderMiniMap(HashMap<UUID, RenderObject<MeshObject>> meshObjects, HashMap<UUID, RenderObject<Camera>> cameras, HashMap<UUID, RenderObject<Light>> lights) {
 
 		// set up meshes
 		// get a lit of meshes via hash code of each type which depends on input mesh file and material
@@ -155,7 +156,29 @@ public class Renderer {
 
 		hudShader.bind();
 
-		hudShader.setUniform("ambientLight", ambientLight);
+		int pointLightIndex = 0;
+		int spotLightIndex = 0;
+		int directionalLightIndex = 0;
+
+		for (Map.Entry<UUID, RenderObject<Light>> lightRenderObj : lights.entrySet()) {
+
+			switch (lightRenderObj.getValue().getObject().getType()) {
+				case POINT:
+					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform());
+					break;
+				case SPOT:
+					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform());
+					break;
+				case DIRECTIONAL:
+					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform());
+					break;
+				default:
+					break;
+			}
+
+		}
+
+		hudShader.setUniform("ambientLight", hudAmbientLight);
 		hudShader.setUniform("specularPower", 0.5f);
 		hudShader.setUniform("projection", projectionMatrix);
 

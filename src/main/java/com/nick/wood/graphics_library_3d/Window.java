@@ -143,7 +143,7 @@ public class Window {
 	public void init() {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		hudShader = new Shader("/shaders/mainHudVertex.glsl", "/shaders/mainHudFragment.glsl");
+		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		renderer = new Renderer(this);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -241,7 +241,7 @@ public class Window {
 
 	}
 
-	public void loop(HashMap<UUID, RenderObject<MeshObject>> minimapMeshes) {
+	public void loop(HashMap<UUID, RenderObject<MeshObject>> minimapMeshes, HashMap<UUID, RenderObject<Light>> hudLights) {
 
 		// user inputs
 		if (input.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -309,7 +309,7 @@ public class Window {
 		}
 
 		renderer.renderMesh(meshes, cameras, lights);
-		renderer.renderMiniMap(minimapMeshes, cameras);
+		renderer.renderMiniMap(minimapMeshes, cameras, hudLights);
 
 		glfwSwapBuffers(window); // swap the color buffers
 

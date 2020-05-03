@@ -127,7 +127,7 @@ class TestBench {
 
 		while (!window.shouldClose()) {
 
-			window.loop(new HashMap<>());
+			window.loop(new HashMap<>(), new HashMap<>());
 
 		}
 
@@ -217,7 +217,7 @@ class TestBench {
 
 		while (!window.shouldClose()) {
 
-			window.loop(new HashMap<>());
+			window.loop(new HashMap<>(), new HashMap<>());
 
 			long currentTime = System.currentTimeMillis();
 
@@ -331,7 +331,7 @@ class TestBench {
 
 		while (!window.shouldClose()) {
 
-			window.loop(new HashMap<>());
+			window.loop(new HashMap<>(), new HashMap<>());
 
 		}
 

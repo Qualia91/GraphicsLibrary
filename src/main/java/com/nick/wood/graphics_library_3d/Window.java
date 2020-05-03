@@ -143,7 +143,7 @@ public class Window {
 	public void init() {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainHudFragment.glsl");
+		hudShader = new Shader("/shaders/mainHudVertex.glsl", "/shaders/mainHudFragment.glsl");
 		renderer = new Renderer(this);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");

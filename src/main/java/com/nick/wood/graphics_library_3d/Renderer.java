@@ -40,6 +40,8 @@ public class Renderer {
 	private final Matrix4f orthoProjectionMatrix = createOrthoProjMatrix();
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
+	private final Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+
 	private Matrix4f createOrthoProjMatrix() {
 
 		float right = 10;
@@ -109,13 +111,14 @@ public class Renderer {
 
 		}
 
-		shader.setUniform("ambientLight", new Vec3f(0.5f, 0.5f, 0.5f));
+		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
 		// for now just use camera one
 		for (Map.Entry<UUID, RenderObject<Camera>> uuidRenderObjectCameraEntry : cameras.entrySet()) {
 
+			shader.setUniform("cameraPos", uuidRenderObjectCameraEntry.getValue().getTransform().multiply(uuidRenderObjectCameraEntry.getValue().getObject().getPos()));
 			shader.setUniform("view", uuidRenderObjectCameraEntry.getValue().getObject().getView(uuidRenderObjectCameraEntry.getValue().getTransform()));
 			shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 			shader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
@@ -152,13 +155,14 @@ public class Renderer {
 
 		hudShader.bind();
 
-		hudShader.setUniform("ambientLight", new Vec3f(0.5f, 0.5f, 0.5f));
+		hudShader.setUniform("ambientLight", ambientLight);
 		hudShader.setUniform("specularPower", 0.5f);
 		hudShader.setUniform("projection", projectionMatrix);
 
 		// for now just use camera one
 		for (Map.Entry<UUID, RenderObject<Camera>> uuidRenderObjectCameraEntry : cameras.entrySet()) {
 
+			hudShader.setUniform("cameraPos", uuidRenderObjectCameraEntry.getValue().getTransform().multiply(uuidRenderObjectCameraEntry.getValue().getObject().getPos()));
 			hudShader.setUniform("view", uuidRenderObjectCameraEntry.getValue().getObject().getView(uuidRenderObjectCameraEntry.getValue().getTransform()));
 			hudShader.setUniform("modelLightViewMatrix", lightViewMatrix);
 			hudShader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);

@@ -5,10 +5,12 @@ import com.nick.wood.graphics_library_3d.Vertex;
 
 public class Mesh {
 
+	private final boolean invertedNormals;
 	private MeshCommonData meshCommonData;
 
-	public Mesh(Vertex[] vertices, int[] indices, Material material) {
+	public Mesh(Vertex[] vertices, int[] indices, Material material, boolean invertedNormals) {
 		meshCommonData = new MeshCommonData(vertices, indices, material);
+		this.invertedNormals = invertedNormals;
 	}
 
 	public void create() {
@@ -69,5 +71,9 @@ public class Mesh {
 
 	public int getVertexCount() {
 		return meshCommonData.getVertexCount();
+	}
+
+	public boolean isInvertedNormals() {
+		return invertedNormals;
 	}
 }

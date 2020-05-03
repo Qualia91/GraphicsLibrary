@@ -88,7 +88,8 @@ public class CubeMesh implements MeshObject {
 				new Vertex(new Vec3f(0.5f, -0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.Y.scale(-normalSign)),
 		},
 				triangleIndexes,
-				material);
+				material,
+				invertedNormals);
 	}
 
 	public Mesh getMesh() {

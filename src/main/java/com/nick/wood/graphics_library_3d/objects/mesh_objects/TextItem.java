@@ -98,7 +98,7 @@ public class TextItem implements MeshObject {
 			indices[i*6 + 5] = i*VERTICES_PER_QUAD + 2;
 		}
 
-		return new Mesh(vertex, indices, material);
+		return new Mesh(vertex, indices, material, false);
 
 	}
 

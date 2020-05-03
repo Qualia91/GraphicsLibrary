@@ -63,7 +63,7 @@ public class ModelLoader {
 			}
 		}
 
-		return new Mesh(vertexArray, indexList, new Material(texturePath));
+		return new Mesh(vertexArray, indexList, new Material(texturePath), invertedNormals);
 	}
 
 	private static Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {

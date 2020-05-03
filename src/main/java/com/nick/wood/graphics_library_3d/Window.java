@@ -41,6 +41,7 @@ public class Window {
 	private String title;
 
 	private Shader shader;
+	private Shader hudShader;
 	private Renderer renderer;
 	private Matrix4f projectionMatrix;
 	private float newMouseX, newMouseY;
@@ -53,9 +54,13 @@ public class Window {
 
 	// im hoping the entries that no longer exist will be removed when expungeStaleEntries() method is called within
 	// weakhashmap. it will do this when it needs to call resize as the map has got too big.
-	WeakHashMap<UUID, RenderObject<Light>> lights = new WeakHashMap<>();
-	WeakHashMap<UUID, RenderObject<MeshObject>> meshes = new WeakHashMap<>();
-	WeakHashMap<UUID, RenderObject<Camera>> cameras = new WeakHashMap<>();
+
+	// changed them back to hash map as im no longer going to so the only update changed things stuff i was going to
+	// and just remake the render list every iteration. Keeping above comment in so that one day if i change my mind
+	// i will know to use weak hash map
+	HashMap<UUID, RenderObject<Light>> lights = new HashMap<>();
+	HashMap<UUID, RenderObject<MeshObject>> meshes = new HashMap<>();
+	HashMap<UUID, RenderObject<Camera>> cameras = new HashMap<>();
 
 	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootGameObject> gameRootObjects, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
 
@@ -79,7 +84,7 @@ public class Window {
 		this.gameObjects = gameRootObjects;
 
 		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
+			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
 	}
@@ -112,6 +117,7 @@ public class Window {
 		glfwDestroyWindow(window);
 
 		shader.destroy();
+		hudShader.destroy();
 
 		for (GameObjectNode gameObjectNode : gameObjects.values()) {
 			actOnMeshes(gameObjectNode, Mesh::destroy);
@@ -137,6 +143,7 @@ public class Window {
 	public void init() {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
+		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainHudFragment.glsl");
 		renderer = new Renderer(this);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -214,6 +221,7 @@ public class Window {
 		}
 
 		shader.create();
+		hudShader.create();
 	}
 
 	private void createCallbacks() {
@@ -233,7 +241,7 @@ public class Window {
 
 	}
 
-	public void loop() {
+	public void loop(HashMap<UUID, RenderObject<MeshObject>> minimapMeshes) {
 
 		// user inputs
 		if (input.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -297,16 +305,17 @@ public class Window {
 		cameras.clear();
 
 		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createInitialRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
+			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
-		renderer.renderMesh(meshes, cameras, lights, WIDTH, HEIGHT);
+		renderer.renderMesh(meshes, cameras, lights);
+		renderer.renderMiniMap(minimapMeshes, cameras);
 
 		glfwSwapBuffers(window); // swap the color buffers
 
 	}
 
-	private void createInitialRenderLists(WeakHashMap<UUID, RenderObject<Light>> lights, WeakHashMap<UUID, RenderObject<MeshObject>> meshes, WeakHashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4f transformationSoFar) {
+	private void createRenderLists(HashMap<UUID, RenderObject<Light>> lights, HashMap<UUID, RenderObject<MeshObject>> meshes, HashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4f transformationSoFar) {
 
 		if (isAvailableRenderData(gameObjectNode.getGameObjectNodeData())) {
 
@@ -317,28 +326,28 @@ public class Window {
 					case TRANSFORM:
 						TransformGameObject transformGameObject = (TransformGameObject) child;
 						Matrix4f newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
-						createInitialRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
+						createRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
 						break;
 					case LIGHT:
 						LightGameObject lightGameObject = (LightGameObject) child;
 						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getGameObjectNodeData().getUuid());
 						lights.put(child.getGameObjectNodeData().getUuid(), lightRenderObject);
-						createInitialRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
+						createRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
 						break;
 					case MESH:
 						MeshGameObject meshGameObject = (MeshGameObject) child;
 						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getGameObjectNodeData().getUuid());
 						meshes.put(child.getGameObjectNodeData().getUuid(), meshGroupRenderObject);
-						createInitialRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
+						createRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
 						break;
 					case CAMERA:
 						CameraGameObject cameraGameObject = (CameraGameObject) child;
 						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getGameObjectNodeData().getUuid());
 						cameras.put(child.getGameObjectNodeData().getUuid(), cameraRenderObject);
-						createInitialRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
+						createRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
 						break;
 					default:
-						createInitialRenderLists(lights, meshes, cameras, child, transformationSoFar);
+						createRenderLists(lights, meshes, cameras, child, transformationSoFar);
 						break;
 
 				}
@@ -367,5 +376,9 @@ public class Window {
 
 	public Shader getShader() {
 		return shader;
+	}
+
+	public Shader getHudShader() {
+		return hudShader;
 	}
 }

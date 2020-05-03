@@ -142,7 +142,7 @@ public class SphereMesh implements MeshObject {
 		}
 
 
-		mesh = new Mesh(vertices, indexList, material);
+		mesh = new Mesh(vertices, indexList, material, invertedNormals);
 	}
 
 	public Mesh getMesh() {

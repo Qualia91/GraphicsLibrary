@@ -9,12 +9,12 @@ public class ModelMesh implements MeshObject {
 
 	private final String filePath;
 	private final String texturePath;
-	private final Matrix4f rotationOfModel;
+	private final Matrix4f transform;
 	private Mesh mesh;
 
-	public ModelMesh(String filePath, String texturePath, Matrix4f rotationOfModel, boolean invertedNormals) {
+	public ModelMesh(String filePath, String texturePath, boolean invertedNormals, Matrix4f transform) {
 
-		this.rotationOfModel = rotationOfModel;
+		this.transform = transform;
 		this.filePath = filePath;
 		this.texturePath = texturePath;
 		try {
@@ -48,7 +48,7 @@ public class ModelMesh implements MeshObject {
 	}
 
 	@Override
-	public Matrix4f getRotationOfModel() {
-		return rotationOfModel;
+	public Matrix4f getMeshTransformation() {
+		return transform;
 	}
 }

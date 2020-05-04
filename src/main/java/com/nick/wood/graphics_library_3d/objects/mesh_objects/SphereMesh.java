@@ -10,9 +10,11 @@ public class SphereMesh implements MeshObject {
 
 	private Mesh mesh;
 	private final int triangleNumber;
+	private Matrix4f meshTransformation;
 
-	public SphereMesh(int triangleNumber, Material material, boolean invertedNormals ) {
+	public SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Matrix4f transformation) {
 		this.triangleNumber = triangleNumber;
+		this.meshTransformation = transformation;
 		int normalSign = invertedNormals ? -1 : 1;
 
 		Vec3f startFrontLeft = new Vec3f(-1.0f, 1.0f, 0.0f);
@@ -147,8 +149,12 @@ public class SphereMesh implements MeshObject {
 		return mesh;
 	}
 
+	public void setMeshTransformation(Matrix4f meshTransformation) {
+		this.meshTransformation = meshTransformation;
+	}
+
 	@Override
-	public Matrix4f getRotationOfModel() {
+	public Matrix4f getMeshTransformation() {
 		return Matrix4f.Identity;
 	}
 

@@ -5,7 +5,7 @@ import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
 import com.nick.wood.graphics_library_3d.lighting.SpotLight;
 import com.nick.wood.graphics_library_3d.objects.Camera;
-import com.nick.wood.graphics_library_3d.objects.game_objects.*;
+import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library_3d.input.Inputs;
 import com.nick.wood.graphics_library_3d.objects.Transform;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.*;
@@ -23,9 +23,9 @@ class TestBench {
 	@Test
 	public void shadow() {
 
-		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
+		HashMap<UUID, RootSceneGraph> gameObjects = new HashMap<>();
 
-		RootGameObject rootGameObject = new RootGameObject();
+		RootSceneGraph rootGameObject = new RootSceneGraph();
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
@@ -36,7 +36,7 @@ class TestBench {
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
-		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
+		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
 		//MeshObject cubeMesh = new ModelMesh(
 		//		"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
@@ -44,8 +44,11 @@ class TestBench {
 		//		Matrix4f.Rotation(-90, Vec3f.X),
 		//		false
 		//);
-		
-		MeshObject cubeMesh = new CubeMesh(false, new Material("/textures/white.png"));
+
+		MeshObject cubeMesh = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.build();
+
 		Transform transformMesh = new Transform(
 				Vec3f.Z.scale(0),
 				Vec3f.ONE,
@@ -54,8 +57,8 @@ class TestBench {
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
 		);
-		TransformGameObject meshTransform = new TransformGameObject(wholeSceneTransform, transformMesh);
-		MeshGameObject meshGameObject = new MeshGameObject(
+		TransformSceneGraph meshTransform = new TransformSceneGraph(wholeSceneTransform, transformMesh);
+		MeshSceneGraph meshGameObject = new MeshSceneGraph(
 				meshTransform,
 				cubeMesh
 		);
@@ -69,8 +72,8 @@ class TestBench {
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
 		);
-		TransformGameObject meshTransformWall = new TransformGameObject(wholeSceneTransform, transformMeshWall);
-		MeshGameObject meshGameObjectWall = new MeshGameObject(
+		TransformSceneGraph meshTransformWall = new TransformSceneGraph(wholeSceneTransform, transformMeshWall);
+		MeshSceneGraph meshGameObjectWall = new MeshSceneGraph(
 				meshTransformWall,
 				cubeMesh
 		);
@@ -92,7 +95,10 @@ class TestBench {
 				0.02f
 		);
 
-		MeshObject sphereMesh = new SphereMesh(10, new Material("/textures/sand.jpg"), true);
+		MeshObject sphereMesh = new MeshBuilder()
+				.setTexture("/textures/sand.jpg")
+				.setInvertedNormals(true)
+				.build();
 
 		createLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
 		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -15.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
@@ -109,9 +115,9 @@ class TestBench {
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
-		TransformGameObject cameraTransformGameObject = new TransformGameObject(wholeSceneTransform, cameraTransform);
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 
-		CameraGameObject cameraGameObject = new CameraGameObject(cameraTransformGameObject, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
@@ -138,9 +144,9 @@ class TestBench {
 	@Test
 	public void stress() {
 
-		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
+		HashMap<UUID, RootSceneGraph> gameObjects = new HashMap<>();
 
-		RootGameObject rootGameObject = new RootGameObject();
+		RootSceneGraph rootGameObject = new RootSceneGraph();
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
@@ -151,14 +157,15 @@ class TestBench {
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
-		MeshObject meshGroup = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj",
-				"/textures/white.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
-				false
-		);
 
-		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
+		MeshObject meshGroup = new MeshBuilder()
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
+				.setTexture("/textures/sand.jpg")
+				.setTransform(Matrix4f.Rotation(-90, Vec3f.X))
+				.build();
+
+		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
 		for (int i = 0; i < 1100; i++) {
 			createObject(Vec3f.Y.scale(i), wholeSceneTransform, meshGroup);
@@ -167,14 +174,9 @@ class TestBench {
 
 		createAxis(wholeSceneTransform);
 
-		MeshObject meshGroupLight = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj",
-				"/textures/white.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
-				true
-		);
-
-
+		MeshObject meshGroupLight = new MeshBuilder()
+				.setInvertedNormals(true)
+				.build();
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -197,7 +199,7 @@ class TestBench {
 
 		Camera camera = new Camera(new Vec3f(0.0f, 0.0f, 10.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		CameraGameObject cameraGameObject = new CameraGameObject(wholeSceneTransform, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(wholeSceneTransform, camera, CameraType.PRIMARY);
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
@@ -231,7 +233,7 @@ class TestBench {
 
 	}
 
-	private void createObject(Vec3f pos, GameObjectNode parent, MeshObject meshGroup) {
+	private void createObject(Vec3f pos, SceneGraphNode parent, MeshObject meshGroup) {
 
 		Transform transformMesh = new Transform(
 				pos,
@@ -241,8 +243,8 @@ class TestBench {
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
 		);
-		TransformGameObject meshTransform = new TransformGameObject(parent, transformMesh);
-		MeshGameObject meshGameObject = new MeshGameObject(
+		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
+		MeshSceneGraph meshGameObject = new MeshSceneGraph(
 				meshTransform,
 				meshGroup
 		);
@@ -251,9 +253,9 @@ class TestBench {
 	@Test
 	public void normal() {
 
-		HashMap<UUID, RootGameObject> gameObjects = new HashMap<>();
+		HashMap<UUID, RootSceneGraph> gameObjects = new HashMap<>();
 
-		RootGameObject rootGameObject = new RootGameObject();
+		RootSceneGraph rootGameObject = new RootSceneGraph();
 
 		Transform hudTransform = new Transform(
 				Vec3f.X,
@@ -261,11 +263,11 @@ class TestBench {
 				Matrix4f.Identity
 		);
 
-		TransformGameObject hudTransformGameObject = new TransformGameObject(rootGameObject, hudTransform);
+		TransformSceneGraph hudTransformGameObject = new TransformSceneGraph(rootGameObject, hudTransform);
 
 		TextItem textItem = new TextItem("hello", "/font/gothic.bmp", 16, 16);
 
-		MeshGameObject textMeshObject = new MeshGameObject(hudTransformGameObject, textItem);
+		MeshSceneGraph textMeshObject = new MeshSceneGraph(hudTransformGameObject, textItem);
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
@@ -276,12 +278,10 @@ class TestBench {
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
-		TransformGameObject wholeSceneTransform = new TransformGameObject(rootGameObject, transform);
+		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
-		MeshObject meshGroupLight =  new SphereMesh(10,
-				new Material("/textures/white.png"),
-				false
-		);
+		MeshObject meshGroupLight = new MeshBuilder()
+				.build();
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -313,9 +313,9 @@ class TestBench {
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
-		TransformGameObject cameraTransformGameObject = new TransformGameObject(wholeSceneTransform, cameraTransform);
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 
-		CameraGameObject cameraGameObject = new CameraGameObject(cameraTransformGameObject, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
@@ -339,80 +339,75 @@ class TestBench {
 
 	}
 
-	private void createAxis(TransformGameObject wholeSceneTransform) {
-		MeshObject meshGroupX = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
-				"/textures/red.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
-				false
-		);
+	private void createAxis(TransformSceneGraph wholeSceneTransform) {
+
+		MeshObject meshGroupX = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/red.png")
+				.build();
 
 		Transform transformMeshX = new Transform(
 				Vec3f.X.scale(5),
 				Vec3f.ONE.scale(0.1f).add(Vec3f.X.scale(10)),
 				Matrix4f.Identity
 		);
-		TransformGameObject meshTransformX = new TransformGameObject(wholeSceneTransform, transformMeshX);
-		MeshGameObject meshGameObjectX = new MeshGameObject(
+		TransformSceneGraph meshTransformX = new TransformSceneGraph(wholeSceneTransform, transformMeshX);
+		MeshSceneGraph meshGameObjectX = new MeshSceneGraph(
 				meshTransformX,
 				meshGroupX
 		);
 
-		MeshObject meshGroupY = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
-				"/textures/green.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
-				false
-		);
+		MeshObject meshGroupY = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/red.png")
+				.build();
 
 		Transform transformMeshY = new Transform(
 				Vec3f.Y.scale(5),
 				Vec3f.ONE.scale(0.1f).add(Vec3f.Y.scale(10)),
 				Matrix4f.Identity
 		);
-		TransformGameObject meshTransformY = new TransformGameObject(wholeSceneTransform, transformMeshY);
-		MeshGameObject meshGameObjectY = new MeshGameObject(
+		TransformSceneGraph meshTransformY = new TransformSceneGraph(wholeSceneTransform, transformMeshY);
+		MeshSceneGraph meshGameObjectY = new MeshSceneGraph(
 				meshTransformY,
 				meshGroupY
 		);
 
-		MeshObject meshGroupZ = new ModelMesh(
-				"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
-				"/textures/blue.png",
-				Matrix4f.Rotation(-90, Vec3f.X),
-				false
-		);
+		MeshObject meshGroupZ = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/red.png")
+				.build();
 
 		Transform transformMeshZ = new Transform(
 				Vec3f.Z.scale(5),
 				Vec3f.ONE.scale(0.1f).add(Vec3f.Z.scale(10)),
 				Matrix4f.Identity
 		);
-		TransformGameObject meshTransformZ = new TransformGameObject(wholeSceneTransform, transformMeshZ);
-		MeshGameObject meshGameObjectZ = new MeshGameObject(
+		TransformSceneGraph meshTransformZ = new TransformSceneGraph(wholeSceneTransform, transformMeshZ);
+		MeshSceneGraph meshGameObjectZ = new MeshSceneGraph(
 				meshTransformZ,
 				meshGroupZ
 		);
 	}
 
-	private void createLight(Light light, GameObjectNode parent, Vec3f position, Vec3f scale, Matrix4f rotation, MeshObject meshGroup) {
+	private void createLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale, Matrix4f rotation, MeshObject meshGroup) {
 		Transform lightGameObjectTransform = new Transform(
 				position,
 				scale,
 				rotation
 		);
-		TransformGameObject transformGameObject = new TransformGameObject(parent, lightGameObjectTransform);
-		LightGameObject lightGameObject = new LightGameObject(transformGameObject, light);
-		MeshGameObject meshGameObject = new MeshGameObject(
+		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
+		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
+		MeshSceneGraph meshGameObject = new MeshSceneGraph(
 				transformGameObject,
 				meshGroup
 		);
 	}
 
-	private void createLight(Light light, GameObjectNode parent, Transform lightGameObjectTransform, MeshObject meshGroup) {
-		TransformGameObject transformGameObject = new TransformGameObject(parent, lightGameObjectTransform);
-		LightGameObject lightGameObject = new LightGameObject(transformGameObject, light);
-		MeshGameObject meshGameObject = new MeshGameObject(
+	private void createLight(Light light, SceneGraphNode parent, Transform lightGameObjectTransform, MeshObject meshGroup) {
+		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
+		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
+		MeshSceneGraph meshGameObject = new MeshSceneGraph(
 				transformGameObject,
 				meshGroup
 		);

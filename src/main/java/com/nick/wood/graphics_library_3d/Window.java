@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library_3d;
 
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.objects.Camera;
-import com.nick.wood.graphics_library_3d.objects.game_objects.*;
+import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library_3d.input.Inputs;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
@@ -50,7 +50,7 @@ public class Window {
 
 	private boolean windowSizeChanged = false;
 
-	HashMap<UUID, RootGameObject> gameObjects;
+	HashMap<UUID, RootSceneGraph> gameObjects;
 
 	// im hoping the entries that no longer exist will be removed when expungeStaleEntries() method is called within
 	// weakhashmap. it will do this when it needs to call resize as the map has got too big.
@@ -62,7 +62,7 @@ public class Window {
 	HashMap<UUID, RenderObject<MeshObject>> meshes = new HashMap<>();
 	HashMap<UUID, RenderObject<Camera>> cameras = new HashMap<>();
 
-	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootGameObject> gameRootObjects, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
+	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootSceneGraph> gameRootObjects, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
@@ -70,7 +70,7 @@ public class Window {
 		this.enableCameraViewControls = enableCameraViewControls;
 		this.enableCameraMoveControls = enableCameraMoveControls;
 
-		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameRootObjects.entrySet()) {
+		for (Map.Entry<UUID, RootSceneGraph> uuidRootGameObjectEntry : gameRootObjects.entrySet()) {
 			this.camera = getPrimaryCamera(uuidRootGameObjectEntry.getValue(), null);
 			if (this.camera != null) {
 				break;
@@ -83,16 +83,16 @@ public class Window {
 
 		this.gameObjects = gameRootObjects;
 
-		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
+		for (Map.Entry<UUID, RootSceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
 			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
 	}
 
-	private Camera getPrimaryCamera(GameObjectNode gameObjectNode, Camera camera) {
-		for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
-			if (child instanceof CameraGameObject) {
-				CameraGameObject cameraGameObject = (CameraGameObject) child;
+	private Camera getPrimaryCamera(SceneGraphNode sceneGraphNode, Camera camera) {
+		for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
+			if (child instanceof CameraSceneGraph) {
+				CameraSceneGraph cameraGameObject = (CameraSceneGraph) child;
 				if (cameraGameObject.getCameraType() == CameraType.PRIMARY) {
 					return cameraGameObject.getCamera();
 				}
@@ -119,8 +119,8 @@ public class Window {
 		shader.destroy();
 		hudShader.destroy();
 
-		for (GameObjectNode gameObjectNode : gameObjects.values()) {
-			actOnMeshes(gameObjectNode, Mesh::destroy);
+		for (SceneGraphNode sceneGraphNode : gameObjects.values()) {
+			actOnMeshes(sceneGraphNode, Mesh::destroy);
 		}
 
 		// Terminate GLFW and free the error callback
@@ -128,13 +128,13 @@ public class Window {
 		glfwSetErrorCallback(null).free();
 	}
 
-	private void actOnMeshes(GameObjectNode gameObjectNode, Consumer<Mesh> meshFunction) {
-		if (gameObjectNode instanceof MeshGameObject) {
-			MeshGameObject meshGameObject = (MeshGameObject) gameObjectNode;
+	private void actOnMeshes(SceneGraphNode sceneGraphNode, Consumer<Mesh> meshFunction) {
+		if (sceneGraphNode instanceof MeshSceneGraph) {
+			MeshSceneGraph meshGameObject = (MeshSceneGraph) sceneGraphNode;
 			meshFunction.accept(meshGameObject.getMeshObject().getMesh());
 		}
-		if (gameObjectNode.getGameObjectNodeData().containsMeshes()) {
-			for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
+		if (sceneGraphNode.getSceneGraphNodeData().containsMeshes()) {
+			for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
 				actOnMeshes(child, meshFunction);
 			}
 		}
@@ -216,8 +216,8 @@ public class Window {
 		// this locks cursor to center so can always look about
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		for (GameObjectNode gameObjectNode : gameObjects.values()) {
-			actOnMeshes(gameObjectNode, Mesh::create);
+		for (SceneGraphNode sceneGraphNode : gameObjects.values()) {
+			actOnMeshes(sceneGraphNode, Mesh::create);
 		}
 
 		shader.create();
@@ -304,7 +304,7 @@ public class Window {
 		meshes.clear();
 		cameras.clear();
 
-		for (Map.Entry<UUID, RootGameObject> uuidRootGameObjectEntry : gameObjects.entrySet()) {
+		for (Map.Entry<UUID, RootSceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
 			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
@@ -315,35 +315,35 @@ public class Window {
 
 	}
 
-	private void createRenderLists(HashMap<UUID, RenderObject<Light>> lights, HashMap<UUID, RenderObject<MeshObject>> meshes, HashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4f transformationSoFar) {
+	private void createRenderLists(HashMap<UUID, RenderObject<Light>> lights, HashMap<UUID, RenderObject<MeshObject>> meshes, HashMap<UUID, RenderObject<Camera>> cameras, SceneGraphNode sceneGraphNode, Matrix4f transformationSoFar) {
 
-		if (isAvailableRenderData(gameObjectNode.getGameObjectNodeData())) {
+		if (isAvailableRenderData(sceneGraphNode.getSceneGraphNodeData())) {
 
-			for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
+			for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
 
-				switch (child.getGameObjectNodeData().getType()) {
+				switch (child.getSceneGraphNodeData().getType()) {
 
 					case TRANSFORM:
-						TransformGameObject transformGameObject = (TransformGameObject) child;
+						TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
 						Matrix4f newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
 						createRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
 						break;
 					case LIGHT:
-						LightGameObject lightGameObject = (LightGameObject) child;
-						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getGameObjectNodeData().getUuid());
-						lights.put(child.getGameObjectNodeData().getUuid(), lightRenderObject);
+						LightSceneGraph lightGameObject = (LightSceneGraph) child;
+						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
+						lights.put(child.getSceneGraphNodeData().getUuid(), lightRenderObject);
 						createRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
 						break;
 					case MESH:
-						MeshGameObject meshGameObject = (MeshGameObject) child;
-						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getGameObjectNodeData().getUuid());
-						meshes.put(child.getGameObjectNodeData().getUuid(), meshGroupRenderObject);
+						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
+						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
+						meshes.put(child.getSceneGraphNodeData().getUuid(), meshGroupRenderObject);
 						createRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
 						break;
 					case CAMERA:
-						CameraGameObject cameraGameObject = (CameraGameObject) child;
-						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getGameObjectNodeData().getUuid());
-						cameras.put(child.getGameObjectNodeData().getUuid(), cameraRenderObject);
+						CameraSceneGraph cameraGameObject = (CameraSceneGraph) child;
+						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getSceneGraphNodeData().getUuid());
+						cameras.put(child.getSceneGraphNodeData().getUuid(), cameraRenderObject);
 						createRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
 						break;
 					default:
@@ -358,8 +358,8 @@ public class Window {
 
 	}
 
-	private boolean isAvailableRenderData(GameObjectNodeData gameObjectNodeData) {
-		return gameObjectNodeData.containsMeshes() || gameObjectNodeData.containsCameras() || gameObjectNodeData.containsLights();
+	private boolean isAvailableRenderData(SceneGraphNodeData sceneGraphNodeData) {
+		return sceneGraphNodeData.containsMeshes() || sceneGraphNodeData.containsCameras() || sceneGraphNodeData.containsLights();
 	}
 
 	public void setTitle(String title) {

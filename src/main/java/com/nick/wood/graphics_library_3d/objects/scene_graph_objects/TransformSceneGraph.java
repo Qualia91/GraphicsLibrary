@@ -1,17 +1,17 @@
-package com.nick.wood.graphics_library_3d.objects.game_objects;
+package com.nick.wood.graphics_library_3d.objects.scene_graph_objects;
 
 import com.nick.wood.graphics_library_3d.objects.Transform;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
-public class TransformGameObject implements GameObjectNode {
+public class TransformSceneGraph implements SceneGraphNode {
 
-	private final GameObjectNodeData gameObjectNodeData;
+	private final SceneGraphNodeData sceneGraphNodeData;
 	private final Transform transform;
 	private boolean changedSinceRender;
 
-	public TransformGameObject(GameObjectNode parent, Transform transform) {
-		this.gameObjectNodeData = new GameObjectNodeData(parent, GameObjectType.TRANSFORM, this);
+	public TransformSceneGraph(SceneGraphNode parent, Transform transform) {
+		this.sceneGraphNodeData = new SceneGraphNodeData(parent, RenderObjectType.TRANSFORM, this);
 		this.transform = transform;
 	}
 
@@ -36,7 +36,7 @@ public class TransformGameObject implements GameObjectNode {
 	}
 
 	@Override
-	public GameObjectNodeData getGameObjectNodeData() {
-		return gameObjectNodeData;
+	public SceneGraphNodeData getSceneGraphNodeData() {
+		return sceneGraphNodeData;
 	}
 }

@@ -112,7 +112,7 @@ public class TextItem implements MeshObject {
 	}
 
 	@Override
-	public Matrix4f getRotationOfModel() {
+	public Matrix4f getMeshTransformation() {
 		return Matrix4f.Identity;
 	}
 

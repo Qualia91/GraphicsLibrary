@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library_3d.objects.game_objects;
+package com.nick.wood.graphics_library_3d.objects.scene_graph_objects;
 
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 

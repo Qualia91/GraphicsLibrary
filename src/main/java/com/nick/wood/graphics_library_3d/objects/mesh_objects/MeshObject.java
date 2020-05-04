@@ -4,6 +4,6 @@ import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 public interface MeshObject {
 	Mesh getMesh();
-	Matrix4f getRotationOfModel();
+	Matrix4f getMeshTransformation();
 	String getStringToCompare();
 }

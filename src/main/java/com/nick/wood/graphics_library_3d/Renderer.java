@@ -5,7 +5,7 @@ import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.lighting.DirectionalLight;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
 import com.nick.wood.graphics_library_3d.lighting.SpotLight;
-import com.nick.wood.graphics_library_3d.objects.game_objects.RenderObject;
+import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.RenderObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.TextItem;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
@@ -68,7 +68,7 @@ public class Renderer {
 
 	private void addToInstance(HashMap<String, HashCodeCounter> meshedMeshFiles, Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry, String appendString) {
 		if (!meshedMeshFiles.containsKey(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString)) {
-			meshedMeshFiles.put(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString, new HashCodeCounter(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString, meshObjectEntry.getValue().getObject(), meshObjectEntry.getValue().getObject().getRotationOfModel(), meshObjectEntry.getValue().getTransform()));
+			meshedMeshFiles.put(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString, new HashCodeCounter(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString, meshObjectEntry.getValue().getObject(), meshObjectEntry.getValue().getObject().getMeshTransformation(), meshObjectEntry.getValue().getTransform()));
 		} else {
 			if (meshedMeshFiles.get(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString).getAmount() <= MAX_INSTANCE) {
 				meshedMeshFiles.get(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString).addInstance(meshObjectEntry.getValue().getTransform());

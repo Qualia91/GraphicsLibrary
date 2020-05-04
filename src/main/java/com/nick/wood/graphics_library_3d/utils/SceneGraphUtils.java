@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library_3d.utils;
 
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.objects.Camera;
-import com.nick.wood.graphics_library_3d.objects.game_objects.*;
+import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 
@@ -11,35 +11,35 @@ import java.util.WeakHashMap;
 
 public class SceneGraphUtils {
 
-	static private void createRenderLists(WeakHashMap<UUID, RenderObject<Light>> lights, WeakHashMap<UUID, RenderObject<MeshObject>> meshes, WeakHashMap<UUID, RenderObject<Camera>> cameras, GameObjectNode gameObjectNode, Matrix4f transformationSoFar) {
+	static private void createRenderLists(WeakHashMap<UUID, RenderObject<Light>> lights, WeakHashMap<UUID, RenderObject<MeshObject>> meshes, WeakHashMap<UUID, RenderObject<Camera>> cameras, SceneGraphNode sceneGraphNode, Matrix4f transformationSoFar) {
 
-		if (isAvailableRenderData(gameObjectNode.getGameObjectNodeData())) {
+		if (isAvailableRenderData(sceneGraphNode.getSceneGraphNodeData())) {
 
-			for (GameObjectNode child : gameObjectNode.getGameObjectNodeData().getChildren()) {
+			for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
 
-				switch (child.getGameObjectNodeData().getType()) {
+				switch (child.getSceneGraphNodeData().getType()) {
 
 					case TRANSFORM:
-						TransformGameObject transformGameObject = (TransformGameObject) child;
+						TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
 						Matrix4f newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
 						createRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
 						break;
 					case LIGHT:
-						LightGameObject lightGameObject = (LightGameObject) child;
-						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getGameObjectNodeData().getUuid());
-						lights.put(child.getGameObjectNodeData().getUuid(), lightRenderObject);
+						LightSceneGraph lightGameObject = (LightSceneGraph) child;
+						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
+						lights.put(child.getSceneGraphNodeData().getUuid(), lightRenderObject);
 						createRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
 						break;
 					case MESH:
-						MeshGameObject meshGameObject = (MeshGameObject) child;
-						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getGameObjectNodeData().getUuid());
-						meshes.put(child.getGameObjectNodeData().getUuid(), meshGroupRenderObject);
+						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
+						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
+						meshes.put(child.getSceneGraphNodeData().getUuid(), meshGroupRenderObject);
 						createRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
 						break;
 					case CAMERA:
-						CameraGameObject cameraGameObject = (CameraGameObject) child;
-						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getGameObjectNodeData().getUuid());
-						cameras.put(child.getGameObjectNodeData().getUuid(), cameraRenderObject);
+						CameraSceneGraph cameraGameObject = (CameraSceneGraph) child;
+						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getSceneGraphNodeData().getUuid());
+						cameras.put(child.getSceneGraphNodeData().getUuid(), cameraRenderObject);
 						createRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
 						break;
 					default:
@@ -54,7 +54,7 @@ public class SceneGraphUtils {
 
 	}
 
-	static private boolean isAvailableRenderData(GameObjectNodeData gameObjectNodeData) {
-		return gameObjectNodeData.containsMeshes() || gameObjectNodeData.containsCameras() || gameObjectNodeData.containsLights();
+	static private boolean isAvailableRenderData(SceneGraphNodeData sceneGraphNodeData) {
+		return sceneGraphNodeData.containsMeshes() || sceneGraphNodeData.containsCameras() || sceneGraphNodeData.containsLights();
 	}
 }

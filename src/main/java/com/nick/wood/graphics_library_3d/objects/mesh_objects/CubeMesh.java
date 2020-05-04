@@ -8,7 +8,7 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class CubeMesh implements MeshObject {
 
-	private final Matrix4f rotationOfModel = Matrix4f.Identity;
+	private Matrix4f transformation;
 	private final Mesh mesh;
 
 	private int[] triangleIndexes = new int[]{
@@ -37,8 +37,8 @@ public class CubeMesh implements MeshObject {
 			23, 21, 22
 	};
 
-	public CubeMesh(boolean invertedNormals, Material material) {
-
+	public CubeMesh(Material material, boolean invertedNormals, Matrix4f transform) {
+		this.transformation = transform;
 		int normalSign = 1;
 		if (invertedNormals) {
 			normalSign = -1;
@@ -97,8 +97,12 @@ public class CubeMesh implements MeshObject {
 	}
 
 	@Override
-	public Matrix4f getRotationOfModel() {
-		return rotationOfModel;
+	public Matrix4f getMeshTransformation() {
+		return transformation;
+	}
+
+	public void setTransformation(Matrix4f transformation) {
+		this.transformation = transformation;
 	}
 
 	@Override

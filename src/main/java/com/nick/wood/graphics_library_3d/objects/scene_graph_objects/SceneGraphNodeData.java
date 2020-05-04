@@ -1,52 +1,52 @@
-package com.nick.wood.graphics_library_3d.objects.game_objects;
+package com.nick.wood.graphics_library_3d.objects.scene_graph_objects;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class GameObjectNodeData {
+public class SceneGraphNodeData {
 
 	private final UUID uuid = UUID.randomUUID();
-	private final GameObjectNode parent;
-	private final ArrayList<GameObjectNode> children;
-	private final GameObjectType gameObjectType;
+	private final SceneGraphNode parent;
+	private final ArrayList<SceneGraphNode> children;
+	private final RenderObjectType renderObjectType;
 	private int numberOfPlayers;
 	private int numberOfMeshes;
 	private int numberOfLights;
 	private int numberOfCameras;
 
 
-	public GameObjectNodeData(GameObjectNode parent, GameObjectType gameObjectType, GameObjectNode gameObjectNode) {
+	public SceneGraphNodeData(SceneGraphNode parent, RenderObjectType renderObjectType, SceneGraphNode sceneGraphNode) {
 		this.parent = parent;
 		if (parent != null) {
-			parent.getGameObjectNodeData().getChildren().add(gameObjectNode);
-			parent.getGameObjectNodeData().addType(gameObjectType);
+			parent.getSceneGraphNodeData().getChildren().add(sceneGraphNode);
+			parent.getSceneGraphNodeData().addType(renderObjectType);
 		}
 		this.children = new ArrayList<>();
-		this.gameObjectType = gameObjectType;
+		this.renderObjectType = renderObjectType;
 		this.numberOfPlayers = 0;
 		this.numberOfMeshes = 0;
 		this.numberOfLights = 0;
 		this.numberOfCameras = 0;
 	}
 
-	public GameObjectNode getParent() {
+	public SceneGraphNode getParent() {
 		return parent;
 	}
 
-	public ArrayList<GameObjectNode> getChildren() {
+	public ArrayList<SceneGraphNode> getChildren() {
 		return  children;
 	}
 
-	public GameObjectType getType() {
-		return gameObjectType;
+	public RenderObjectType getType() {
+		return renderObjectType;
 	}
 
-	public void addGameObjectNode(GameObjectNode gameObjectNode) {
-		children.add(gameObjectNode);
+	public void addGameObjectNode(SceneGraphNode sceneGraphNode) {
+		children.add(sceneGraphNode);
 	}
 
-	public void removeGameObjectNode(GameObjectNode gameObjectNode) {
-		children.remove(gameObjectNode);
+	public void removeGameObjectNode(SceneGraphNode sceneGraphNode) {
+		children.remove(sceneGraphNode);
 	}
 
 	public boolean containsPlayer() {
@@ -65,7 +65,7 @@ public class GameObjectNodeData {
 		return numberOfCameras > 0;
 	}
 
-	public void addType(GameObjectType type) {
+	public void addType(RenderObjectType type) {
 		switch (type){
 			case PLAYER:
 				numberOfPlayers++;
@@ -83,11 +83,11 @@ public class GameObjectNodeData {
 				break;
 		}
 		if (parent != null) {
-			parent.getGameObjectNodeData().addType(type);
+			parent.getSceneGraphNodeData().addType(type);
 		}
 	}
 
-	public void removeType(GameObjectType type) {
+	public void removeType(RenderObjectType type) {
 		switch (type){
 			case PLAYER:
 				numberOfPlayers--;
@@ -105,7 +105,7 @@ public class GameObjectNodeData {
 				break;
 		}
 		if (parent != null) {
-			parent.getGameObjectNodeData().removeType(type);
+			parent.getSceneGraphNodeData().removeType(type);
 		}
 	}
 

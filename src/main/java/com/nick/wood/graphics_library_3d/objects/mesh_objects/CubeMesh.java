@@ -37,7 +37,7 @@ public class CubeMesh implements MeshObject {
 			23, 21, 22
 	};
 
-	public CubeMesh(Material material, boolean invertedNormals, Matrix4f transform) {
+	CubeMesh(Material material, boolean invertedNormals, Matrix4f transform) {
 		this.transformation = transform;
 		int normalSign = 1;
 		if (invertedNormals) {

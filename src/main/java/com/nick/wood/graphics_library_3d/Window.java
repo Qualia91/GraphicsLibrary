@@ -33,7 +33,12 @@ public class Window {
 	private final Inputs input;
 	private final boolean enableCameraViewControls;
 	private final boolean enableCameraMoveControls;
-	private Camera camera;
+	private final HashMap<UUID, RenderObject<Light>> lights;
+	private final HashMap<UUID, RenderObject<MeshObject>> meshes;
+	private final HashMap<UUID, RenderObject<Camera>> cameras;
+	private final HashMap<UUID, RenderObject<Light>> lightsHud;
+	private final HashMap<UUID, RenderObject<MeshObject>> meshesHud;
+	private final HashMap<UUID, RenderObject<Camera>> camerasHud;
 	// The window handle
 	private long window;
 	private int WIDTH;
@@ -50,19 +55,7 @@ public class Window {
 
 	private boolean windowSizeChanged = false;
 
-	HashMap<UUID, RootSceneGraph> gameObjects;
-
-	// im hoping the entries that no longer exist will be removed when expungeStaleEntries() method is called within
-	// weakhashmap. it will do this when it needs to call resize as the map has got too big.
-
-	// changed them back to hash map as im no longer going to so the only update changed things stuff i was going to
-	// and just remake the render list every iteration. Keeping above comment in so that one day if i change my mind
-	// i will know to use weak hash map
-	HashMap<UUID, RenderObject<Light>> lights = new HashMap<>();
-	HashMap<UUID, RenderObject<MeshObject>> meshes = new HashMap<>();
-	HashMap<UUID, RenderObject<Camera>> cameras = new HashMap<>();
-
-	public Window(int WIDTH, int HEIGHT, String title, HashMap<UUID, RootSceneGraph> gameRootObjects, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
+	public Window(int WIDTH, int HEIGHT, String title, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
@@ -70,40 +63,18 @@ public class Window {
 		this.enableCameraViewControls = enableCameraViewControls;
 		this.enableCameraMoveControls = enableCameraMoveControls;
 
-		for (Map.Entry<UUID, RootSceneGraph> uuidRootGameObjectEntry : gameRootObjects.entrySet()) {
-			this.camera = getPrimaryCamera(uuidRootGameObjectEntry.getValue(), null);
-			if (this.camera != null) {
-				break;
-			}
-		}
+
+		this.lights = new HashMap<>();
+		this.meshes = new HashMap<>();
+		this.cameras = new HashMap<>();
+		this.lightsHud = new HashMap<>();
+		this.meshesHud = new HashMap<>();
+		this.camerasHud = new HashMap<>();
 
 		this.input = input;
 
 		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
 
-		this.gameObjects = gameRootObjects;
-
-		for (Map.Entry<UUID, RootSceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
-		}
-
-	}
-
-	private Camera getPrimaryCamera(SceneGraphNode sceneGraphNode, Camera camera) {
-		for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
-			if (child instanceof CameraSceneGraph) {
-				CameraSceneGraph cameraGameObject = (CameraSceneGraph) child;
-				if (cameraGameObject.getCameraType() == CameraType.PRIMARY) {
-					return cameraGameObject.getCamera();
-				}
-			} else {
-				Camera newCamera = getPrimaryCamera(child, camera);
-				if (newCamera != null) {
-					return newCamera;
-				}
-			}
-		}
-		return camera;
 	}
 
 	public boolean shouldClose() {
@@ -119,9 +90,10 @@ public class Window {
 		shader.destroy();
 		hudShader.destroy();
 
-		for (SceneGraphNode sceneGraphNode : gameObjects.values()) {
-			actOnMeshes(sceneGraphNode, Mesh::destroy);
-		}
+		// todo this needs to go somewhere
+		//for (SceneGraphNode sceneGraphNode : gameObjects.values()) {
+		//	actOnMeshes(sceneGraphNode, Mesh::destroy);
+		//}
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
@@ -216,10 +188,6 @@ public class Window {
 		// this locks cursor to center so can always look about
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		for (SceneGraphNode sceneGraphNode : gameObjects.values()) {
-			actOnMeshes(sceneGraphNode, Mesh::create);
-		}
-
 		shader.create();
 		hudShader.create();
 	}
@@ -241,46 +209,11 @@ public class Window {
 
 	}
 
-	public void loop(HashMap<UUID, RenderObject<MeshObject>> minimapMeshes, HashMap<UUID, RenderObject<Light>> hudLights) {
+	public void loop(HashMap<UUID, SceneGraph> gameObjects, HashMap<UUID, SceneGraph> hudObjects, UUID primaryCamera) {
 
 		// user inputs
 		if (input.isKeyPressed(GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(window, true);
-		}
-
-		if (enableCameraViewControls) {
-			newMouseX = input.getMouseX();
-			newMouseY = input.getMouseY();
-			float dx = newMouseX - oldMouseX;
-			float dy = newMouseY - oldMouseY;
-			if (oldMouseX == 0 && oldMouseY == 0) {
-				dx = 0.0f;
-				dy = 0.0f;
-			}
-			oldMouseX = newMouseX;
-			oldMouseY = newMouseY;
-
-			camera.rotate(dx, dy);
-		}
-		if (enableCameraMoveControls) {
-			if (input.isKeyPressed(GLFW_KEY_A)) {
-				camera.left();
-			}
-			if (input.isKeyPressed(GLFW_KEY_W)) {
-				camera.forward();
-			}
-			if (input.isKeyPressed(GLFW_KEY_D)) {
-				camera.right();
-			}
-			if (input.isKeyPressed(GLFW_KEY_S)) {
-				camera.back();
-			}
-			if (input.isKeyPressed(GLFW_KEY_SPACE)) {
-				camera.up();
-			}
-			if (input.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-				camera.down();
-			}
 		}
 
 		if (windowSizeChanged) {
@@ -297,20 +230,23 @@ public class Window {
 		// invoked during this call.
 		glfwPollEvents();
 
-		// todo could only load thing that will be viewable by the camera
-		// get all lights, meshes and cameras in the scene in arrays to pass to renderer.
-
 		lights.clear();
 		meshes.clear();
 		cameras.clear();
+		lightsHud.clear();
+		meshesHud.clear();
+		camerasHud.clear();
 
-		for (Map.Entry<UUID, RootSceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
+		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
 			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
-		renderer.renderMesh(meshes, cameras, lights);
-		renderer.renderMiniMap(minimapMeshes, cameras, hudLights);
+		//for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
+		//	createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
+		//}
 
+		renderer.renderMesh(meshes, cameras.get(primaryCamera), lights);
+		//renderer.renderMiniMap(meshesHud, cameras.get(primaryCamera), lightsHud);
 		glfwSwapBuffers(window); // swap the color buffers
 
 	}
@@ -337,6 +273,9 @@ public class Window {
 					case MESH:
 						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
 						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
+						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
+							meshGameObject.getMeshObject().getMesh().create();
+						}
 						meshes.put(child.getSceneGraphNodeData().getUuid(), meshGroupRenderObject);
 						createRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
 						break;

@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class ModelLoader {
 
-	public static Mesh loadModel(String filePath, String texturePath, boolean invertedNormals) throws IOException {
+	public Mesh loadModel(String filePath, String texturePath, boolean invertedNormals) throws IOException {
 		// load 3d model data
 		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
 
@@ -66,7 +66,7 @@ public class ModelLoader {
 		return new Mesh(vertexArray, indexList, new Material(texturePath), invertedNormals);
 	}
 
-	private static Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {
+	private Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {
 		AIVector3D aiVector3D = buffer.get(i);
 		return new Vec3f(aiVector3D.x(), aiVector3D.y(), aiVector3D.z());
 	}

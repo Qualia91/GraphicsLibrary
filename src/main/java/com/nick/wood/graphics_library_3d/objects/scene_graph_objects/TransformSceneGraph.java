@@ -35,6 +35,10 @@ public class TransformSceneGraph implements SceneGraphNode {
 		transform.setScale(scale);
 	}
 
+	public Transform getTransform() {
+		return transform;
+	}
+
 	@Override
 	public SceneGraphNodeData getSceneGraphNodeData() {
 		return sceneGraphNodeData;

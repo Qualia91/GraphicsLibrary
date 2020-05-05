@@ -2,14 +2,14 @@ package com.nick.wood.graphics_library_3d.input;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Game3DInputs implements GameInputs {
+public class GameControlsManager implements GameInputs {
 
-	private final Inputs input;
-	private final Control control;
+	private Inputs input;
+	private Control control;
 	private double oldMouseX = 0.0;
 	private double oldMouseY = 0.0;
 
-	public Game3DInputs(Inputs input, Control control) {
+	public GameControlsManager(Inputs input, Control control) {
 		this.input = input;
 		this.control = control;
 	}
@@ -37,9 +37,7 @@ public class Game3DInputs implements GameInputs {
 		oldMouseX = newMouseX;
 		oldMouseY = newMouseY;
 
-		if (Math.abs(dx) > 0.00001 && Math.abs(dy) > 0.00001) {
-			control.mouseMove(Math.copySign(Math.min(Math.abs(dx), 100.0), dx) , Math.copySign(Math.min(Math.abs(dy), 100.0), dy), input.isKeyPressed(GLFW_KEY_LEFT_SHIFT));
-		}
+		control.mouseMove(Math.copySign(Math.min(Math.abs(dx), 100.0), dx) , Math.copySign(Math.min(Math.abs(dy), 100.0), dy), input.isKeyPressed(GLFW_KEY_LEFT_SHIFT));
 
 		if (input.isKeyPressed(GLFW_KEY_A)) {
 			control.leftLinear();
@@ -86,4 +84,13 @@ public class Game3DInputs implements GameInputs {
 
 	}
 
+	@Override
+	public void setInputs(Inputs inputs) {
+		this.input = inputs;
+	}
+
+	@Override
+	public void setControl(Control control) {
+		this.control = control;
+	}
 }

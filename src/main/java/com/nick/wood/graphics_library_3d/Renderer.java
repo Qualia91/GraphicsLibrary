@@ -5,6 +5,7 @@ import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.lighting.DirectionalLight;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
 import com.nick.wood.graphics_library_3d.lighting.SpotLight;
+import com.nick.wood.graphics_library_3d.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.RenderObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.TextItem;
@@ -26,7 +27,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	private final static int MAX_INSTANCE = 100;
+	private final static int MAX_INSTANCE = 1500;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
@@ -42,6 +43,8 @@ public class Renderer {
 
 	private final Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
 	private final Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
+
+	private final WeakHashMap<Integer, Mesh> meshesMap = new WeakHashMap<>();
 
 	private Matrix4f createOrthoProjMatrix() {
 
@@ -78,7 +81,7 @@ public class Renderer {
 		}
 	}
 
-	public void renderMesh(HashMap<UUID, RenderObject<MeshObject>> meshObjects, HashMap<UUID, RenderObject<Camera>> cameras, HashMap<UUID, RenderObject<Light>> lights) {
+	public void renderMesh(HashMap<UUID, RenderObject<MeshObject>> meshObjects, RenderObject<Camera> primaryCamera, HashMap<UUID, RenderObject<Light>> lights) {
 
 		// set up meshes
 		// get a lit of meshes via hash code of each type which depends on input mesh file and material
@@ -116,35 +119,29 @@ public class Renderer {
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
-		// for now just use camera one
-		for (Map.Entry<UUID, RenderObject<Camera>> uuidRenderObjectCameraEntry : cameras.entrySet()) {
+		shader.setUniform("cameraPos", primaryCamera.getTransform().multiply(primaryCamera.getObject().getPos()));
+		shader.setUniform("view", primaryCamera.getObject().getView(primaryCamera.getTransform()));
+		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+		shader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
 
-			shader.setUniform("cameraPos", uuidRenderObjectCameraEntry.getValue().getTransform().multiply(uuidRenderObjectCameraEntry.getValue().getObject().getPos()));
-			shader.setUniform("view", uuidRenderObjectCameraEntry.getValue().getObject().getView(uuidRenderObjectCameraEntry.getValue().getTransform()));
-			shader.setUniform("modelLightViewMatrix", lightViewMatrix);
-			shader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
-
-			// do all but text
-			for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
-				if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
-					renderInstance(stringHashCodeCounterEntry);
-				}
+		// do all but text
+		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
+			if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
+				renderInstance(stringHashCodeCounterEntry);
 			}
-			// do all text ones last as the background wont be see through properly if they dont
-			for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
-				if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
-					renderInstance(stringHashCodeCounterEntry);
-				}
-			}
-
-
-			break;
 		}
+		// do all text ones last as the background wont be see through properly if they dont
+		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
+			if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
+				renderInstance(stringHashCodeCounterEntry);
+			}
+		}
+
 
 		shader.unbind();
 	}
 
-	public void renderMiniMap(HashMap<UUID, RenderObject<MeshObject>> meshObjects, HashMap<UUID, RenderObject<Camera>> cameras, HashMap<UUID, RenderObject<Light>> lights) {
+	public void renderMiniMap(HashMap<UUID, RenderObject<MeshObject>> meshObjects, RenderObject<Camera> camera, HashMap<UUID, RenderObject<Light>> lights) {
 
 		// set up meshes
 		// get a lit of meshes via hash code of each type which depends on input mesh file and material
@@ -182,30 +179,24 @@ public class Renderer {
 		hudShader.setUniform("specularPower", 0.5f);
 		hudShader.setUniform("projection", projectionMatrix);
 
-		// for now just use camera one
-		for (Map.Entry<UUID, RenderObject<Camera>> uuidRenderObjectCameraEntry : cameras.entrySet()) {
+		hudShader.setUniform("cameraPos", camera.getTransform().multiply(camera.getObject().getPos()));
+		hudShader.setUniform("view", camera.getObject().getView(camera.getTransform()));
+		hudShader.setUniform("modelLightViewMatrix", lightViewMatrix);
+		hudShader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
 
-			hudShader.setUniform("cameraPos", uuidRenderObjectCameraEntry.getValue().getTransform().multiply(uuidRenderObjectCameraEntry.getValue().getObject().getPos()));
-			hudShader.setUniform("view", uuidRenderObjectCameraEntry.getValue().getObject().getView(uuidRenderObjectCameraEntry.getValue().getTransform()));
-			hudShader.setUniform("modelLightViewMatrix", lightViewMatrix);
-			hudShader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
-
-			// do all but text
-			for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
-				if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
-					renderInstance(stringHashCodeCounterEntry);
-				}
+		// do all but text
+		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
+			if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
+				renderInstance(stringHashCodeCounterEntry);
 			}
-			// do all text ones last as the background wont be see through properly if they dont
-			for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
-				if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
-					renderInstance(stringHashCodeCounterEntry);
-				}
-			}
-
-
-			break;
 		}
+		// do all text ones last as the background wont be see through properly if they dont
+		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
+			if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
+				renderInstance(stringHashCodeCounterEntry);
+			}
+		}
+
 
 		hudShader.unbind();
 	}
@@ -244,6 +235,7 @@ public class Renderer {
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);

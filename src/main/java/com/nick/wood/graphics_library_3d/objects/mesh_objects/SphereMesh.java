@@ -12,7 +12,7 @@ public class SphereMesh implements MeshObject {
 	private final int triangleNumber;
 	private Matrix4f meshTransformation;
 
-	public SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Matrix4f transformation) {
+	SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Matrix4f transformation) {
 		this.triangleNumber = triangleNumber;
 		this.meshTransformation = transformation;
 		int normalSign = invertedNormals ? -1 : 1;

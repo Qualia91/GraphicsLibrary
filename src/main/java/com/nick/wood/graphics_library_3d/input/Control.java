@@ -1,7 +1,5 @@
 package com.nick.wood.graphics_library_3d.input;
 
-import com.nick.wood.maths.objects.vector.Vec;
-
 import java.util.UUID;
 
 public interface Control {
@@ -22,7 +20,6 @@ public interface Control {
 	void leftYaw();
 	void rightYaw();
 	void action();
-	Vec getForce();
-	Vec getTorque();
+	void setObjectBeingControlled(Object objectBeingControlled);
 
 }

@@ -21,7 +21,8 @@ public class TextItem implements MeshObject {
 	private final int numRows;
 	private final Material material;
 
-	public TextItem(String text, String fontFileName, int numCols, int numRows) {
+	// package private so you have to use builder so builder can build mesh's when open gl is initialised
+	TextItem(String text, String fontFileName, int numCols, int numRows) {
 		super();
 		this.text = text;
 		this.numCols = numCols;
@@ -31,10 +32,9 @@ public class TextItem implements MeshObject {
 	}
 
 	public void changeText(String text) {
-		mesh.destroyWithoutMaterialGen();
+		mesh.destroyWithoutMaterialDes();
 		this.text = text;
 		mesh = buildMesh(numCols, numRows);
-		mesh.createWithoutMaterialGen();
 	}
 
 	private Mesh buildMesh(int numCols, int numRows) {

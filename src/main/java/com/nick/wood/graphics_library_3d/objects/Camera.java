@@ -91,6 +91,16 @@ public class Camera {
 		this.z = (float) Math.cos(Math.toRadians(rot.getX())) * moveSpeed;
 	}
 
+	private float makeSensible(float angle) {
+		// to keep z rotation between 0 - 360
+		if (angle >= 360) {
+			angle -= 360;
+		} else if (angle < 0) {
+			angle += 360;
+		}
+		return angle;
+	}
+
 	private Vec3f makeSensible(float x, float y, float z) {
 		// to keep z rotation between 0 - 360
 		if (z >= 360) {

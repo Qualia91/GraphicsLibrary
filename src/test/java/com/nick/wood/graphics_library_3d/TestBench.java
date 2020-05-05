@@ -1,5 +1,8 @@
 package com.nick.wood.graphics_library_3d;
 
+import com.nick.wood.graphics_library_3d.input.DirectCameraController;
+import com.nick.wood.graphics_library_3d.input.DirectTransformController;
+import com.nick.wood.graphics_library_3d.input.GameControlsManager;
 import com.nick.wood.graphics_library_3d.lighting.DirectionalLight;
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
@@ -13,6 +16,7 @@ import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -23,9 +27,9 @@ class TestBench {
 	@Test
 	public void shadow() {
 
-		HashMap<UUID, RootSceneGraph> gameObjects = new HashMap<>();
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
-		RootSceneGraph rootGameObject = new RootSceneGraph();
+		SceneGraph rootGameObject = new SceneGraph();
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
@@ -125,7 +129,6 @@ class TestBench {
 				1200,
 				800,
 				"",
-				gameObjects,
 				new Inputs(),
 				true, true);
 
@@ -133,7 +136,7 @@ class TestBench {
 
 		while (!window.shouldClose()) {
 
-			window.loop(new HashMap<>(), new HashMap<>());
+			window.loop(gameObjects, new HashMap<>(), cameraTransformGameObject.getSceneGraphNodeData().getUuid());
 
 		}
 
@@ -144,9 +147,9 @@ class TestBench {
 	@Test
 	public void stress() {
 
-		HashMap<UUID, RootSceneGraph> gameObjects = new HashMap<>();
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
-		RootSceneGraph rootGameObject = new RootSceneGraph();
+		SceneGraph rootGameObject = new SceneGraph();
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
@@ -161,13 +164,13 @@ class TestBench {
 		MeshObject meshGroup = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
 				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
-				.setTexture("/textures/sand.jpg")
+				.setTexture("/textures/white.png")
 				.setTransform(Matrix4f.Rotation(-90, Vec3f.X))
 				.build();
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
-		for (int i = 0; i < 1100; i++) {
+		for (int i = 0; i < 1500; i++) {
 			createObject(Vec3f.Y.scale(i), wholeSceneTransform, meshGroup);
 		}
 
@@ -203,14 +206,17 @@ class TestBench {
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
-		ExecutorService executorService = Executors.newFixedThreadPool(2);
+		Inputs inputs = new Inputs();
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+		GameControlsManager gameControlsManager = new GameControlsManager(inputs, directCameraController);
 
 		Window window = new Window(
 				1200,
 				800,
 				"",
-				gameObjects,
-				new Inputs(),
+				inputs,
 				true, true);
 
 		window.init();
@@ -219,7 +225,9 @@ class TestBench {
 
 		while (!window.shouldClose()) {
 
-			window.loop(new HashMap<>(), new HashMap<>());
+			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+			gameControlsManager.checkInputs();
 
 			long currentTime = System.currentTimeMillis();
 
@@ -253,21 +261,15 @@ class TestBench {
 	@Test
 	public void normal() {
 
-		HashMap<UUID, RootSceneGraph> gameObjects = new HashMap<>();
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
-		RootSceneGraph rootGameObject = new RootSceneGraph();
+		SceneGraph rootGameObject = new SceneGraph();
 
 		Transform hudTransform = new Transform(
 				Vec3f.X,
 				Vec3f.ONE.scale(10),
 				Matrix4f.Identity
 		);
-
-		TransformSceneGraph hudTransformGameObject = new TransformSceneGraph(rootGameObject, hudTransform);
-
-		TextItem textItem = new TextItem("hello", "/font/gothic.bmp", 16, 16);
-
-		MeshSceneGraph textMeshObject = new MeshSceneGraph(hudTransformGameObject, textItem);
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
@@ -280,8 +282,15 @@ class TestBench {
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
-		MeshObject meshGroupLight = new MeshBuilder()
-				.build();
+		TransformSceneGraph hudTransformGameObject = new TransformSceneGraph(rootGameObject, hudTransform);
+
+		MeshObject textItem = new MeshBuilder()
+				.setMeshType(MeshType.TEXT)
+		.build();
+
+		MeshSceneGraph textMeshObject = new MeshSceneGraph(hudTransformGameObject, textItem);
+
+		MeshObject meshGroupLight = new MeshBuilder().setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10))).build();
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -302,7 +311,7 @@ class TestBench {
 		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), Matrix4f.Rotation(0.0f, Vec3f.Y), meshGroupLight);
 		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);
 
-		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(new Vec3f(-50.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
 				Vec3f.X.scale(10),
@@ -314,29 +323,55 @@ class TestBench {
 		);
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
+		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
-		gameObjects.put(UUID.randomUUID(), rootGameObject);
+		Inputs inputs = new Inputs();
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+		GameControlsManager gameControlsManager = new GameControlsManager(inputs, directCameraController);
+
+		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
 		Window window = new Window(
 				1200,
 				800,
 				"",
-				gameObjects,
-				new Inputs(),
-				true, true);
+				inputs,
+				true,
+				true);
 
 		window.init();
 
+		int i = 0;
 		while (!window.shouldClose()) {
 
-			window.loop(new HashMap<>(), new HashMap<>());
+			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+			gameControlsManager.checkInputs();
+
+			if (i == 10) {
+				System.out.println("Control changed");
+				gameControlsManager.setControl(directTransformController);
+			}
+
+			i++;
 
 		}
 
 		window.destroy();
 
+	}
+
+	public void buildMeshes(ArrayList<SceneGraphNode> gameObjects) {
+		for (SceneGraphNode gameObject : gameObjects) {
+			if (gameObject instanceof MeshObject) {
+				((MeshObject) gameObject).getMesh().create();
+			}
+			buildMeshes(gameObject.getSceneGraphNodeData().getChildren());
+		}
 	}
 
 	private void createAxis(TransformSceneGraph wholeSceneTransform) {

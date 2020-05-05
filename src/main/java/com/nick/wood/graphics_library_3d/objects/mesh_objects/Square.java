@@ -12,7 +12,8 @@ public class Square implements MeshObject {
 	private final Material material;
 	private Matrix4f transformation;
 
-	public Square(Material material, Matrix4f transformation) {
+	// package private so you have to use builder so builder can build mesh's when open gl is initialised
+	Square(Material material, Matrix4f transformation) {
 		this.transformation = transformation;
 		mesh = new Mesh(new Vertex[] {
 				new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg()),

@@ -2,13 +2,12 @@ package com.nick.wood.graphics_library_3d.objects.scene_graph_objects;
 
 import java.util.ArrayList;
 
-public class RootSceneGraph implements SceneGraphNode {
+public class SceneGraph implements SceneGraphNode {
 
 	private final SceneGraphNodeData sceneGraphNodeData;
 	private final ArrayList<RenderObject> changes = new ArrayList<>();
 
-	public RootSceneGraph() {
-
+	public SceneGraph() {
 		this.sceneGraphNodeData = new SceneGraphNodeData(null, RenderObjectType.ROOT, this);
 	}
 

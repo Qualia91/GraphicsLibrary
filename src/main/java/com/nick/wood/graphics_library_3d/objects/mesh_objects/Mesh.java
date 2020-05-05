@@ -30,12 +30,8 @@ public class Mesh {
 		this.invertedNormals = invertedNormals;
 	}
 
-	public void create() {
-		material.create();
-		createWithoutMaterialGen();
-	}
 
-	public void createWithoutMaterialGen() {
+	public void createWithoutMaterial() {
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
 
@@ -77,6 +73,11 @@ public class Mesh {
 		created = true;
 	}
 
+	public void create() {
+		material.create();
+		createWithoutMaterial();
+	}
+
 	public void initRender() {
 		GL30.glBindVertexArray(vao);
 		// enable position attribute
@@ -107,12 +108,13 @@ public class Mesh {
 		created = false;
 	}
 
-	public void destroyWithoutMaterialDes() {
+	public void destroyWithoutDestroyingMaterial() {
 		GL15.glDeleteBuffers(nbo);
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(ibo);
 		GL30.glDeleteTextures(tbo);
 		GL30.glDeleteVertexArrays(vao);
+		created = false;
 	}
 
 	private FloatBuffer createFloatBufferAndPutData(int amount, float[] data) {
@@ -197,4 +199,5 @@ public class Mesh {
 	public boolean isCreated() {
 		return created;
 	}
+
 }

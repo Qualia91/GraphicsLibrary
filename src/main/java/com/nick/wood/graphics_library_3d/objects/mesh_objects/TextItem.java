@@ -32,7 +32,7 @@ public class TextItem implements MeshObject {
 	}
 
 	public void changeText(String text) {
-		mesh.destroyWithoutMaterialDes();
+		mesh.destroyWithoutDestroyingMaterial();
 		this.text = text;
 		mesh = buildMesh(numCols, numRows);
 	}

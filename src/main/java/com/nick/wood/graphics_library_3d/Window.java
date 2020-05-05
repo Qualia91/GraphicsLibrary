@@ -241,12 +241,18 @@ public class Window {
 			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
 
-		//for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
-		//	createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
-		//}
+		lightsHud.putAll(lights);
+
+		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
+			createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
+		}
 
 		renderer.renderMesh(meshes, cameras.get(primaryCamera), lights);
-		//renderer.renderMiniMap(meshesHud, cameras.get(primaryCamera), lightsHud);
+
+		// this mkaes sure hud is ontop of everything in scene
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		renderer.renderMiniMap(meshesHud, cameras.get(primaryCamera), lightsHud);
 		glfwSwapBuffers(window); // swap the color buffers
 
 	}

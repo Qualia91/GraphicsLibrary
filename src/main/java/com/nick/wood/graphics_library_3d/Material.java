@@ -35,7 +35,9 @@ public class Material {
 
 	public void create() {
 		try {
-			texture = new Texture(path, GL11.GL_LINEAR);
+			if (texture == null) {
+				texture = new Texture(path, GL11.GL_LINEAR);
+			}
 		} catch (IOException e) {
 			System.err.println("Cant find texture at " + path);
 		}
@@ -46,8 +48,10 @@ public class Material {
 	}
 
 	public void destroy() {
-		texture.destroy();
-		GL13.glDeleteTextures(textureId);
+		if (texture != null) {
+			texture.destroy();
+			GL13.glDeleteTextures(textureId);
+		}
 	}
 
 	public Texture getTexture() {

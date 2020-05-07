@@ -1,9 +1,9 @@
 package com.nick.wood.graphics_library_3d;
 
+import com.nick.wood.graphics_library_3d.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
-import com.nick.wood.graphics_library_3d.input.Inputs;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
@@ -30,9 +30,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
 
-	private final Inputs input;
-	private final boolean enableCameraViewControls;
-	private final boolean enableCameraMoveControls;
+	private final GraphicsLibraryInput graphicsLibraryInput;
 	private final HashMap<UUID, RenderObject<Light>> lights;
 	private final HashMap<UUID, RenderObject<MeshObject>> meshes;
 	private final HashMap<UUID, RenderObject<Camera>> cameras;
@@ -49,20 +47,14 @@ public class Window {
 	private Shader hudShader;
 	private Renderer renderer;
 	private Matrix4f projectionMatrix;
-	private float newMouseX, newMouseY;
-	private float oldMouseX = 0;
-	private float oldMouseY = 0;
 
 	private boolean windowSizeChanged = false;
 
-	public Window(int WIDTH, int HEIGHT, String title, Inputs input, boolean enableCameraViewControls, boolean enableCameraMoveControls) {
+	public Window(int WIDTH, int HEIGHT, String title, GraphicsLibraryInput graphicsLibraryInput) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-		this.enableCameraViewControls = enableCameraViewControls;
-		this.enableCameraMoveControls = enableCameraMoveControls;
-
 
 		this.lights = new HashMap<>();
 		this.meshes = new HashMap<>();
@@ -71,7 +63,7 @@ public class Window {
 		this.meshesHud = new HashMap<>();
 		this.camerasHud = new HashMap<>();
 
-		this.input = input;
+		this.graphicsLibraryInput = graphicsLibraryInput;
 
 		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
 
@@ -194,10 +186,10 @@ public class Window {
 
 	private void createCallbacks() {
 		// Setup a key callback. It will be called every time a key is pressed, repeated or released.
-		glfwSetKeyCallback(window, input.getKeyboard());
-		glfwSetCursorPosCallback(window, input.getMouseMove());
-		glfwSetMouseButtonCallback(window, input.getMouseButton());
-		glfwSetScrollCallback(window, input.getGlfwScrollCallback());
+		glfwSetKeyCallback(window, graphicsLibraryInput.getKeyboard());
+		glfwSetCursorPosCallback(window, graphicsLibraryInput.getMouseMove());
+		glfwSetMouseButtonCallback(window, graphicsLibraryInput.getMouseButton());
+		glfwSetScrollCallback(window, graphicsLibraryInput.getGlfwScrollCallback());
 		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
@@ -212,7 +204,7 @@ public class Window {
 	public void loop(HashMap<UUID, SceneGraph> gameObjects, HashMap<UUID, SceneGraph> hudObjects, UUID primaryCamera) {
 
 		// user inputs
-		if (input.isKeyPressed(GLFW_KEY_ESCAPE)) {
+		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(window, true);
 		}
 
@@ -240,8 +232,6 @@ public class Window {
 		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
 			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
 		}
-
-		lightsHud.putAll(lights);
 
 		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
 			createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);

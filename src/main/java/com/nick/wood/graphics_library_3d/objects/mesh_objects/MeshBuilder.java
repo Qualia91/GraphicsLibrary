@@ -15,7 +15,7 @@ public class MeshBuilder {
 	private String fontFile = "/font/gothic.png";
 	private int rowNum = 16;
 	private int colNum = 16;
-	private String modelFile = "D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj";
+	private String modelFile = "D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj";
 
 	public MeshObject build() {
 

@@ -35,7 +35,7 @@ public class ModelLoader {
 				normalVec = normalVec.neg();
 			}
 			Vec2f texCoord = Vec2f.ZERO;
-			if (aiMesh.mNumUVComponents().get(0) != 0) {
+			if (aiMesh.mTextureCoords(0) != null) {
 				AIVector3D textCoordAI = aiMesh.mTextureCoords(0).get(i);
 				texCoord = new Vec2f(textCoordAI.x(), textCoordAI.y());
 			}
@@ -48,7 +48,7 @@ public class ModelLoader {
 		int[] indexList = new int[faceCount * 3];
 
 		if (invertedNormals) {
-			for (int i = faceCount - 1; i <= 0; i--) {
+			for (int i = 0; i < faceCount; i++) {
 				AIFace aiFace = indices.get(i);
 				indexList[i * 3 + 2] = aiFace.mIndices().get(0);
 				indexList[i * 3 + 1] = aiFace.mIndices().get(1);

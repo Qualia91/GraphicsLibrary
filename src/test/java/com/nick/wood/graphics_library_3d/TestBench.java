@@ -2,14 +2,14 @@ package com.nick.wood.graphics_library_3d;
 
 import com.nick.wood.graphics_library_3d.input.DirectCameraController;
 import com.nick.wood.graphics_library_3d.input.DirectTransformController;
-import com.nick.wood.graphics_library_3d.input.GameControlsManager;
+import com.nick.wood.graphics_library_3d.input.LWJGLGameControlManager;
+import com.nick.wood.graphics_library_3d.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library_3d.lighting.DirectionalLight;
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
 import com.nick.wood.graphics_library_3d.lighting.SpotLight;
 import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
-import com.nick.wood.graphics_library_3d.input.Inputs;
 import com.nick.wood.graphics_library_3d.objects.Transform;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.*;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 class TestBench {
 
@@ -129,8 +127,7 @@ class TestBench {
 				1200,
 				800,
 				"",
-				new Inputs(),
-				true, true);
+				new GraphicsLibraryInput());
 
 		window.init();
 
@@ -206,18 +203,17 @@ class TestBench {
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
-		Inputs inputs = new Inputs();
+		GraphicsLibraryInput graphicsLibraryInput = new GraphicsLibraryInput();
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
-		GameControlsManager gameControlsManager = new GameControlsManager(inputs, directCameraController);
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(graphicsLibraryInput, directCameraController);
 
 		Window window = new Window(
 				1200,
 				800,
 				"",
-				inputs,
-				true, true);
+				graphicsLibraryInput);
 
 		window.init();
 
@@ -227,7 +223,7 @@ class TestBench {
 
 			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
-			gameControlsManager.checkInputs();
+			LWJGLGameControlManager.checkInputs();
 
 			long currentTime = System.currentTimeMillis();
 
@@ -290,7 +286,12 @@ class TestBench {
 
 		MeshSceneGraph textMeshObject = new MeshSceneGraph(hudTransformGameObject, textItem);
 
-		MeshObject meshGroupLight = new MeshBuilder().setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10))).build();
+		MeshObject meshGroupLight = new MeshBuilder()
+				.setMeshType(MeshType.MODEL)
+				.setInvertedNormals(true)
+				.setTexture("/textures/mars.jpg")
+				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10)))
+				.build();
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -327,11 +328,11 @@ class TestBench {
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
-		Inputs inputs = new Inputs();
+		GraphicsLibraryInput graphicsLibraryInput = new GraphicsLibraryInput();
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
-		GameControlsManager gameControlsManager = new GameControlsManager(inputs, directCameraController);
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(graphicsLibraryInput, directCameraController);
 
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
@@ -339,25 +340,15 @@ class TestBench {
 				1200,
 				800,
 				"",
-				inputs,
-				true,
-				true);
+				graphicsLibraryInput);
 
 		window.init();
 
-		int i = 0;
 		while (!window.shouldClose()) {
 
 			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
-			gameControlsManager.checkInputs();
-
-			if (i == 10) {
-				System.out.println("Control changed");
-				gameControlsManager.setControl(directTransformController);
-			}
-
-			i++;
+			LWJGLGameControlManager.checkInputs();
 
 		}
 

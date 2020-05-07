@@ -155,7 +155,7 @@ public class SphereMesh implements MeshObject {
 
 	@Override
 	public Matrix4f getMeshTransformation() {
-		return Matrix4f.Identity;
+		return meshTransformation;
 	}
 
 	@Override

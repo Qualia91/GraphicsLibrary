@@ -1,8 +1,9 @@
 package com.nick.wood.graphics_library_3d.input;
 
+import com.nick.wood.game_control.input.Input;
 import org.lwjgl.glfw.*;
 
-public class Inputs {
+public class GraphicsLibraryInput implements Input {
 
 	private boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
 	private boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
@@ -11,19 +12,18 @@ public class Inputs {
 	private float offsetX;
 	private float offsetY;
 
-	private GLFWKeyCallback keyboard;
-	private GLFWCursorPosCallback mouseMove;
-	private GLFWMouseButtonCallback mouseButton;
-	private GLFWScrollCallback glfwScrollCallback;
+	private final GLFWKeyCallback keyboard;
+	private final GLFWCursorPosCallback mouseMove;
+	private final GLFWMouseButtonCallback mouseButton;
+	private final GLFWScrollCallback glfwScrollCallback;
 
-	public Inputs() {
+	public GraphicsLibraryInput() {
 		keyboard = new GLFWKeyCallback() {
 			@Override
 			public void invoke(long window, int keyPressed, int scanCode, int action, int mods) {
 				keys[keyPressed] = (action != GLFW.GLFW_RELEASE);
 			}
 		};
-
 
 		mouseMove = new GLFWCursorPosCallback() {
 			@Override

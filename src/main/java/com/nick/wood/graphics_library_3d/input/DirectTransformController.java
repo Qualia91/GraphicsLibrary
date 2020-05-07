@@ -1,5 +1,7 @@
 package com.nick.wood.graphics_library_3d.input;
 
+import com.nick.wood.game_control.input.ActionEnum;
+import com.nick.wood.game_control.input.Control;
 import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.TransformSceneGraph;
 import com.nick.wood.maths.objects.vector.Vec3f;

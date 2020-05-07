@@ -374,7 +374,7 @@
         <dependency>
             <groupId>com.nick.wood.game_control</groupId>
             <artifactId>GameControl</artifactId>
-            <version>1.0</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

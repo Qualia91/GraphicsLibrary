@@ -12,6 +12,7 @@ import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library_3d.objects.Transform;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.*;
+import com.nick.wood.maths.noise.Perlin2D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
@@ -126,8 +127,7 @@ class TestBench {
 		Window window = new Window(
 				1200,
 				800,
-				"",
-				new GraphicsLibraryInput());
+				"");
 
 		window.init();
 
@@ -203,17 +203,15 @@ class TestBench {
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
-		GraphicsLibraryInput graphicsLibraryInput = new GraphicsLibraryInput();
-
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
-		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(graphicsLibraryInput, directCameraController);
 
 		Window window = new Window(
 				1200,
 				800,
-				"",
-				graphicsLibraryInput);
+				"");
+
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
 		window.init();
 
@@ -252,6 +250,95 @@ class TestBench {
 				meshTransform,
 				meshGroup
 		);
+	}
+
+	@Test void terrain() {
+
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+
+		SceneGraph rootGameObject = new SceneGraph();
+
+		Perlin2D perlin2D = new Perlin2D(5000);
+		int size = 1000;
+		double[][] grid = new double[size][size];
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				grid[i][j] = perlin2D.getPoint(i/50.0, j/50.0) * 50.0;
+			}
+		}
+
+		MeshObject terrain = new MeshBuilder()
+				.setMeshType(MeshType.TERRAIN)
+				.setTerrainHeightMap(grid)
+				.build();
+
+		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(rootGameObject, terrain);
+
+		MeshObject meshGroupLight = new MeshBuilder()
+				.setInvertedNormals(true)
+				.build();
+
+		PointLight pointLightGreen = new PointLight(
+				new Vec3f(0.0f, 1.0f, 0.0f),
+				100f);
+
+		PointLight pointLightRed = new PointLight(
+				new Vec3f(1.0f, 0.0f, 0.0f),
+				100f);
+
+		PointLight pointLightBlue = new PointLight(
+				new Vec3f(0.0f, 0.0f, 1.0f),
+				1000f);
+
+		for (int i = 0; i < 10; i++) {
+			createLight(pointLightGreen, rootGameObject, new Vec3f(i*100, 500f, 100), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
+		}
+		for (int i = 0; i < 10; i++) {
+			createLight(pointLightRed, rootGameObject, new Vec3f(500f, i*100, 100), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
+		}
+		createLight(pointLightBlue, rootGameObject, new Vec3f(0f, 0f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
+		createLight(pointLightBlue, rootGameObject, new Vec3f(1000f, 0f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
+		createLight(pointLightBlue, rootGameObject, new Vec3f(1000f, 1000f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
+		createLight(pointLightBlue, rootGameObject, new Vec3f(0f, 1000f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
+
+		Camera camera = new Camera(new Vec3f(500.0f, 500.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+
+		Transform cameraTransform = new Transform(
+				Vec3f.X.scale(10),
+				Vec3f.ONE,
+				Matrix4f.Identity
+				//Matrix4f.Rotation(90, Vec3f.X)
+				//Matrix4f.Rotation(90, Vec3f.Y)
+				//Matrix4f.Rotation(90, Vec3f.Z)
+		);
+
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
+
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+
+		Window window = new Window(
+				1200,
+				800,
+				"");
+
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+
+		window.init();
+
+		while (!window.shouldClose()) {
+
+			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+			LWJGLGameControlManager.checkInputs();
+
+		}
+
+		window.destroy();
+
 	}
 
 	@Test
@@ -328,19 +415,17 @@ class TestBench {
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
-		GraphicsLibraryInput graphicsLibraryInput = new GraphicsLibraryInput();
-
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
-		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(graphicsLibraryInput, directCameraController);
 
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
 		Window window = new Window(
 				1200,
 				800,
-				"",
-				graphicsLibraryInput);
+				"");
+
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
 		window.init();
 

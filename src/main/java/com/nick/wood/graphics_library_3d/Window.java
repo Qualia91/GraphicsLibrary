@@ -50,7 +50,7 @@ public class Window {
 
 	private boolean windowSizeChanged = false;
 
-	public Window(int WIDTH, int HEIGHT, String title, GraphicsLibraryInput graphicsLibraryInput) {
+	public Window(int WIDTH, int HEIGHT, String title) {
 
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
@@ -63,10 +63,14 @@ public class Window {
 		this.meshesHud = new HashMap<>();
 		this.camerasHud = new HashMap<>();
 
-		this.graphicsLibraryInput = graphicsLibraryInput;
+		this.graphicsLibraryInput = new GraphicsLibraryInput();
 
 		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
 
+	}
+
+	public GraphicsLibraryInput getGraphicsLibraryInput() {
+		return graphicsLibraryInput;
 	}
 
 	public boolean shouldClose() {

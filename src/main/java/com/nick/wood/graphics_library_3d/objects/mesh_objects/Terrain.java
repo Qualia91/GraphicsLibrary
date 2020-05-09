@@ -3,6 +3,7 @@ package com.nick.wood.graphics_library_3d.objects.mesh_objects;
 import com.nick.wood.graphics_library_3d.Material;
 import com.nick.wood.graphics_library_3d.Vertex;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec2d;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.system.CallbackI;
@@ -43,10 +44,19 @@ public class Terrain implements MeshObject {
 		for (int y = 0; y < terrainHeightMap.length; y++) {
 			for (int x = 0; x < terrainHeightMap[y].length; x++) {
 
+				// tex coord based on height
+				Vec2f texCoord = new Vec2f(0.2f, 0.2f);
+				if (terrainHeightMap[x][y] < -0) {
+					texCoord = new Vec2f(0.7f, 0.7f);
+				}
+				else if (terrainHeightMap[x][y] < 30) {
+					texCoord = new Vec2f(0.7f, 0.2f);
+				}
+
 				vertex[y * width + x] =
 						new Vertex(
 								new Vec3f((float) cellSpace * x, (float) cellSpace * y, (float) terrainHeightMap[x][y]),
-								new Vec2f(x, y),
+								texCoord,
 								Vec3f.Z);
 			}
 		}

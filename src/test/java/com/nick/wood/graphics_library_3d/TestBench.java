@@ -259,17 +259,19 @@ class TestBench {
 		SceneGraph rootGameObject = new SceneGraph();
 
 		Perlin2D perlin2D = new Perlin2D(5000);
-		int size = 1000;
+		int size = 2000;
+		double segmentSize = 200.0;
 		double[][] grid = new double[size][size];
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				grid[i][j] = perlin2D.getPoint(i/50.0, j/50.0) * 50.0;
+				grid[i][j] = perlin2D.getPoint(i/segmentSize, j/segmentSize) * (segmentSize);
 			}
 		}
 
 		MeshObject terrain = new MeshBuilder()
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
+				.setTexture("/textures/terrain.png")
 				.build();
 
 		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(rootGameObject, terrain);
@@ -278,38 +280,19 @@ class TestBench {
 				.setInvertedNormals(true)
 				.build();
 
-		PointLight pointLightGreen = new PointLight(
-				new Vec3f(0.0f, 1.0f, 0.0f),
-				100f);
+		DirectionalLight sun = new DirectionalLight(
+				new Vec3f(0.9f, 1.0f, 1.0f),
+				Vec3f.Y,
+				0.5f);
 
-		PointLight pointLightRed = new PointLight(
-				new Vec3f(1.0f, 0.0f, 0.0f),
-				100f);
+		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, sun);
 
-		PointLight pointLightBlue = new PointLight(
-				new Vec3f(0.0f, 0.0f, 1.0f),
-				1000f);
-
-		for (int i = 0; i < 10; i++) {
-			createLight(pointLightGreen, rootGameObject, new Vec3f(i*100, 500f, 100), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		}
-		for (int i = 0; i < 10; i++) {
-			createLight(pointLightRed, rootGameObject, new Vec3f(500f, i*100, 100), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		}
-		createLight(pointLightBlue, rootGameObject, new Vec3f(0f, 0f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLightBlue, rootGameObject, new Vec3f(1000f, 0f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLightBlue, rootGameObject, new Vec3f(1000f, 1000f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLightBlue, rootGameObject, new Vec3f(0f, 1000f, 200), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-
-		Camera camera = new Camera(new Vec3f(500.0f, 500.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(new Vec3f(size/2.0f, size/2.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
 				Vec3f.X.scale(10),
 				Vec3f.ONE,
 				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
@@ -329,11 +312,20 @@ class TestBench {
 
 		window.init();
 
+		float scaleVal = 0.005f;
+		Vec3f sumMovement = Vec3f.Z.scale(-scaleVal).add(Vec3f.Y.scale(-scaleVal));
+
 		while (!window.shouldClose()) {
 
 			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 			LWJGLGameControlManager.checkInputs();
+
+			sun.setDirection(sun.getDirection().add(sumMovement).normalise());
+
+			if (sun.getDirection().getZ() < -0.99) {
+				sumMovement = Vec3f.Z.scale(scaleVal).add(Vec3f.Y.scale(-scaleVal));
+			}
 
 		}
 

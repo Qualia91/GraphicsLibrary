@@ -65,7 +65,7 @@ public class Window {
 
 		this.graphicsLibraryInput = new GraphicsLibraryInput();
 
-		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 1000f);
+		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 100000f);
 
 	}
 

@@ -13,9 +13,11 @@ import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library_3d.objects.Transform;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.*;
 import com.nick.wood.maths.noise.Perlin2D;
+import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
+import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -258,13 +260,13 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		Perlin2D perlin2D = new Perlin2D(5000);
-		int size = 2000;
-		double segmentSize = 200.0;
+		int segmentSize = 100;
+		Perlin2D perlin2D = new Perlin2D(1000, segmentSize);
+		int size = 1000;
 		double[][] grid = new double[size][size];
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				grid[i][j] = perlin2D.getPoint(i/segmentSize, j/segmentSize) * (segmentSize);
+				grid[i][j] = perlin2D.getPoint(i, j) * (segmentSize);
 			}
 		}
 
@@ -272,6 +274,7 @@ class TestBench {
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
 				.setTexture("/textures/terrain.png")
+				.setCellSpace(2.0)
 				.build();
 
 		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(rootGameObject, terrain);
@@ -321,11 +324,132 @@ class TestBench {
 
 			LWJGLGameControlManager.checkInputs();
 
-			sun.setDirection(sun.getDirection().add(sumMovement).normalise());
+			//sun.setDirection(sun.getDirection().add(sumMovement).normalise());
+//
+			//if (sun.getDirection().getZ() < -0.99) {
+			//	sumMovement = Vec3f.Z.scale(scaleVal).add(Vec3f.Y.scale(-scaleVal));
+			//}
 
-			if (sun.getDirection().getZ() < -0.99) {
-				sumMovement = Vec3f.Z.scale(scaleVal).add(Vec3f.Y.scale(-scaleVal));
+		}
+
+		window.destroy();
+
+	}
+
+
+	@Test void terrain3D() {
+
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+
+		SceneGraph rootGameObject = new SceneGraph();
+
+		MeshObject cubeSand = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/sand_blocky.jpg")
+				.build();
+
+		MeshObject cubeGrass = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/grass.png")
+				.build();
+
+		int segmentSize = 10;
+		Perlin3D perlin3D = new Perlin3D(500, segmentSize);
+		int size = 50;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				for (int k = 0; k < size; k++) {
+					double point = perlin3D.getPoint(i, j, k);
+					if (point > (1/((((double)k/(double)size)) * 2.0) - 0.8)) {
+
+						Transform transform = new Transform(
+								new Vec3f(i, j, k),
+								Vec3f.ONE,
+								Matrix4f.Identity
+						);
+
+						TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootGameObject, transform);
+
+						if (k == size - 1) {
+							MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
+						} else {
+							MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeSand);
+						}
+
+					}
+				}
 			}
+		}
+
+		DirectionalLight y = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.Y,
+				0.5f);
+
+		DirectionalLight yn = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.Y.neg(),
+				0.2f);
+
+		DirectionalLight x = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.X,
+				0.5f);
+
+		DirectionalLight xn = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.X.neg(),
+				0.2f);
+
+		DirectionalLight z = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.Z,
+				0.5f);
+
+		DirectionalLight zn = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.Z.neg(),
+				0.2f);
+
+		LightSceneGraph lightGameObjectZ = new LightSceneGraph(rootGameObject, z);
+		LightSceneGraph lightGameObjectZn = new LightSceneGraph(rootGameObject, zn);
+		LightSceneGraph lightGameObjectY = new LightSceneGraph(rootGameObject, y);
+		LightSceneGraph lightGameObjectYn = new LightSceneGraph(rootGameObject, yn);
+		LightSceneGraph lightGameObjectX = new LightSceneGraph(rootGameObject, x);
+		LightSceneGraph lightGameObjectXn = new LightSceneGraph(rootGameObject, xn);
+
+		Camera camera = new Camera(new Vec3f(size/2.0f, size, size/2.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+
+		Transform cameraTransform = new Transform(
+				Vec3f.X.scale(10),
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
+
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+
+		Window window = new Window(
+				1200,
+				800,
+				"");
+
+
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+
+		window.init();
+		window.setAmbientLight(new Vec3f(0.7f, 0.7f, 0.7f));
+
+		while (!window.shouldClose()) {
+
+			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+			LWJGLGameControlManager.checkInputs();
 
 		}
 

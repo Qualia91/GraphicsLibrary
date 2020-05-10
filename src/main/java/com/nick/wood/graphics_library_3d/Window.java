@@ -7,6 +7,7 @@ import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -67,6 +68,10 @@ public class Window {
 
 		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 100000f);
 
+	}
+
+	public void setAmbientLight(Vec3f ambientLight) {
+		renderer.setAmbientLight(ambientLight);
 	}
 
 	public GraphicsLibraryInput getGraphicsLibraryInput() {

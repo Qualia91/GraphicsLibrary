@@ -41,8 +41,8 @@ public class Renderer {
 	private final Matrix4f orthoProjectionMatrix = createOrthoProjMatrix();
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
-	private final Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
-	private final Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
+	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+	private Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
 
 	private final WeakHashMap<Integer, Mesh> meshesMap = new WeakHashMap<>();
 
@@ -268,5 +268,9 @@ public class Renderer {
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.constant", pointLight.getAttenuation().getConstant());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.linear", pointLight.getAttenuation().getLinear());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.exponent", pointLight.getAttenuation().getExponent());
+	}
+
+	public void setAmbientLight(Vec3f ambientLight) {
+		this.ambientLight = ambientLight;
 	}
 }

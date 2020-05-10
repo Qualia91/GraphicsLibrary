@@ -19,8 +19,10 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
 import org.lwjgl.system.CallbackI;
 
+import java.security.spec.RSAOtherPrimeInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 class TestBench {
@@ -71,7 +73,7 @@ class TestBench {
 
 		Transform transformMeshWall = new Transform(
 				Vec3f.Y.scale(10),
-				new Vec3f(10.0f, 10f,  10.0f),
+				new Vec3f(10.0f, 10f, 10.0f),
 				Matrix4f.Identity
 				//Matrix4f.Rotation(90, Vec3f.X)
 				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
@@ -254,7 +256,8 @@ class TestBench {
 		);
 	}
 
-	@Test void terrain() {
+	@Test
+	void terrain() {
 
 		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
@@ -290,7 +293,7 @@ class TestBench {
 
 		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, sun);
 
-		Camera camera = new Camera(new Vec3f(size/2.0f, size/2.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(new Vec3f(size / 2.0f, size / 2.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
 				Vec3f.X.scale(10),
@@ -337,46 +340,91 @@ class TestBench {
 	}
 
 
-	@Test void terrain3D() {
+	@Test
+	void terrain3D() {
 
 		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
 		SceneGraph rootGameObject = new SceneGraph();
 
+		int cubeSize = 2;
+
 		MeshObject cubeSand = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/sand_blocky.jpg")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		MeshObject cubeGrass = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/grass.png")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.build();
+
+		MeshObject cubeSnow = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/white.png")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.build();
+
+		MeshObject cubeFire = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/8k_venus_surface.jpg")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		int segmentSize = 10;
+		int hillHeight = 60;
 		Perlin3D perlin3D = new Perlin3D(500, segmentSize);
-		int size = 50;
+		Perlin2D perlin2D = new Perlin2D(500, segmentSize);
+		int size = 30;
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++) {
 					double point = perlin3D.getPoint(i, j, k);
-					if (point > (1/((((double)k/(double)size)) * 2.0) - 0.8)) {
+
+					double weight = (k - (size / 2.0)) / (size / 2.0) - 0.15;
+
+					if (point < (weight * weight * weight * weight)) {
 
 						Transform transform = new Transform(
-								new Vec3f(i, j, k),
+								new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize),
 								Vec3f.ONE,
 								Matrix4f.Identity
 						);
 
 						TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootGameObject, transform);
 
-						if (k == size - 1) {
-							MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
-						} else {
+						if (k < 2) {
+							MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeFire);
+						}
+						if (k < size - 2) {
 							MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeSand);
+						} else {
+							MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
 						}
 
 					}
+				}
+
+				double point = (int) (perlin2D.getPoint(i, j) * hillHeight);
+
+				for (int k = 0; k < point; k++) {
+
+					Transform transform = new Transform(
+							new Vec3f(i * cubeSize, j * cubeSize, (k + size) * cubeSize),
+							Vec3f.ONE,
+							Matrix4f.Identity
+					);
+
+					TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootGameObject, transform);
+
+					if (k > 15) {
+						MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeSnow);
+					} else {
+						MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
+					}
+
 				}
 			}
 		}
@@ -418,7 +466,7 @@ class TestBench {
 		LightSceneGraph lightGameObjectX = new LightSceneGraph(rootGameObject, x);
 		LightSceneGraph lightGameObjectXn = new LightSceneGraph(rootGameObject, xn);
 
-		Camera camera = new Camera(new Vec3f(size/2.0f, size, size/2.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(new Vec3f(0, 0, size * 2), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
 				Vec3f.X.scale(10),
@@ -457,6 +505,184 @@ class TestBench {
 
 	}
 
+	HashMap<String, TransformSceneGraph> cubeMap = new HashMap<>();
+
+	@Test
+	void infiniteTerrain3D() {
+
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+
+		SceneGraph rootGameObject = new SceneGraph();
+
+		int cubeSize = 1;
+
+		MeshObject cubeSand = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/sand_blocky.jpg")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.build();
+
+		MeshObject cubeGrass = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/grass.png")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.build();
+
+		MeshObject cubeSnow = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/white.png")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.build();
+
+		MeshObject cubeFire = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/8k_venus_surface.jpg")
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.build();
+
+		int segmentSize = 10;
+		int hillHeight = 30;
+		Vec3f cullCube = new Vec3f(30, 30, 20);
+		Perlin3D perlin3D = new Perlin3D(500, segmentSize);
+		Perlin2D perlin2D = new Perlin2D(500, segmentSize);
+
+		DirectionalLight pos = new DirectionalLight(
+				new Vec3f(1f, 1f, 1f),
+				Vec3f.Y.add(Vec3f.X).add(Vec3f.Z),
+				0.6f);
+
+		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, pos);
+
+		Vec3f cameraStartPos = new Vec3f(0, 0, 100);
+
+		Camera camera = new Camera(cameraStartPos, new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+
+		Transform cameraTransform = new Transform(
+				Vec3f.ZERO,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
+
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+
+		Window window = new Window(
+				1200,
+				800,
+				"");
+
+
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+
+		window.init();
+		window.setAmbientLight(new Vec3f(0.7f, 0.7f, 0.7f));
+
+		HashMap<UUID, SceneGraph> objectObjectHashMap = new HashMap<>();
+
+		while (!window.shouldClose()) {
+
+			window.loop(gameObjects, objectObjectHashMap, cameraGameObject.getSceneGraphNodeData().getUuid());
+
+			LWJGLGameControlManager.checkInputs();
+
+			createMap(camera.getPos(), cullCube, perlin3D, perlin2D, cubeSize, rootGameObject, hillHeight, cubeFire, cubeSand, cubeGrass, cubeSnow);
+
+			if (cubeMap.size() > 30000) {
+				cullCubes(rootGameObject, camera.getPos());
+			}
+
+		}
+
+		window.destroy();
+
+	}
+
+	private void cullCubes(SceneGraph rootGameObject, Vec3f pos) {
+
+		ArrayList<String> removeList = new ArrayList<>();
+
+		for (Map.Entry<String, TransformSceneGraph> integerTransformSceneGraphEntry : cubeMap.entrySet()) {
+
+			if (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().subtract(pos).length2() > 900) {
+				removeList.add(
+						"" + ((int) integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getX()) +
+						"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getY()) * 10007) +
+						"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getZ()) * 1000003));
+
+				rootGameObject.getSceneGraphNodeData().getChildren().remove(integerTransformSceneGraphEntry.getValue());
+				for (SceneGraphNode child : integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren()) {
+					child.getSceneGraphNodeData().setParent(null);
+				}
+				integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren().clear();
+				integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().setParent(null);
+			}
+
+		}
+
+		for (String index : removeList) {
+			cubeMap.remove(index);
+		}
+
+	}
+
+	private void createMap(Vec3f center,
+	                       Vec3f cullCube,
+	                       Perlin3D perlin3D,
+	                       Perlin2D perlin2D,
+	                       int cubeSize,
+	                       SceneGraphNode parent,
+	                       int hillHeight,
+	                       MeshObject cubeFire,
+	                       MeshObject cubeSand,
+	                       MeshObject cubeGrass,
+	                       MeshObject cubeSnow) {
+
+
+		Vec3f bottomCornerToLoad = center.add(cullCube.scale(-0.5f));
+		Vec3f topCornerToLoad = bottomCornerToLoad.add(cullCube);
+
+		for (int i = (int) bottomCornerToLoad.getX(); i < topCornerToLoad.getX(); i++) {
+			for (int j = (int) bottomCornerToLoad.getY(); j < topCornerToLoad.getY(); j++) {
+				for (int k = (int) bottomCornerToLoad.getZ(); k < topCornerToLoad.getZ(); k++) {
+
+					String index = "" + i + "_" + (j * 10007) + "_" + (k * 1000003);
+
+					if (!cubeMap.containsKey(index)) {
+
+						double point = perlin3D.getPoint(Math.abs(i), Math.abs(j), Math.abs(k));
+
+						if (point < 0.05) {
+
+							Transform transform = new Transform(
+									new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize),
+									Vec3f.ONE,
+									Matrix4f.Identity
+							);
+
+							TransformSceneGraph transformSceneGraph = new TransformSceneGraph(parent, transform);
+
+							cubeMap.put(index, transformSceneGraph);
+
+							if (k < 2) {
+								MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeFire);
+							}
+							if (k < 100) {
+								MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeSand);
+							} else {
+								MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	@Test
 	public void normal() {
 
@@ -485,7 +711,7 @@ class TestBench {
 
 		MeshObject textItem = new MeshBuilder()
 				.setMeshType(MeshType.TEXT)
-		.build();
+				.build();
 
 		MeshSceneGraph textMeshObject = new MeshSceneGraph(hudTransformGameObject, textItem);
 

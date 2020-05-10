@@ -6,7 +6,7 @@ import java.util.UUID;
 public class SceneGraphNodeData {
 
 	private final UUID uuid = UUID.randomUUID();
-	private final SceneGraphNode parent;
+	private SceneGraphNode parent;
 	private final ArrayList<SceneGraphNode> children;
 	private final RenderObjectType renderObjectType;
 	private int numberOfPlayers;
@@ -111,5 +111,9 @@ public class SceneGraphNodeData {
 
 	public UUID getUuid() {
 		return uuid;
+	}
+
+	public void setParent(SceneGraphNode parent) {
+		this.parent = parent;
 	}
 }

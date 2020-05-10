@@ -6,5 +6,6 @@ public enum RenderObjectType {
 	LIGHT,
 	MESH,
 	TRANSFORM,
-	PLAYER
+	PLAYER,
+	INDEXED
 }

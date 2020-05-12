@@ -542,9 +542,9 @@ class TestBench {
 
 		int segmentSize = 10;
 		int hillHeight = 30;
-		Vec3f cullCube = new Vec3f(30, 30, 20);
-		Perlin3D perlin3D = new Perlin3D(500, segmentSize);
-		Perlin2D perlin2D = new Perlin2D(500, segmentSize);
+		Vec3f cullCube = new Vec3f(30, 30, 30);
+		Perlin3D perlin3D = new Perlin3D(50000, segmentSize);
+		Perlin2D perlin2D = new Perlin2D(50000, segmentSize);
 
 		DirectionalLight pos = new DirectionalLight(
 				new Vec3f(1f, 1f, 1f),
@@ -565,6 +565,10 @@ class TestBench {
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
+		MeshObject skybox = new MeshBuilder().setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(1000, 1000, 1000))).setTexture("/textures/2k_neptune.jpg").build();
+
+		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(cameraTransformGameObject, skybox);
+
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
@@ -584,16 +588,23 @@ class TestBench {
 
 		HashMap<UUID, SceneGraph> objectObjectHashMap = new HashMap<>();
 
+		int counter = 0;
+
 		while (!window.shouldClose()) {
 
 			window.loop(gameObjects, objectObjectHashMap, cameraGameObject.getSceneGraphNodeData().getUuid());
 
 			LWJGLGameControlManager.checkInputs();
 
-			createMap(camera.getPos(), cullCube, perlin3D, perlin2D, cubeSize, rootGameObject, hillHeight, cubeFire, cubeSand, cubeGrass, cubeSnow);
+			createMap(camera.getPos(), cullCube, perlin3D, perlin2D, cubeSize, gameObjects, hillHeight, cubeFire, cubeSand, cubeGrass, cubeSnow);
 
-			if (cubeMap.size() > 30000) {
+			if (cubeMap.size() > 5) {
 				cullCubes(rootGameObject, camera.getPos());
+				if (counter > 100) {
+					cubeMap.clear();
+					rootGameObject.getSceneGraphNodeData().getChildren().removeIf(child -> child instanceof TransformSceneGraph);
+				}
+				counter++;
 			}
 
 		}
@@ -610,23 +621,30 @@ class TestBench {
 
 			if (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().subtract(pos).length2() > 900) {
 				removeList.add(
-						"" + ((int) integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getX()) +
-						"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getY()) * 10007) +
-						"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getZ()) * 1000003));
+						((int) integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getX()) +
+								"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getY())) +
+								"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getZ())));
 
-				rootGameObject.getSceneGraphNodeData().getChildren().remove(integerTransformSceneGraphEntry.getValue());
+				rootGameObject.getSceneGraphNodeData().removeGameObjectNode(integerTransformSceneGraphEntry.getValue());
 				for (SceneGraphNode child : integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren()) {
 					child.getSceneGraphNodeData().setParent(null);
 				}
 				integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren().clear();
 				integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().setParent(null);
+			} else {
+				// check if box is behind camera
 			}
 
 		}
 
+		int counter = 0;
 		for (String index : removeList) {
-			cubeMap.remove(index);
+			if (cubeMap.remove(index) != null) {
+				counter++;
+			}
 		}
+
+		System.out.println(counter);
 
 	}
 
@@ -635,7 +653,7 @@ class TestBench {
 	                       Perlin3D perlin3D,
 	                       Perlin2D perlin2D,
 	                       int cubeSize,
-	                       SceneGraphNode parent,
+	                       HashMap<UUID, SceneGraph> sceneGraphHashMap,
 	                       int hillHeight,
 	                       MeshObject cubeFire,
 	                       MeshObject cubeSand,
@@ -650,31 +668,47 @@ class TestBench {
 			for (int j = (int) bottomCornerToLoad.getY(); j < topCornerToLoad.getY(); j++) {
 				for (int k = (int) bottomCornerToLoad.getZ(); k < topCornerToLoad.getZ(); k++) {
 
-					String index = "" + i + "_" + (j * 10007) + "_" + (k * 1000003);
+					if (k >= 0) {
 
-					if (!cubeMap.containsKey(index)) {
+						String index = i + "_" + j + "_" + k;
 
-						double point = perlin3D.getPoint(Math.abs(i), Math.abs(j), Math.abs(k));
+						if (!cubeMap.containsKey(index)) {
 
-						if (point < 0.05) {
+							double point = perlin3D.getPoint(Math.abs(i), Math.abs(j), Math.abs(k));
 
-							Transform transform = new Transform(
-									new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize),
-									Vec3f.ONE,
-									Matrix4f.Identity
-							);
+							if (point < 0.05) {
 
-							TransformSceneGraph transformSceneGraph = new TransformSceneGraph(parent, transform);
+								double weight = -1;
 
-							cubeMap.put(index, transformSceneGraph);
+								if (k < 100) {
+									weight = ((k - 50.0) / 50.0) - 0.4;
+									weight *= weight * weight * weight;
+								} else if (k < 110) {
+									weight = ((103.0 - k) / 10.0);
+								}
 
-							if (k < 2) {
-								MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeFire);
-							}
-							if (k < 100) {
-								MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeSand);
-							} else {
-								MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
+								if (point < weight) {
+
+									SceneGraph sceneGraph = new SceneGraph();
+
+									Transform transform = new Transform(
+											new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize),
+											Vec3f.ONE,
+											Matrix4f.Identity
+									);
+
+									TransformSceneGraph transformSceneGraph = new TransformSceneGraph(sceneGraph, transform);
+
+									if (k < 2) {
+										MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeFire);
+									} else if (k < 100) {
+										MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeSand);
+									} else {
+										MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
+									}
+									cubeMap.put(index, transformSceneGraph);
+									sceneGraphHashMap.put(sceneGraph.getSceneGraphNodeData().getUuid(), sceneGraph);
+								}
 							}
 						}
 					}
@@ -843,7 +877,8 @@ class TestBench {
 		);
 	}
 
-	private void createLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale, Matrix4f rotation, MeshObject meshGroup) {
+	private void createLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale, Matrix4f
+			rotation, MeshObject meshGroup) {
 		Transform lightGameObjectTransform = new Transform(
 				position,
 				scale,
@@ -857,7 +892,8 @@ class TestBench {
 		);
 	}
 
-	private void createLight(Light light, SceneGraphNode parent, Transform lightGameObjectTransform, MeshObject meshGroup) {
+	private void createLight(Light light, SceneGraphNode parent, Transform lightGameObjectTransform, MeshObject
+			meshGroup) {
 		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
 		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
 		MeshSceneGraph meshGameObject = new MeshSceneGraph(

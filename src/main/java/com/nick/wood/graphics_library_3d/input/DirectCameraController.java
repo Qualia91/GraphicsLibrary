@@ -13,6 +13,7 @@ public class DirectCameraController implements Control {
 	private final HashMap<ActionEnum, Boolean> actions = new HashMap<>();
 	private final boolean enableLook;
 	private final boolean enableMove;
+	private UUID uuid = UUID.randomUUID();
 
 	public DirectCameraController(Camera camera, boolean enableLook, boolean enableMove) {
 		this.camera = camera;
@@ -94,7 +95,7 @@ public class DirectCameraController implements Control {
 	}
 
 	public UUID getUuid() {
-		return UUID.randomUUID();
+		return uuid;
 	}
 
 	public HashMap<ActionEnum, Boolean> getActions() {

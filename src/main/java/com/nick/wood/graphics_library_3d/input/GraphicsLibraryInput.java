@@ -92,4 +92,5 @@ public class GraphicsLibraryInput implements Input {
 	public boolean isKeyPressed(int key) {
 		return keys[key];
 	}
+
 }

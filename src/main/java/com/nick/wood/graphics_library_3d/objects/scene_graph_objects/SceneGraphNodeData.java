@@ -46,7 +46,9 @@ public class SceneGraphNodeData {
 	}
 
 	public void removeGameObjectNode(SceneGraphNode sceneGraphNode) {
+		sceneGraphNode.getSceneGraphNodeData().setParent(null);
 		children.remove(sceneGraphNode);
+		removeType(sceneGraphNode.getSceneGraphNodeData().getType());
 	}
 
 	public boolean containsPlayer() {

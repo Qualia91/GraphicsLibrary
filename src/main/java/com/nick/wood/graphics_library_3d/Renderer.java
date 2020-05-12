@@ -44,8 +44,6 @@ public class Renderer {
 	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
 	private Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
 
-	private final WeakHashMap<Integer, Mesh> meshesMap = new WeakHashMap<>();
-
 	private Matrix4f createOrthoProjMatrix() {
 
 		float right = 10;

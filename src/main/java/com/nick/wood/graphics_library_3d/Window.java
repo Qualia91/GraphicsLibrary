@@ -53,6 +53,8 @@ public class Window {
 
 	public Window(int WIDTH, int HEIGHT, String title) {
 
+
+
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
@@ -91,26 +93,9 @@ public class Window {
 		shader.destroy();
 		hudShader.destroy();
 
-		// todo this needs to go somewhere
-		//for (SceneGraphNode sceneGraphNode : gameObjects.values()) {
-		//	actOnMeshes(sceneGraphNode, Mesh::destroy);
-		//}
-
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
-	}
-
-	private void actOnMeshes(SceneGraphNode sceneGraphNode, Consumer<Mesh> meshFunction) {
-		if (sceneGraphNode instanceof MeshSceneGraph) {
-			MeshSceneGraph meshGameObject = (MeshSceneGraph) sceneGraphNode;
-			meshFunction.accept(meshGameObject.getMeshObject().getMesh());
-		}
-		if (sceneGraphNode.getSceneGraphNodeData().containsMeshes()) {
-			for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
-				actOnMeshes(child, meshFunction);
-			}
-		}
 	}
 
 	public void init() {
@@ -247,12 +232,12 @@ public class Window {
 		}
 
 		renderer.renderMesh(meshes, cameras.get(primaryCamera), lights);
-
-		// this mkaes sure hud is ontop of everything in scene
+		// this makes sure hud is ontop of everything in scene
 		glClear(GL_DEPTH_BUFFER_BIT);
-
 		renderer.renderMiniMap(meshesHud, cameras.get(primaryCamera), lightsHud);
 		glfwSwapBuffers(window); // swap the color buffers
+
+
 
 	}
 

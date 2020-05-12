@@ -14,8 +14,8 @@ public class Camera {
 	private float moveSpeed;
 	private float sensitivity;
 	private float x;
-	private float z;
 	private float y;
+	private float z;
 
 	public Camera(Vec3f pos, Vec3f rot, float moveSpeed, float sensitivity) {
 		rot = rot.add(startingCameraRotation);
@@ -24,6 +24,7 @@ public class Camera {
 		this.rot = rot;
 		this.moveSpeed = moveSpeed;
 		this.sensitivity = sensitivity;
+		rotate(0, 0);
 	}
 
 	public Vec3f getInitialRot() {
@@ -39,8 +40,6 @@ public class Camera {
 	}
 
 	public Vec3f getPos() {
-
-		// get game object to world transformation
 		return pos;
 	}
 

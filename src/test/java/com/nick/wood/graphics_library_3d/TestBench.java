@@ -3,7 +3,6 @@ package com.nick.wood.graphics_library_3d;
 import com.nick.wood.graphics_library_3d.input.DirectCameraController;
 import com.nick.wood.graphics_library_3d.input.DirectTransformController;
 import com.nick.wood.graphics_library_3d.input.LWJGLGameControlManager;
-import com.nick.wood.graphics_library_3d.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library_3d.lighting.DirectionalLight;
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
@@ -17,9 +16,7 @@ import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
-import org.lwjgl.system.CallbackI;
 
-import java.security.spec.RSAOtherPrimeInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -339,7 +336,6 @@ class TestBench {
 
 	}
 
-
 	@Test
 	void terrain3D() {
 
@@ -600,11 +596,6 @@ class TestBench {
 
 			if (cubeMap.size() > 5) {
 				cullCubes(rootGameObject, camera.getPos());
-				if (counter > 100) {
-					cubeMap.clear();
-					rootGameObject.getSceneGraphNodeData().getChildren().removeIf(child -> child instanceof TransformSceneGraph);
-				}
-				counter++;
 			}
 
 		}
@@ -643,8 +634,6 @@ class TestBench {
 				counter++;
 			}
 		}
-
-		System.out.println(counter);
 
 	}
 
@@ -816,6 +805,46 @@ class TestBench {
 		window.destroy();
 
 	}
+
+	/*@Test
+	public void vr() {
+		System.err.println("VR_IsRuntimeInstalled() = " + VR_IsRuntimeInstalled());
+		System.err.println("VR_RuntimePath() = " + VR_RuntimePath());
+		System.err.println("VR_IsHmdPresent() = " + VR_IsHmdPresent());
+
+		try (MemoryStack stack = stackPush()) {
+			IntBuffer peError = stack.mallocInt(1);
+
+			int token = VR_InitInternal(peError, 0);
+			if (peError.get(0) == 0) {
+				try {
+					OpenVR.create(token);
+
+					System.err.println("Model Number : " + VRSystem_GetStringTrackedDeviceProperty(
+							k_unTrackedDeviceIndex_Hmd,
+							ETrackedDeviceProperty_Prop_ModelNumber_String,
+							peError
+					));
+					System.err.println("Serial Number: " + VRSystem_GetStringTrackedDeviceProperty(
+							k_unTrackedDeviceIndex_Hmd,
+							ETrackedDeviceProperty_Prop_SerialNumber_String,
+							peError
+					));
+
+					IntBuffer w = stack.mallocInt(1);
+					IntBuffer h = stack.mallocInt(1);
+					VRSystem_GetRecommendedRenderTargetSize(w, h);
+					System.err.println("Recommended width : " + w.get(0));
+					System.err.println("Recommended height: " + h.get(0));
+				} finally {
+					VR_ShutdownInternal();
+				}
+			} else {
+				System.out.println("INIT ERROR SYMBOL: " + VR_GetVRInitErrorAsSymbol(peError.get(0)));
+				System.out.println("INIT ERROR  DESCR: " + VR_GetVRInitErrorAsEnglishDescription(peError.get(0)));
+			}
+		}
+	}*/
 
 	public void buildMeshes(ArrayList<SceneGraphNode> gameObjects) {
 		for (SceneGraphNode gameObject : gameObjects) {

@@ -17,6 +17,7 @@ public class Shader {
 	private int vertexId;
 	private int fragmentId;
 	private int programId;
+	private final FloatBuffer matrixBuffer = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
 
 	public Shader(String vertexFile, String fragmentFile) {
 		this.vertexFile = FileUtils.loadAsString(vertexFile);
@@ -59,9 +60,8 @@ public class Shader {
 	}
 
 	public void setUniform(String name, Matrix4f value) {
-		FloatBuffer matrix = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
-		matrix.put(value.getValues()).flip();
-		glUniformMatrix4fv(getUniformLocation(name), true, matrix);
+		matrixBuffer.put(value.getValues()).flip();
+		glUniformMatrix4fv(getUniformLocation(name), true, matrixBuffer);
 	}
 
 	public void setUniform(String name, Vec3f vec) {

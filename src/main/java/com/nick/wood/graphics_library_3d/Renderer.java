@@ -38,11 +38,13 @@ public class Renderer {
 	private final Shader hudShader;
 	private final Matrix4f projectionMatrix;
 
-	private final Matrix4f orthoProjectionMatrix = createOrthoProjMatrix();
+	//private final Matrix4f orthoProjectionMatrix = createOrthoProjMatrix();
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
 	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
 	private Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
+	private FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MAX_INSTANCE * MATRIX_SIZE_FLOATS);
+	private HashMap<String, HashCodeCounter> meshedMeshFiles = new HashMap<>();
 
 	private Matrix4f createOrthoProjMatrix() {
 
@@ -83,7 +85,7 @@ public class Renderer {
 
 		// set up meshes
 		// get a lit of meshes via hash code of each type which depends on input mesh file and material
-		HashMap<String, HashCodeCounter> meshedMeshFiles = new HashMap<>();
+		this.meshedMeshFiles.clear();
 
 		for (Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry : meshObjects.entrySet()) {
 			addToInstance(meshedMeshFiles, meshObjectEntry, "");
@@ -99,13 +101,13 @@ public class Renderer {
 
 			switch (lightRenderObj.getValue().getObject().getType()) {
 				case POINT:
-					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform());
+					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform(), shader);
 					break;
 				case SPOT:
-					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform());
+					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform(), shader);
 					break;
 				case DIRECTIONAL:
-					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform());
+					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform(), shader);
 					break;
 				default:
 					break;
@@ -120,18 +122,18 @@ public class Renderer {
 		shader.setUniform("cameraPos", primaryCamera.getTransform().multiply(primaryCamera.getObject().getPos()));
 		shader.setUniform("view", primaryCamera.getObject().getView(primaryCamera.getTransform()));
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
-		shader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
+		//shader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
 
 		// do all but text
 		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
 			if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
-				renderInstance(stringHashCodeCounterEntry);
+				renderInstance(stringHashCodeCounterEntry, shader);
 			}
 		}
 		// do all text ones last as the background wont be see through properly if they dont
 		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
 			if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
-				renderInstance(stringHashCodeCounterEntry);
+				renderInstance(stringHashCodeCounterEntry, shader);
 			}
 		}
 
@@ -159,13 +161,13 @@ public class Renderer {
 
 			switch (lightRenderObj.getValue().getObject().getType()) {
 				case POINT:
-					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform());
+					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform(), hudShader);
 					break;
 				case SPOT:
-					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform());
+					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform(), hudShader);
 					break;
 				case DIRECTIONAL:
-					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform());
+					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform(), hudShader);
 					break;
 				default:
 					break;
@@ -180,18 +182,18 @@ public class Renderer {
 		hudShader.setUniform("cameraPos", camera.getTransform().multiply(camera.getObject().getPos()));
 		hudShader.setUniform("view", camera.getObject().getView(camera.getTransform()));
 		hudShader.setUniform("modelLightViewMatrix", lightViewMatrix);
-		hudShader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
+		//hudShader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
 
 		// do all but text
 		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
 			if (!(stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem)) {
-				renderInstance(stringHashCodeCounterEntry);
+				renderInstance(stringHashCodeCounterEntry, hudShader);
 			}
 		}
 		// do all text ones last as the background wont be see through properly if they dont
 		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
 			if (stringHashCodeCounterEntry.getValue().getMeshObject() instanceof TextItem) {
-				renderInstance(stringHashCodeCounterEntry);
+				renderInstance(stringHashCodeCounterEntry, hudShader);
 			}
 		}
 
@@ -199,7 +201,7 @@ public class Renderer {
 		hudShader.unbind();
 	}
 
-	private void renderInstance(Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry) {
+	private void renderInstance(Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry, Shader shader) {
 
 		HashCodeCounter meshHashCode = stringHashCodeCounterEntry.getValue();
 
@@ -225,7 +227,6 @@ public class Renderer {
 			start++;
 		}
 
-		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshHashCode.getAmount() * MATRIX_SIZE_FLOATS);
 		int index = 0;
 		for (Matrix4f transform : meshHashCode.getTransforms()) {
 			modelViewBuffer.put(index * 16, meshHashCode.getRotationOfModel().multiply(transform).transpose().getValues());
@@ -236,25 +237,28 @@ public class Renderer {
 
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
 
+		// clean up
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		meshHashCode.getMeshObject().getMesh().endRender();
 
 	}
 
-	private void createSpotLight(SpotLight spotLight, int index, Matrix4f transformation) {
-		createPointLight("spotLights[" + index + "].", spotLight.getPointLight(), -1, transformation);
+	private void createSpotLight(SpotLight spotLight, int index, Matrix4f transformation, Shader shader) {
+		createPointLight("spotLights[" + index + "].", spotLight.getPointLight(), -1, transformation, shader);
 		shader.setUniform("spotLights[" + index + "].coneDirection", transformation.rotate(spotLight.getConeDirection()));
 		shader.setUniform("spotLights[" + index + "].coneAngleCosine", (float) Math.cos(spotLight.getConeAngle()));
 	}
 
-	private void createDirectionalLight(DirectionalLight directionalLight, int index, Matrix4f transformation) {
+	private void createDirectionalLight(DirectionalLight directionalLight, int index, Matrix4f transformation, Shader shader) {
 		shader.setUniform("directionalLights[" + index + "].colour", directionalLight.getColour());
 		shader.setUniform("directionalLights[" + index + "].direction", transformation.rotate(directionalLight.getDirection()));
 		shader.setUniform("directionalLights[" + index + "].intensity", directionalLight.getIntensity());
 	}
 
-	private void createPointLight(String namePrefix, PointLight pointLight, int index, Matrix4f transformation) {
+	private void createPointLight(String namePrefix, PointLight pointLight, int index, Matrix4f transformation, Shader shader) {
 		String indexAddition = "";
 		if (index != -1) {
 			indexAddition = "s[" + index + "]";

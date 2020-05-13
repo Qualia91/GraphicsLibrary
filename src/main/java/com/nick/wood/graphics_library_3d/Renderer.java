@@ -5,7 +5,6 @@ import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.lighting.DirectionalLight;
 import com.nick.wood.graphics_library_3d.lighting.PointLight;
 import com.nick.wood.graphics_library_3d.lighting.SpotLight;
-import com.nick.wood.graphics_library_3d.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.RenderObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.TextItem;
@@ -38,12 +37,11 @@ public class Renderer {
 	private final Shader hudShader;
 	private final Matrix4f projectionMatrix;
 
-	//private final Matrix4f orthoProjectionMatrix = createOrthoProjMatrix();
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
 	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
 	private Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
-	private FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MAX_INSTANCE * MATRIX_SIZE_FLOATS);
+	private FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(10_000 * MATRIX_SIZE_FLOATS);
 	private HashMap<String, HashCodeCounter> meshedMeshFiles = new HashMap<>();
 
 	private Matrix4f createOrthoProjMatrix() {
@@ -69,26 +67,30 @@ public class Renderer {
 		this.projectionMatrix = window.getProjectionMatrix();
 	}
 
-	private void addToInstance(HashMap<String, HashCodeCounter> meshedMeshFiles, Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry, String appendString) {
-		if (!meshedMeshFiles.containsKey(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString)) {
-			meshedMeshFiles.put(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString, new HashCodeCounter(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString, meshObjectEntry.getValue().getObject(), meshObjectEntry.getValue().getObject().getMeshTransformation(), meshObjectEntry.getValue().getTransform()));
+	public void destroy() {
+		MemoryUtil.memFree(modelViewBuffer);
+	}
+
+	private void addToInstance(HashMap<String, HashCodeCounter> meshedMeshFiles, RenderObject<MeshObject> meshObject, String appendString) {
+		if (!meshedMeshFiles.containsKey(meshObject.getObject().getStringToCompare() + appendString)) {
+			meshedMeshFiles.put(meshObject.getObject().getStringToCompare() + appendString, new HashCodeCounter(meshObject.getObject().getStringToCompare() + appendString, meshObject.getObject(), meshObject.getObject().getMeshTransformation(), meshObject.getTransform()));
 		} else {
-			if (meshedMeshFiles.get(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString).getAmount() <= MAX_INSTANCE) {
-				meshedMeshFiles.get(meshObjectEntry.getValue().getObject().getStringToCompare() + appendString).addInstance(meshObjectEntry.getValue().getTransform());
+			if (meshedMeshFiles.get(meshObject.getObject().getStringToCompare() + appendString).getAmount() <= MAX_INSTANCE) {
+				meshedMeshFiles.get(meshObject.getObject().getStringToCompare() + appendString).addInstance(meshObject.getTransform());
 			} else {
-				addToInstance(meshedMeshFiles, meshObjectEntry, appendString + "1");
+				addToInstance(meshedMeshFiles, meshObject, appendString + "1");
 			}
 		}
 	}
 
-	public void renderMesh(HashMap<UUID, RenderObject<MeshObject>> meshObjects, RenderObject<Camera> primaryCamera, HashMap<UUID, RenderObject<Light>> lights) {
+	public void renderMesh(ArrayList<RenderObject<MeshObject>> meshObjects, RenderObject<Camera> primaryCamera, ArrayList<RenderObject<Light>> lights) {
 
 		// set up meshes
 		// get a lit of meshes via hash code of each type which depends on input mesh file and material
 		this.meshedMeshFiles.clear();
 
-		for (Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry : meshObjects.entrySet()) {
-			addToInstance(meshedMeshFiles, meshObjectEntry, "");
+		for (RenderObject<MeshObject> meshObject : meshObjects) {
+			addToInstance(meshedMeshFiles, meshObject, "");
 		}
 
 		shader.bind();
@@ -97,17 +99,17 @@ public class Renderer {
 		int spotLightIndex = 0;
 		int directionalLightIndex = 0;
 
-		for (Map.Entry<UUID, RenderObject<Light>> lightRenderObj : lights.entrySet()) {
+		for (RenderObject<Light> light : lights) {
 
-			switch (lightRenderObj.getValue().getObject().getType()) {
+			switch (light.getObject().getType()) {
 				case POINT:
-					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform(), shader);
+					createPointLight("", (PointLight) light.getObject(), pointLightIndex++, light.getTransform(), shader);
 					break;
 				case SPOT:
-					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform(), shader);
+					createSpotLight((SpotLight) light.getObject(), spotLightIndex++, light.getTransform(), shader);
 					break;
 				case DIRECTIONAL:
-					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform(), shader);
+					createDirectionalLight((DirectionalLight) light.getObject(), directionalLightIndex++, light.getTransform(), shader);
 					break;
 				default:
 					break;
@@ -141,14 +143,14 @@ public class Renderer {
 		shader.unbind();
 	}
 
-	public void renderMiniMap(HashMap<UUID, RenderObject<MeshObject>> meshObjects, RenderObject<Camera> camera, HashMap<UUID, RenderObject<Light>> lights) {
+	public void renderMiniMap(ArrayList<RenderObject<MeshObject>> meshObjects, RenderObject<Camera> camera, ArrayList<RenderObject<Light>> lights) {
 
 		// set up meshes
 		// get a lit of meshes via hash code of each type which depends on input mesh file and material
 		HashMap<String, HashCodeCounter> meshedMeshFiles = new HashMap<>();
 
-		for (Map.Entry<UUID, RenderObject<MeshObject>> meshObjectEntry : meshObjects.entrySet()) {
-			addToInstance(meshedMeshFiles, meshObjectEntry, "");
+		for (RenderObject<MeshObject> meshObject : meshObjects) {
+			addToInstance(meshedMeshFiles, meshObject, "");
 		}
 
 		hudShader.bind();
@@ -157,17 +159,17 @@ public class Renderer {
 		int spotLightIndex = 0;
 		int directionalLightIndex = 0;
 
-		for (Map.Entry<UUID, RenderObject<Light>> lightRenderObj : lights.entrySet()) {
+		for (RenderObject<Light> light : lights) {
 
-			switch (lightRenderObj.getValue().getObject().getType()) {
+			switch (light.getObject().getType()) {
 				case POINT:
-					createPointLight("", (PointLight) lightRenderObj.getValue().getObject(), pointLightIndex++, lightRenderObj.getValue().getTransform(), hudShader);
+					createPointLight("", (PointLight) light.getObject(), pointLightIndex++, light.getTransform(), hudShader);
 					break;
 				case SPOT:
-					createSpotLight((SpotLight) lightRenderObj.getValue().getObject(), spotLightIndex++, lightRenderObj.getValue().getTransform(), hudShader);
+					createSpotLight((SpotLight) light.getObject(), spotLightIndex++, light.getTransform(), hudShader);
 					break;
 				case DIRECTIONAL:
-					createDirectionalLight((DirectionalLight) lightRenderObj.getValue().getObject(), directionalLightIndex++, lightRenderObj.getValue().getTransform(), hudShader);
+					createDirectionalLight((DirectionalLight) light.getObject(), directionalLightIndex++, light.getTransform(), hudShader);
 					break;
 				default:
 					break;
@@ -182,7 +184,6 @@ public class Renderer {
 		hudShader.setUniform("cameraPos", camera.getTransform().multiply(camera.getObject().getPos()));
 		hudShader.setUniform("view", camera.getObject().getView(camera.getTransform()));
 		hudShader.setUniform("modelLightViewMatrix", lightViewMatrix);
-		//hudShader.setUniform("orthoProjectionMatrix", orthoProjectionMatrix);
 
 		// do all but text
 		for (Map.Entry<String, HashCodeCounter> stringHashCodeCounterEntry : meshedMeshFiles.entrySet()) {
@@ -235,11 +236,14 @@ public class Renderer {
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
+
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
 
 		// clean up
+		glDeleteBuffers(GL_ARRAY_BUFFER);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		GL15.glDeleteBuffers(GL15.GL_ELEMENT_ARRAY_BUFFER);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		meshHashCode.getMeshObject().getMesh().endRender();
@@ -265,7 +269,7 @@ public class Renderer {
 		}
 
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".colour", pointLight.getColour());
-		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".position", transformation.multiply(Vec3f.ZERO));
+		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".position", transformation.getTranslation());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".intensity", (float) pointLight.getIntensity());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.constant", pointLight.getAttenuation().getConstant());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.linear", pointLight.getAttenuation().getLinear());

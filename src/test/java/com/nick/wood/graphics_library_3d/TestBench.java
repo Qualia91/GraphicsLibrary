@@ -25,88 +25,11 @@ import java.util.UUID;
 class TestBench {
 
 	@Test
-	public void shadow() {
+	public void empty() {
 
 		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
 		SceneGraph rootGameObject = new SceneGraph();
-
-		Transform transform = new Transform(
-				Vec3f.X.scale(0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
-		);
-
-		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
-
-		//MeshObject cubeMesh = new ModelMesh(
-		//		"D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj",
-		//		"/textures/white.png",
-		//		Matrix4f.Rotation(-90, Vec3f.X),
-		//		false
-		//);
-
-		MeshObject cubeMesh = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
-				.build();
-
-		Transform transformMesh = new Transform(
-				Vec3f.Z.scale(0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
-		);
-		TransformSceneGraph meshTransform = new TransformSceneGraph(wholeSceneTransform, transformMesh);
-		MeshSceneGraph meshGameObject = new MeshSceneGraph(
-				meshTransform,
-				cubeMesh
-		);
-
-
-		Transform transformMeshWall = new Transform(
-				Vec3f.Y.scale(10),
-				new Vec3f(10.0f, 10f, 10.0f),
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
-		);
-		TransformSceneGraph meshTransformWall = new TransformSceneGraph(wholeSceneTransform, transformMeshWall);
-		MeshSceneGraph meshGameObjectWall = new MeshSceneGraph(
-				meshTransformWall,
-				cubeMesh
-		);
-
-		createAxis(wholeSceneTransform);
-
-		PointLight pointLight = new PointLight(
-				new Vec3f(0.0f, 1.0f, 0.0f),
-				1f);
-		DirectionalLight directionalLight = new DirectionalLight(
-				new Vec3f(1.0f, 1.0f, 1.0f),
-				new Vec3f(0.0f, 0.0f, -1.0f),
-				0.1f);
-		SpotLight spotLight = new SpotLight(
-				new PointLight(
-						new Vec3f(1.0f, 0.0f, 0.0f),
-						100f),
-				Vec3f.Y,
-				0.02f
-		);
-
-		MeshObject sphereMesh = new MeshBuilder()
-				.setTexture("/textures/sand.jpg")
-				.setInvertedNormals(true)
-				.build();
-
-		createLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -15.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE, Matrix4f.Identity, sphereMesh);
 
 		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
@@ -119,7 +42,7 @@ class TestBench {
 				//Matrix4f.Rotation(90, Vec3f.Z)
 		);
 
-		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
@@ -586,6 +509,7 @@ class TestBench {
 
 		int counter = 0;
 
+
 		while (!window.shouldClose()) {
 
 			window.loop(gameObjects, objectObjectHashMap, cameraGameObject.getSceneGraphNodeData().getUuid());
@@ -594,8 +518,10 @@ class TestBench {
 
 			createMap(camera.getPos(), cullCube, perlin3D, perlin2D, cubeSize, gameObjects, hillHeight, cubeFire, cubeSand, cubeGrass, cubeSnow);
 
-			if (cubeMap.size() > 5) {
+
+			if (cubeMap.size() > 1000) {
 				cullCubes(rootGameObject, camera.getPos());
+				//System.gc();
 			}
 
 		}
@@ -611,10 +537,13 @@ class TestBench {
 		for (Map.Entry<String, TransformSceneGraph> integerTransformSceneGraphEntry : cubeMap.entrySet()) {
 
 			if (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().subtract(pos).length2() > 900) {
-				removeList.add(
-						((int) integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getX()) +
-								"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getY())) +
-								"_" + ((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getZ())));
+				StringBuilder stringBuffer = new StringBuilder();
+				stringBuffer.append(((int) integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getX()))
+						.append("_")
+						.append(((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getY())))
+						.append("_")
+						.append(((int) (integerTransformSceneGraphEntry.getValue().getTransform().getPosition().getZ())));
+				removeList.add(stringBuffer.toString());
 
 				rootGameObject.getSceneGraphNodeData().removeGameObjectNode(integerTransformSceneGraphEntry.getValue());
 				for (SceneGraphNode child : integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren()) {

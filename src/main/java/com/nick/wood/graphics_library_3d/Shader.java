@@ -4,11 +4,14 @@ import com.nick.wood.graphics_library_3d.utils.FileUtils;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.util.Stack;
 
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
 
 public class Shader {
 
@@ -17,7 +20,8 @@ public class Shader {
 	private int vertexId;
 	private int fragmentId;
 	private int programId;
-	private final FloatBuffer matrixBuffer = MemoryUtil.memAllocFloat(Matrix4f.SIZE * Matrix4f.SIZE);
+
+	private final FloatBuffer matrixBuffer = MemoryUtil.memAllocFloat(16);
 
 	public Shader(String vertexFile, String fragmentFile) {
 		this.vertexFile = FileUtils.loadAsString(vertexFile);
@@ -85,6 +89,8 @@ public class Shader {
 		glDeleteShader(vertexId);
 		glDeleteShader(fragmentId);
 		glDeleteProgram(programId);
+
+		MemoryUtil.memFree(matrixBuffer);
 	}
 
 	private void createShader(int id, String file, String typeString) {

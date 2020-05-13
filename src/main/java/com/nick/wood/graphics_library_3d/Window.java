@@ -4,7 +4,6 @@ import com.nick.wood.graphics_library_3d.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library_3d.lighting.Light;
 import com.nick.wood.graphics_library_3d.objects.Camera;
 import com.nick.wood.graphics_library_3d.objects.scene_graph_objects.*;
-import com.nick.wood.graphics_library_3d.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library_3d.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
@@ -15,12 +14,13 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
+import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 import java.util.*;
-import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -32,12 +32,12 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
 
 	private final GraphicsLibraryInput graphicsLibraryInput;
-	private final HashMap<UUID, RenderObject<Light>> lights;
-	private final HashMap<UUID, RenderObject<MeshObject>> meshes;
-	private final HashMap<UUID, RenderObject<Camera>> cameras;
-	private final HashMap<UUID, RenderObject<Light>> lightsHud;
-	private final HashMap<UUID, RenderObject<MeshObject>> meshesHud;
-	private final HashMap<UUID, RenderObject<Camera>> camerasHud;
+	private final ArrayList<RenderObject<Light>> lights = new ArrayList<>();
+	private final ArrayList<RenderObject<MeshObject>> meshes = new ArrayList<>();
+	private final ArrayList<RenderObject<Camera>> cameras = new ArrayList<>();
+	private final ArrayList<RenderObject<Light>> lightsHud = new ArrayList<>();
+	private final ArrayList<RenderObject<MeshObject>> meshesHud = new ArrayList<>();
+	private final ArrayList<RenderObject<Camera>> camerasHud = new ArrayList<>();
 	// The window handle
 	private long window;
 	private int WIDTH;
@@ -47,7 +47,7 @@ public class Window {
 	private Shader shader;
 	private Shader hudShader;
 	private Renderer renderer;
-	private Matrix4f projectionMatrix;
+	private final Matrix4f projectionMatrix;
 
 	private boolean windowSizeChanged = false;
 
@@ -58,13 +58,6 @@ public class Window {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
-
-		this.lights = new HashMap<>();
-		this.meshes = new HashMap<>();
-		this.cameras = new HashMap<>();
-		this.lightsHud = new HashMap<>();
-		this.meshesHud = new HashMap<>();
-		this.camerasHud = new HashMap<>();
 
 		this.graphicsLibraryInput = new GraphicsLibraryInput();
 
@@ -86,16 +79,19 @@ public class Window {
 
 	public void destroy() {
 
+
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);
 
 		shader.destroy();
 		hudShader.destroy();
+		renderer.destroy();
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
+		GL.setCapabilities(null);
 	}
 
 	public void init() {
@@ -116,6 +112,10 @@ public class Window {
 
 		// Configure GLFW
 		glfwDefaultWindowHints(); // optional, the current window hints are already the default
+
+		// debug
+		//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
@@ -161,6 +161,10 @@ public class Window {
 		// bindings available for use.
 		GL.createCapabilities();
 
+		// debug
+		//Callback callback = GLUtil.setupDebugMessageCallback();
+
+
 		// cull back faces
 		GL11.glEnable(GLES20.GL_CULL_FACE);
 		GL11.glCullFace(GLES20.GL_BACK);
@@ -175,7 +179,7 @@ public class Window {
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		shader.create();
-		hudShader.create();
+		//hudShader.create();
 	}
 
 	private void createCallbacks() {
@@ -216,32 +220,37 @@ public class Window {
 		// invoked during this call.
 		glfwPollEvents();
 
+		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
+			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
+		}
+
+
+		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
+			createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
+		}
+
+		RenderObject<Camera> primaryCameraObject = cameras.get(0);
+		for (RenderObject<Camera> camera : cameras) {
+			if (camera.getUuid().equals(primaryCamera)) {
+				primaryCameraObject = camera;
+			}
+		}
+
+		renderer.renderMesh(meshes, primaryCameraObject, lights);
+		// this makes sure hud is ontop of everything in scene
+		glClear(GL_DEPTH_BUFFER_BIT);
+		//renderer.renderMiniMap(meshesHud, primaryCameraObject, lightsHud);
+		glfwSwapBuffers(window); // swap the color buffers
+
 		lights.clear();
 		meshes.clear();
 		cameras.clear();
 		lightsHud.clear();
 		meshesHud.clear();
 		camerasHud.clear();
-
-		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
-		}
-
-		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
-			createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
-		}
-
-		renderer.renderMesh(meshes, cameras.get(primaryCamera), lights);
-		// this makes sure hud is ontop of everything in scene
-		glClear(GL_DEPTH_BUFFER_BIT);
-		renderer.renderMiniMap(meshesHud, cameras.get(primaryCamera), lightsHud);
-		glfwSwapBuffers(window); // swap the color buffers
-
-
-
 	}
 
-	private void createRenderLists(HashMap<UUID, RenderObject<Light>> lights, HashMap<UUID, RenderObject<MeshObject>> meshes, HashMap<UUID, RenderObject<Camera>> cameras, SceneGraphNode sceneGraphNode, Matrix4f transformationSoFar) {
+	private void createRenderLists(ArrayList<RenderObject<Light>> lights, ArrayList<RenderObject<MeshObject>> meshes, ArrayList<RenderObject<Camera>> cameras, SceneGraphNode sceneGraphNode, Matrix4f transformationSoFar) {
 
 		if (isAvailableRenderData(sceneGraphNode.getSceneGraphNodeData())) {
 
@@ -251,13 +260,12 @@ public class Window {
 
 					case TRANSFORM:
 						TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
-						Matrix4f newTransformationSoFar = transformGameObject.getTransformForRender().multiply(transformationSoFar);
-						createRenderLists(lights, meshes, cameras, transformGameObject, newTransformationSoFar);
+						createRenderLists(lights, meshes, cameras, transformGameObject, transformGameObject.getTransformForRender().multiply(transformationSoFar));
 						break;
 					case LIGHT:
 						LightSceneGraph lightGameObject = (LightSceneGraph) child;
 						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
-						lights.put(child.getSceneGraphNodeData().getUuid(), lightRenderObject);
+						lights.add(lightRenderObject);
 						createRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
 						break;
 					case MESH:
@@ -266,13 +274,13 @@ public class Window {
 						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
 							meshGameObject.getMeshObject().getMesh().create();
 						}
-						meshes.put(child.getSceneGraphNodeData().getUuid(), meshGroupRenderObject);
+						meshes.add(meshGroupRenderObject);
 						createRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
 						break;
 					case CAMERA:
 						CameraSceneGraph cameraGameObject = (CameraSceneGraph) child;
 						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getSceneGraphNodeData().getUuid());
-						cameras.put(child.getSceneGraphNodeData().getUuid(), cameraRenderObject);
+						cameras.add(cameraRenderObject);
 						createRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
 						break;
 					default:

@@ -43,6 +43,7 @@ public class Mesh {
 			// shader stuff
 			GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
 		});
+		MemoryUtil.memFree(positionBuffer);
 
 		FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
 		float[] textData = new float[vertices.length * 2];
@@ -56,6 +57,7 @@ public class Mesh {
 			// shader stuff
 			GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 0, 0);
 		});
+		MemoryUtil.memFree(textureBuffer);
 
 		BiFunction<Vertex, Integer, Float> normalDataGettersBiFunc = (vertex, index) -> (float) vertex.getNormal().getValues()[index];
 		float[] norData = createDataForBuffer(vertices.length * 3, normalDataGettersBiFunc);
@@ -65,11 +67,13 @@ public class Mesh {
 			// shader stuff
 			GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 0, 0);
 		});
+		MemoryUtil.memFree(normBuffer);
 
 		IntBuffer indicesBuffer = createIntBufferAndPutData(indices.length, indices);
 		ibo = writeDataToBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, bufferType -> {
 			GL15.glBufferData(bufferType, indicesBuffer, GL15.GL_STATIC_DRAW);
 		});
+		MemoryUtil.memFree(indicesBuffer);
 		created = true;
 	}
 
@@ -119,12 +123,6 @@ public class Mesh {
 
 	private FloatBuffer createFloatBufferAndPutData(int amount, float[] data) {
 		FloatBuffer buffer = MemoryUtil.memAllocFloat(amount);
-		buffer.put(data).flip();
-		return buffer;
-	}
-
-	private DoubleBuffer createDoubleBufferAndPutData(int amount, double[] data) {
-		DoubleBuffer buffer = MemoryUtil.memAllocDouble(amount);
 		buffer.put(data).flip();
 		return buffer;
 	}

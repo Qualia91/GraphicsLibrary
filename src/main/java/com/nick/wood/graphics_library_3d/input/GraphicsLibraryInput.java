@@ -3,10 +3,14 @@ package com.nick.wood.graphics_library_3d.input;
 import com.nick.wood.game_control.input.Input;
 import org.lwjgl.glfw.*;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
 public class GraphicsLibraryInput implements Input {
 
 	private boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST];
 	private boolean[] buttons = new boolean[GLFW.GLFW_MOUSE_BUTTON_LAST];
+	private boolean[] activeJoysticks = new boolean[GLFW.GLFW_JOYSTICK_LAST];
 	private float mouseX;
 	private float mouseY;
 	private float offsetX;
@@ -16,6 +20,7 @@ public class GraphicsLibraryInput implements Input {
 	private final GLFWCursorPosCallback mouseMove;
 	private final GLFWMouseButtonCallback mouseButton;
 	private final GLFWScrollCallback glfwScrollCallback;
+	private final GLFWJoystickCallback glfwJoystickCallback;
 
 	public GraphicsLibraryInput() {
 		keyboard = new GLFWKeyCallback() {
@@ -47,6 +52,32 @@ public class GraphicsLibraryInput implements Input {
 				offsetY += yoffset;
 			}
 		};
+
+		glfwJoystickCallback = new GLFWJoystickCallback() {
+			@Override
+			public void invoke(int jid, int event) {
+				System.out.println("Joystick event");
+				if (event == GLFW.GLFW_CONNECTED)
+				{
+					activeJoysticks[jid] = true;
+				}
+				else if (event == GLFW.GLFW_DISCONNECTED)
+				{
+					activeJoysticks[jid] = false;
+				}
+				//String joystickName = GLFW.glfwGetJoystickName(jid);
+				//FloatBuffer joystickAxisBuffer = GLFW.glfwGetJoystickAxes(jid);
+				//ByteBuffer joystickButtonsBuffer = GLFW.glfwGetJoystickButtons(jid);
+			}
+		};
+	}
+
+	public boolean[] getActiveJoysticks() {
+		return activeJoysticks;
+	}
+
+	public GLFWJoystickCallback getGlfwJoystickCallback() {
+		return glfwJoystickCallback;
 	}
 
 	public boolean[] getKeys() {

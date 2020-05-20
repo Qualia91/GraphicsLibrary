@@ -19,11 +19,15 @@ import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwSetJoystickCallback;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -180,6 +184,8 @@ public class Window {
 
 		shader.create();
 		//hudShader.create();
+
+
 	}
 
 	private void createCallbacks() {
@@ -188,6 +194,8 @@ public class Window {
 		glfwSetCursorPosCallback(window, graphicsLibraryInput.getMouseMove());
 		glfwSetMouseButtonCallback(window, graphicsLibraryInput.getMouseButton());
 		glfwSetScrollCallback(window, graphicsLibraryInput.getGlfwScrollCallback());
+		glfwSetJoystickCallback(graphicsLibraryInput.getGlfwJoystickCallback());
+
 		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
@@ -197,6 +205,19 @@ public class Window {
 			}
 		});
 
+	}
+
+	public void loop() {
+		// user inputs
+		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
+			glfwSetWindowShouldClose(window, true);
+		}
+
+		// Poll for window events. The key callback above will only be
+		// invoked during this call.
+		glfwPollEvents();
+
+		System.out.println(glfwGetJoystickName(GLFW_JOYSTICK_1));
 	}
 
 	public void loop(HashMap<UUID, SceneGraph> gameObjects, HashMap<UUID, SceneGraph> hudObjects, UUID primaryCamera) {

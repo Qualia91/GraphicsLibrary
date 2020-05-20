@@ -6,6 +6,7 @@ import java.util.UUID;
 public class SceneGraphNodeData {
 
 	private final UUID uuid = UUID.randomUUID();
+	private final SceneGraphNode sceneGraphNode;
 	private SceneGraphNode parent;
 	private final ArrayList<SceneGraphNode> children;
 	private final RenderObjectType renderObjectType;
@@ -21,6 +22,7 @@ public class SceneGraphNodeData {
 			parent.getSceneGraphNodeData().getChildren().add(sceneGraphNode);
 			parent.getSceneGraphNodeData().addType(renderObjectType);
 		}
+		this.sceneGraphNode = sceneGraphNode;
 		this.children = new ArrayList<>();
 		this.renderObjectType = renderObjectType;
 		this.numberOfPlayers = 0;
@@ -43,6 +45,8 @@ public class SceneGraphNodeData {
 
 	public void addGameObjectNode(SceneGraphNode sceneGraphNode) {
 		children.add(sceneGraphNode);
+		sceneGraphNode.getSceneGraphNodeData().setParent(sceneGraphNode);
+		addType(sceneGraphNode.getSceneGraphNodeData().getType());
 	}
 
 	public void removeGameObjectNode(SceneGraphNode sceneGraphNode) {

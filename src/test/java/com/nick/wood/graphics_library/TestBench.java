@@ -11,6 +11,7 @@ import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
+import com.nick.wood.graphics_library.utils.ChunkLoader;
 import com.nick.wood.graphics_library.utils.ProceduralGeneration;
 import com.nick.wood.maths.noise.Perlin2D;
 import com.nick.wood.maths.noise.Perlin3D;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class TestBench {
 
@@ -89,6 +92,7 @@ class TestBench {
 				.setTexture("/textures/white.png")
 				.setTransform(Matrix4f.Rotation(-90, Vec3f.X))
 				.build();
+
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
@@ -184,24 +188,7 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		int segmentSize = 100;
-		Perlin2D perlin2D = new Perlin2D(1000, segmentSize);
 		int size = 1000;
-		double[][] grid = new double[size][size];
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				grid[i][j] = perlin2D.getPoint(i, j) * (segmentSize);
-			}
-		}
-
-		MeshObject terrain = new MeshBuilder()
-				.setMeshType(MeshType.TERRAIN)
-				.setTerrainHeightMap(grid)
-				.setTexture("/textures/terrain.png")
-				.setCellSpace(2.0)
-				.build();
-
-		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(rootGameObject, terrain);
 
 		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
@@ -214,7 +201,7 @@ class TestBench {
 
 		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, sun);
 
-		Camera camera = new Camera(new Vec3f(size / 2.0f, size / 2.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 10f, 0.1f);
+		Camera camera = new Camera(new Vec3f(size, size, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 10f, 0.1f);
 
 		Transform cameraTransform = new Transform(
 				Vec3f.X.scale(10),
@@ -239,8 +226,7 @@ class TestBench {
 
 		window.init();
 
-		float scaleVal = 0.005f;
-		Vec3f sumMovement = Vec3f.Z.scale(-scaleVal).add(Vec3f.Y.scale(-scaleVal));
+		ChunkLoader chunkLoader = new ChunkLoader(gameObjects, 5, 2);
 
 		while (!window.shouldClose()) {
 
@@ -248,11 +234,7 @@ class TestBench {
 
 			LWJGLGameControlManager.checkInputs();
 
-			//sun.setDirection(sun.getDirection().add(sumMovement).normalise());
-//
-			//if (sun.getDirection().getZ() < -0.99) {
-			//	sumMovement = Vec3f.Z.scale(scaleVal).add(Vec3f.Y.scale(-scaleVal));
-			//}
+			chunkLoader.loadChunk(camera.getPos());
 
 		}
 
@@ -269,13 +251,17 @@ class TestBench {
 		int size = 1000;
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
-		double[][] grid = proceduralGeneration.generateHeightMap(
+		double[][] grid = proceduralGeneration.generateHeightMapChunk(
 				1000,
 				size,
 				5,
 				2,
 				0.7,
-				200
+				1000,
+				0,
+				0,
+				20,
+				(amp) -> amp * amp
 		);
 
 		MeshObject terrain = new MeshBuilder()
@@ -629,6 +615,10 @@ class TestBench {
 
 				rootGameObject.getSceneGraphNodeData().removeGameObjectNode(integerTransformSceneGraphEntry.getValue());
 				for (SceneGraphNode child : integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren()) {
+					if (child instanceof MeshSceneGraph) {
+						MeshSceneGraph meshSceneGraph = (MeshSceneGraph) child;
+						meshSceneGraph.removeMeshObject();
+					}
 					child.getSceneGraphNodeData().setParent(null);
 				}
 				integerTransformSceneGraphEntry.getValue().getSceneGraphNodeData().getChildren().clear();
@@ -639,11 +629,9 @@ class TestBench {
 
 		}
 
-		int counter = 0;
+
 		for (String index : removeList) {
-			if (cubeMap.remove(index) != null) {
-				counter++;
-			}
+			cubeMap.remove(index);
 		}
 
 	}

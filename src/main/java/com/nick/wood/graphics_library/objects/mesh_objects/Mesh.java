@@ -13,6 +13,8 @@ import java.nio.IntBuffer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+
 public class Mesh {
 
 	private final boolean invertedNormals;
@@ -94,10 +96,10 @@ public class Mesh {
 	}
 
 	public void endRender() {
-		GL30.glDisableVertexAttribArray(3);
-		GL30.glDisableVertexAttribArray(2);
-		GL30.glDisableVertexAttribArray(1);
-		GL30.glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(0);
 		GL30.glBindVertexArray(0);
 	}
 

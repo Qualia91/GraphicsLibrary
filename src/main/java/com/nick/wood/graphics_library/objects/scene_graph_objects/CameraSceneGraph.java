@@ -30,4 +30,5 @@ public class CameraSceneGraph implements SceneGraphNode {
 	public SceneGraphNodeData getSceneGraphNodeData() {
 		return sceneGraphNodeData;
 	}
+
 }

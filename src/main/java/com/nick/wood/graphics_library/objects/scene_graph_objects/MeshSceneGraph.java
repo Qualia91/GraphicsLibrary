@@ -5,7 +5,7 @@ import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 public class MeshSceneGraph implements SceneGraphNode {
 
 	private final SceneGraphNodeData sceneGraphNodeData;
-	private final MeshObject meshObject;
+	private MeshObject meshObject;
 
 	public MeshSceneGraph(SceneGraphNode parent, MeshObject meshObject) {
 		this.sceneGraphNodeData = new SceneGraphNodeData(parent, RenderObjectType.MESH, this);
@@ -19,5 +19,9 @@ public class MeshSceneGraph implements SceneGraphNode {
 	@Override
 	public SceneGraphNodeData getSceneGraphNodeData() {
 		return sceneGraphNodeData;
+	}
+
+	public void removeMeshObject() {
+		meshObject = null;
 	}
 }

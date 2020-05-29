@@ -41,7 +41,6 @@ public class Renderer {
 
 	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
 	private Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
-	private FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(10_000 * MATRIX_SIZE_FLOATS);
 	private HashMap<String, HashCodeCounter> meshedMeshFiles = new HashMap<>();
 
 	private Matrix4f createOrthoProjMatrix() {
@@ -68,7 +67,7 @@ public class Renderer {
 	}
 
 	public void destroy() {
-		MemoryUtil.memFree(modelViewBuffer);
+
 	}
 
 	private void addToInstance(HashMap<String, HashCodeCounter> meshedMeshFiles, RenderObject<MeshObject> meshObject, String appendString) {
@@ -229,6 +228,8 @@ public class Renderer {
 		}
 
 		int index = 0;
+
+		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshHashCode.getTransforms().size() * MATRIX_SIZE_FLOATS);
 		for (Matrix4f transform : meshHashCode.getTransforms()) {
 			modelViewBuffer.put(index * 16, meshHashCode.getRotationOfModel().multiply(transform).transpose().getValues());
 			index++;
@@ -236,14 +237,13 @@ public class Renderer {
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
+		MemoryUtil.memFree(modelViewBuffer);
 
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshHashCode.getMeshObject().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshHashCode.getAmount());
 
 		// clean up
-		glDeleteBuffers(GL_ARRAY_BUFFER);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		GL15.glDeleteBuffers(GL15.GL_ELEMENT_ARRAY_BUFFER);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		meshHashCode.getMeshObject().getMesh().endRender();

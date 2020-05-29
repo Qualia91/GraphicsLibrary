@@ -1,5 +1,7 @@
 package com.nick.wood.graphics_library.objects.scene_graph_objects;
 
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
+
 import java.util.ArrayList;
 
 public class SceneGraph implements SceneGraphNode {
@@ -18,5 +20,21 @@ public class SceneGraph implements SceneGraphNode {
 
 	public ArrayList<RenderObject> getChanges() {
 		return changes;
+	}
+
+	public void dispose() {
+		dispose(sceneGraphNodeData);
+	}
+
+	private void dispose(SceneGraphNodeData sceneGraphNodeData) {
+		for (SceneGraphNode child : sceneGraphNodeData.getChildren()) {
+			if (child instanceof MeshSceneGraph) {
+				MeshSceneGraph meshSceneGraph = (MeshSceneGraph) child;
+				if (meshSceneGraph.getMeshObject().getMesh().isCreated()) {
+					meshSceneGraph.getMeshObject().getMesh().destroy();
+				}
+			}
+			dispose(child.getSceneGraphNodeData());
+		}
 	}
 }

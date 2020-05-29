@@ -29,7 +29,6 @@ public class Shader {
 
 		programId = glCreateProgram();
 
-
 		// create shader
 		vertexId = glCreateShader(GL_VERTEX_SHADER);
 		createShader(vertexId, vertexFile, "Vertex");
@@ -52,6 +51,8 @@ public class Shader {
 		}
 
 		// program now does shading so delete shaders
+		glDetachShader(programId, vertexId);
+		glDetachShader(programId, fragmentId);
 		glDeleteShader(vertexId);
 		glDeleteShader(fragmentId);
 	}

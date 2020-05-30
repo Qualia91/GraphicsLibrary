@@ -7,7 +7,7 @@ import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.MeshSceneGraph;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.SceneGraph;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.TransformSceneGraph;
-import com.nick.wood.maths.noise.Perlin2D;
+import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
@@ -31,15 +31,15 @@ public class ChunkLoader {
 	private final ArrayList<ChunkIndex> activeChunkIndices = new ArrayList<>();
 	private final ArrayList<ChunkIndex> loadedChunkIndices = new ArrayList<>();
 	private final ConcurrentHashMap<ChunkIndex, SceneGraph> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
-	private final Perlin2D[] perlin2Ds;
+	private final Perlin2Df[] perlin2Ds;
 
 	public ChunkLoader(HashMap<UUID, SceneGraph> gameObjects, int octaves, int lacunarity) {
 		this.gameObjects = gameObjects;
-		perlin2Ds = new Perlin2D[octaves];
+		perlin2Ds = new Perlin2Df[octaves];
 		for (int i = 0; i < octaves; i++) {
 			double frequency = Math.pow(lacunarity, i);
 			int currentSegmentSize = (int) (segmentSize / frequency);
-			perlin2Ds[i] = new Perlin2D(100000, currentSegmentSize);
+			perlin2Ds[i] = new Perlin2Df(100000, currentSegmentSize);
 		}
 	}
 
@@ -60,8 +60,8 @@ public class ChunkLoader {
 					ArrayList<ChunkIndex> newListOfChunkIndexes = new ArrayList<>();
 
 					// load all 16 chunks around it
-					for (int x = xIndex - 15; x <= xIndex + 15; x++) {
-						for (int y = yIndex - 15; y <= yIndex + 15; y++) {
+					for (int x = xIndex - 20; x <= xIndex + 20; x++) {
+						for (int y = yIndex - 20; y <= yIndex + 20; y++) {
 
 							ChunkIndex chunkIndex = new ChunkIndex(x, y);
 							newListOfChunkIndexes.add(chunkIndex);
@@ -140,7 +140,7 @@ public class ChunkLoader {
 	private SceneGraph createChunk(float chunkPositionX, float chunkPositionY) {
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
-		double[][] grid = proceduralGeneration.generateHeightMapChunk(
+		float[][] grid = proceduralGeneration.generateHeightMapChunk(
 				chunkSize,
 				0.7,
 				(int) chunkPositionX,

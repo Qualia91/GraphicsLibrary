@@ -11,14 +11,14 @@ import java.util.Arrays;
 public class Terrain implements MeshObject {
 
 	private final Material material;
-	private final double[][] terrainHeightMap;
+	private final float[][] terrainHeightMap;
 	private final Mesh mesh;
 	private final double cellSpace;
 	private final int width;
 	private final int height;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(double[][] terrainHeightMap, String texture, double cellSpace) {
+	Terrain(float[][] terrainHeightMap, String texture, double cellSpace) {
 		super();
 		this.terrainHeightMap = terrainHeightMap;
 		this.material = new Material(texture);
@@ -28,7 +28,7 @@ public class Terrain implements MeshObject {
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
 	}
 
-	private Mesh buildMesh(double[][] terrainHeightMap, double cellSpace) {
+	private Mesh buildMesh(float[][] terrainHeightMap, double cellSpace) {
 
 		// set up data for mesh
 		Vertex[] vertex = new Vertex[terrainHeightMap.length * terrainHeightMap[0].length];

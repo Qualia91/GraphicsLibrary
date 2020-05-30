@@ -5,6 +5,7 @@ import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.lighting.DirectionalLight;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
+import com.nick.wood.graphics_library.objects.mesh_objects.Point;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.RenderObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;

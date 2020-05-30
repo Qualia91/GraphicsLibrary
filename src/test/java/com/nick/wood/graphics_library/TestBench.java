@@ -13,7 +13,7 @@ import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
 import com.nick.wood.graphics_library.utils.ChunkLoader;
 import com.nick.wood.graphics_library.utils.ProceduralGeneration;
-import com.nick.wood.maths.noise.Perlin2D;
+import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
@@ -251,7 +251,7 @@ class TestBench {
 		int size = 1000;
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
-		double[][] grid = proceduralGeneration.generateHeightMapChunk(
+		float[][] grid = proceduralGeneration.generateHeightMapChunk(
 				1000,
 				size,
 				5,
@@ -366,7 +366,7 @@ class TestBench {
 		int segmentSize = 10;
 		int hillHeight = 60;
 		Perlin3D perlin3D = new Perlin3D(500, segmentSize);
-		Perlin2D perlin2D = new Perlin2D(500, segmentSize);
+		Perlin2Df perlin2D = new Perlin2Df(500, segmentSize);
 		int size = 30;
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -534,7 +534,7 @@ class TestBench {
 		int hillHeight = 30;
 		Vec3f cullCube = new Vec3f(30, 30, 30);
 		Perlin3D perlin3D = new Perlin3D(50000, segmentSize);
-		Perlin2D perlin2D = new Perlin2D(50000, segmentSize);
+		Perlin2Df perlin2D = new Perlin2Df(50000, segmentSize);
 
 		DirectionalLight pos = new DirectionalLight(
 				new Vec3f(1f, 1f, 1f),
@@ -639,7 +639,7 @@ class TestBench {
 	private void createMap(Vec3f center,
 	                       Vec3f cullCube,
 	                       Perlin3D perlin3D,
-	                       Perlin2D perlin2D,
+	                       Perlin2Df perlin2D,
 	                       int cubeSize,
 	                       HashMap<UUID, SceneGraph> sceneGraphHashMap,
 	                       int hillHeight,
@@ -1017,6 +1017,91 @@ class TestBench {
 				transformGameObject,
 				meshGroup
 		);
+	}
+
+	@Test
+	public void particleSystem() {
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+
+		SceneGraph rootGameObject = new SceneGraph();
+
+		Transform hudTransform = new Transform(
+				Vec3f.X,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		Transform transform = new Transform(
+				Vec3f.X.scale(0),
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
+
+		TransformSceneGraph hudTransformGameObject = new TransformSceneGraph(rootGameObject, hudTransform);
+
+		MeshObject point = new MeshBuilder()
+				.setMeshType(MeshType.POINT)
+				.build();
+
+		MeshSceneGraph textMeshObject = new MeshSceneGraph(wholeSceneTransform, point);
+
+		PointLight pointLight = new PointLight(
+				new Vec3f(0.0f, 1.0f, 0.0f),
+				10f);
+		DirectionalLight directionalLight = new DirectionalLight(
+				new Vec3f(1.0f, 1.0f, 1.0f),
+				new Vec3f(0.0f, 0.0f, -1.0f),
+				1f);
+		SpotLight spotLight = new SpotLight(
+				new PointLight(
+						new Vec3f(1.0f, 0.0f, 0.0f),
+						100f),
+				Vec3f.Y,
+				0.1f
+		);
+
+		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, Matrix4f.Identity, point);
+
+		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+
+		Transform cameraTransform = new Transform(
+				Vec3f.X,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
+		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
+
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+
+		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+
+		Window window = new Window(
+				1200,
+				800,
+				"");
+
+		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+
+		window.init();
+
+		while (!window.shouldClose()) {
+
+			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+			LWJGLGameControlManager.checkInputs();
+
+		}
+
+		window.destroy();
 	}
 
 }

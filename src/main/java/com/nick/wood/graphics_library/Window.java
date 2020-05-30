@@ -28,7 +28,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Window {
+public class Window implements AutoCloseable {
 
 	private final GraphicsLibraryInput graphicsLibraryInput;
 	private final ArrayList<RenderObject<Light>> lights = new ArrayList<>();
@@ -74,23 +74,6 @@ public class Window {
 
 	public boolean shouldClose() {
 		return glfwWindowShouldClose(window);
-	}
-
-	public void destroy() {
-
-
-		// Free the window callbacks and destroy the window
-		glfwFreeCallbacks(window);
-		glfwDestroyWindow(window);
-
-		shader.destroy();
-		hudShader.destroy();
-		renderer.destroy();
-
-		// Terminate GLFW and free the error callback
-		glfwTerminate();
-		glfwSetErrorCallback(null).free();
-		GL.setCapabilities(null);
 	}
 
 	public void init() {
@@ -255,7 +238,7 @@ public class Window {
 		renderer.renderMesh(meshes, primaryCameraObject, lights);
 		// this makes sure hud is ontop of everything in scene
 		glClear(GL_DEPTH_BUFFER_BIT);
-		//renderer.renderMiniMap(meshesHud, primaryCameraObject, lightsHud);
+		renderer.renderMiniMap(meshesHud, primaryCameraObject, lightsHud);
 		glfwSwapBuffers(window); // swap the color buffers
 
 		lights.clear();
@@ -333,5 +316,21 @@ public class Window {
 
 	public Shader getHudShader() {
 		return hudShader;
+	}
+
+	@Override
+	public void close() throws Exception {
+		// Free the window callbacks and destroy the window
+		glfwFreeCallbacks(window);
+		glfwDestroyWindow(window);
+
+		shader.destroy();
+		hudShader.destroy();
+		renderer.destroy();
+
+		// Terminate GLFW and free the error callback
+		glfwTerminate();
+		glfwSetErrorCallback(null).free();
+		GL.setCapabilities(null);
 	}
 }

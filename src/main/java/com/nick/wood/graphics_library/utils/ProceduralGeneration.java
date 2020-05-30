@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.utils;
 
-import com.nick.wood.maths.noise.Perlin2D;
+import com.nick.wood.maths.noise.Perlin2Df;
 
 import java.util.function.Function;
 
@@ -17,7 +17,7 @@ public class ProceduralGeneration {
 	 * @param persistence controls decrease in amplitude of octaves (0.5)
 	 * @param segmentSize
 	 **/
-	public double[][] generateHeightMapChunk(int randomNumberArraySize,
+	public float[][] generateHeightMapChunk(int randomNumberArraySize,
 	                                         int size,
 	                                         int octaves,
 	                                         double lacunarity,
@@ -29,7 +29,7 @@ public class ProceduralGeneration {
 	                                         Function<Double, Double> amplitudeScalingFunction) {
 
 
-		double[][] grid = new double[size][size];
+		float[][] grid = new float[size][size];
 
 		for (int octave = 0; octave < octaves; octave++) {
 
@@ -37,7 +37,7 @@ public class ProceduralGeneration {
 			double amplitude = Math.pow(persistence, octave);
 			int currentSegmentSize = (int) (segmentSize / frequency);
 
-			Perlin2D perlin2D = new Perlin2D(randomNumberArraySize, currentSegmentSize);
+			Perlin2Df perlin2D = new Perlin2Df(randomNumberArraySize, currentSegmentSize);
 
 			for (int i = startX; i < size + startX; i++) {
 				for (int j = startY; j < size + startY; j++) {
@@ -55,16 +55,16 @@ public class ProceduralGeneration {
 	 * @param size
 	 * @param persistence controls decrease in amplitude of octaves (0.5)
 	 **/
-	public double[][] generateHeightMapChunk(
+	public float[][] generateHeightMapChunk(
 	                                         int size,
 	                                         double persistence,
 	                                         int startX,
 	                                         int startY,
-	                                         Perlin2D[] perlin2Ds,
+	                                         Perlin2Df[] perlin2Ds,
 	                                         int amplitudeScale,
 	                                         Function<Double, Double> amplitudeScalingFunction) {
 
-		double[][] grid = new double[size][size];
+		float[][] grid = new float[size][size];
 
 		for (int octave = 0; octave < perlin2Ds.length; octave++) {
 

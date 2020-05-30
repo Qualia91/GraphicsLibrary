@@ -16,7 +16,7 @@ public class MeshBuilder {
 	private int rowNum = 16;
 	private int colNum = 16;
 	private String modelFile = "D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj";
-	private double[][] terrainHeightMap = new double[][] {
+	private float[][] terrainHeightMap = new float[][] {
 			{0, 0},
 			{0, 0},
 	};
@@ -35,6 +35,7 @@ public class MeshBuilder {
 			case SQUARE -> new Square(material, transformation);
 			case TEXT -> new TextItem(text, fontFile, rowNum, colNum);
 			case TERRAIN -> new Terrain(terrainHeightMap, texture, cellSpace);
+			case POINT -> new Point(transformation, material);
 			default -> new SphereMesh(1, new Material("/textures/white.png"), true, Matrix4f.Identity);
 		};
 	}
@@ -83,7 +84,7 @@ public class MeshBuilder {
 		this.material = material;
 		return this;
 	};
-	public MeshBuilder setTerrainHeightMap(double[][] terrainHeightMap) {
+	public MeshBuilder setTerrainHeightMap(float[][] terrainHeightMap) {
 		this.terrainHeightMap = terrainHeightMap;
 		return this;
 	}

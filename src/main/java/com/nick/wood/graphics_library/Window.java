@@ -1,10 +1,9 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
-import com.nick.wood.graphics_library.lighting.Light;
-import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
+import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
@@ -31,12 +30,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window implements AutoCloseable {
 
 	private final GraphicsLibraryInput graphicsLibraryInput;
-	private final ArrayList<RenderObject<Light>> lights = new ArrayList<>();
-	private final ArrayList<RenderObject<MeshObject>> meshes = new ArrayList<>();
-	private final ArrayList<RenderObject<Camera>> cameras = new ArrayList<>();
-	private final ArrayList<RenderObject<Light>> lightsHud = new ArrayList<>();
-	private final ArrayList<RenderObject<MeshObject>> meshesHud = new ArrayList<>();
-	private final ArrayList<RenderObject<Camera>> camerasHud = new ArrayList<>();
+	private final Scene scene;
+	private final Scene hudScene;
 	// The window handle
 	private long window;
 	private int WIDTH;
@@ -52,15 +47,15 @@ public class Window implements AutoCloseable {
 
 	public Window(int WIDTH, int HEIGHT, String title) {
 
-
-
+		this.scene = new Scene();
+		this.hudScene = new Scene();
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		this.title = title;
 
 		this.graphicsLibraryInput = new GraphicsLibraryInput();
 
-		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float)HEIGHT, (float) Math.toRadians(70.0), 0.001f, 100000f);
+		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float) HEIGHT, (float) Math.toRadians(70.0), 0.001f, 100000f);
 
 	}
 
@@ -163,7 +158,6 @@ public class Window implements AutoCloseable {
 		shader.create();
 		//hudShader.create();
 
-
 	}
 
 	private void createCallbacks() {
@@ -183,19 +177,6 @@ public class Window implements AutoCloseable {
 			}
 		});
 
-	}
-
-	public void loop() {
-		// user inputs
-		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
-			glfwSetWindowShouldClose(window, true);
-		}
-
-		// Poll for window events. The key callback above will only be
-		// invoked during this call.
-		glfwPollEvents();
-
-		System.out.println(glfwGetJoystickName(GLFW_JOYSTICK_1));
 	}
 
 	public void loop(HashMap<UUID, SceneGraph> gameObjects, HashMap<UUID, SceneGraph> hudObjects, UUID primaryCamera) {
@@ -219,74 +200,104 @@ public class Window implements AutoCloseable {
 		// invoked during this call.
 		glfwPollEvents();
 
-		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : gameObjects.entrySet()) {
-			createRenderLists(lights, meshes, cameras, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
-		}
+		scene.setPrimaryCamera(primaryCamera);
 
+		Iterator<Map.Entry<UUID, SceneGraph>> mainIterator = gameObjects.entrySet().iterator();
 
-		for (Map.Entry<UUID, SceneGraph> uuidRootGameObjectEntry : hudObjects.entrySet()) {
-			createRenderLists(lightsHud, meshesHud, camerasHud, uuidRootGameObjectEntry.getValue(), Matrix4f.Identity);
-		}
-
-		RenderObject<Camera> primaryCameraObject = cameras.get(0);
-		for (RenderObject<Camera> camera : cameras) {
-			if (camera.getUuid().equals(primaryCamera)) {
-				primaryCameraObject = camera;
+		while (mainIterator.hasNext()) {
+			Map.Entry<UUID, SceneGraph> next = mainIterator.next();
+			createRenderLists(scene, next.getValue(), Matrix4f.Identity);
+			if (next.getValue().getSceneGraphNodeData().isDelete()) {
+				mainIterator.remove();
 			}
 		}
 
-		renderer.renderMesh(meshes, primaryCameraObject, lights);
+		Iterator<Map.Entry<UUID, SceneGraph>> hudIterator = hudObjects.entrySet().iterator();
+
+		while (hudIterator.hasNext()) {
+			Map.Entry<UUID, SceneGraph> next = hudIterator.next();
+			createRenderLists(hudScene, next.getValue(), Matrix4f.Identity);
+			if (next.getValue().getSceneGraphNodeData().isDelete()) {
+				hudIterator.remove();
+			}
+		}
+
+		scene.render(renderer);
 		// this makes sure hud is ontop of everything in scene
 		glClear(GL_DEPTH_BUFFER_BIT);
-		renderer.renderMiniMap(meshesHud, primaryCameraObject, lightsHud);
+		hudScene.render(renderer);
 		glfwSwapBuffers(window); // swap the color buffers
 
-		lights.clear();
-		meshes.clear();
-		cameras.clear();
-		lightsHud.clear();
-		meshesHud.clear();
-		camerasHud.clear();
 	}
 
-	private void createRenderLists(ArrayList<RenderObject<Light>> lights, ArrayList<RenderObject<MeshObject>> meshes, ArrayList<RenderObject<Camera>> cameras, SceneGraphNode sceneGraphNode, Matrix4f transformationSoFar) {
+	private void createRenderLists(Scene scene, SceneGraphNode sceneGraphNode, Matrix4f transformationSoFar) {
 
-		if (isAvailableRenderData(sceneGraphNode.getSceneGraphNodeData())) {
+		Iterator<SceneGraphNode> iterator = sceneGraphNode.getSceneGraphNodeData().getChildren().iterator();
 
-			for (SceneGraphNode child : sceneGraphNode.getSceneGraphNodeData().getChildren()) {
+		while (iterator.hasNext()) {
 
-				switch (child.getSceneGraphNodeData().getType()) {
+			SceneGraphNode child = iterator.next();
 
-					case TRANSFORM:
-						TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
-						createRenderLists(lights, meshes, cameras, transformGameObject, transformGameObject.getTransformForRender().multiply(transformationSoFar));
-						break;
-					case LIGHT:
+			switch (child.getSceneGraphNodeData().getType()) {
+
+				case TRANSFORM:
+					TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
+					createRenderLists(scene, transformGameObject, transformGameObject.getTransformForRender().multiply(transformationSoFar));
+					break;
+				case LIGHT:
+					if (child.getSceneGraphNodeData().isDelete()) {
+						scene.removeLight(child.getSceneGraphNodeData().getUuid());
+						iterator.remove();
+					} else {
 						LightSceneGraph lightGameObject = (LightSceneGraph) child;
-						RenderObject<Light> lightRenderObject = new RenderObject<>(lightGameObject.getLight(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
-						lights.add(lightRenderObject);
-						createRenderLists(lights, meshes, cameras, lightGameObject, transformationSoFar);
-						break;
-					case MESH:
-						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
-						RenderObject<MeshObject> meshGroupRenderObject = new RenderObject<>(meshGameObject.getMeshObject(), transformationSoFar, child.getSceneGraphNodeData().getUuid());
-						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
-							meshGameObject.getMeshObject().getMesh().create();
+						if (scene.getLights().containsKey(lightGameObject.getLight())) {
+							scene.getLights().get(lightGameObject.getLight()).setTransformation(transformationSoFar);
+						} else {
+							InstanceObject lightInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+							scene.getLights().put(lightGameObject.getLight(), lightInstance);
 						}
-						meshes.add(meshGroupRenderObject);
-						createRenderLists(lights, meshes, cameras, meshGameObject, transformationSoFar);
-						break;
-					case CAMERA:
+						createRenderLists(scene, lightGameObject, transformationSoFar);
+					}
+					break;
+				case MESH:
+					if (child.getSceneGraphNodeData().isDelete()) {
+						scene.removeMesh(child.getSceneGraphNodeData().getUuid());
+						iterator.remove();
+					} else {
+						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
+						if (scene.getMeshes().containsKey(meshGameObject.getMeshObject())) {
+							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+							scene.getMeshes().get(meshGameObject.getMeshObject()).add(meshInstance);
+						} else {
+							ArrayList<InstanceObject> meshObjects = new ArrayList<>();
+							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+							meshObjects.add(meshInstance);
+							scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
+							if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
+								meshGameObject.getMeshObject().getMesh().create();
+							}
+						}
+						createRenderLists(scene, meshGameObject, transformationSoFar);
+					}
+					break;
+				case CAMERA:
+					if (child.getSceneGraphNodeData().isDelete()) {
+						scene.removeCamera(child.getSceneGraphNodeData().getUuid());
+						iterator.remove();
+					} else {
 						CameraSceneGraph cameraGameObject = (CameraSceneGraph) child;
-						RenderObject<Camera> cameraRenderObject = new RenderObject<>(cameraGameObject.getCamera(), transformationSoFar.invert(), child.getSceneGraphNodeData().getUuid());
-						cameras.add(cameraRenderObject);
-						createRenderLists(lights, meshes, cameras, cameraGameObject, transformationSoFar);
-						break;
-					default:
-						createRenderLists(lights, meshes, cameras, child, transformationSoFar);
-						break;
-
-				}
+						if (scene.getCameras().containsKey(cameraGameObject.getCamera())) {
+							scene.getCameras().get(cameraGameObject.getCamera()).setTransformation(transformationSoFar);
+						} else {
+							InstanceObject cameraInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+							scene.getCameras().put(cameraGameObject.getCamera(), cameraInstance);
+						}
+						createRenderLists(scene, cameraGameObject, transformationSoFar);
+					}
+					break;
+				default:
+					createRenderLists(scene, child, transformationSoFar);
+					break;
 
 			}
 

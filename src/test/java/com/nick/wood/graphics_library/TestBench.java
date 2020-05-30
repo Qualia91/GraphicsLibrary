@@ -234,11 +234,12 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
-
 				LWJGLGameControlManager.checkInputs();
 
 				chunkLoader.loadChunk(camera.getPos());
+
+				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
 
 			}
 
@@ -798,18 +799,18 @@ class TestBench {
 				800,
 				"")) {
 
-		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
-		window.init();
+			window.init();
 
-		while (!window.shouldClose()) {
+			while (!window.shouldClose()) {
 
-			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
-			LWJGLGameControlManager.checkInputs();
+				LWJGLGameControlManager.checkInputs();
 
-		}
-	} catch (Exception exception) {
+			}
+		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
 
@@ -887,18 +888,18 @@ class TestBench {
 				800,
 				"")) {
 
-		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
-		window.init();
+			window.init();
 
-		while (!window.shouldClose()) {
+			while (!window.shouldClose()) {
 
-			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
-			LWJGLGameControlManager.checkInputs();
+				LWJGLGameControlManager.checkInputs();
 
-		}
-	} catch (Exception exception) {
+			}
+		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
 	}
@@ -1098,18 +1099,18 @@ class TestBench {
 				800,
 				"")) {
 
-		LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
-		window.init();
+			window.init();
 
-		while (!window.shouldClose()) {
+			while (!window.shouldClose()) {
 
-			window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
-			LWJGLGameControlManager.checkInputs();
+				LWJGLGameControlManager.checkInputs();
 
-		}
-	} catch (Exception exception) {
+			}
+		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
 	}

@@ -14,6 +14,7 @@ public class SceneGraphNodeData {
 	private int numberOfMeshes;
 	private int numberOfLights;
 	private int numberOfCameras;
+	private boolean delete = false;
 
 
 	public SceneGraphNodeData(SceneGraphNode parent, RenderObjectType renderObjectType, SceneGraphNode sceneGraphNode) {
@@ -121,5 +122,27 @@ public class SceneGraphNodeData {
 
 	public void setParent(SceneGraphNode parent) {
 		this.parent = parent;
+	}
+
+	public void delete() {
+		this.delete = true;
+		for (SceneGraphNode child : children) {
+			child.getSceneGraphNodeData().delete();
+		}
+	}
+
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void undelete() {
+		this.delete = false;
+		for (SceneGraphNode child : children) {
+			child.getSceneGraphNodeData().undelete();
+		}
+	}
+
+	public void remove() {
+		this.delete = true;
 	}
 }

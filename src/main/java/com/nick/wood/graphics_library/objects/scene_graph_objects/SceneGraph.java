@@ -1,7 +1,5 @@
 package com.nick.wood.graphics_library.objects.scene_graph_objects;
 
-import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-
 import java.util.ArrayList;
 
 public class SceneGraph implements SceneGraphNode {

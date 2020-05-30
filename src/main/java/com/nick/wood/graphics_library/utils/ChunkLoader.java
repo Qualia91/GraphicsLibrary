@@ -116,6 +116,7 @@ public class ChunkLoader {
 							// add chunk to new list
 							// then display it
 							SceneGraph sceneGraph = chunkIndexSceneGraphHashMap.get(chunkIndex);
+							sceneGraph.getSceneGraphNodeData().undelete();
 							activeChunkIndices.add(chunkIndex);
 							gameObjects.put(sceneGraph.getSceneGraphNodeData().getUuid(), sceneGraph);
 
@@ -128,7 +129,7 @@ public class ChunkLoader {
 			activeChunkIndices.removeIf(activeChunk -> {
 				if (!newListOfChunkIndexes.contains(activeChunk)) {
 					SceneGraph sceneGraph = chunkIndexSceneGraphHashMap.get(activeChunk);
-					gameObjects.remove(sceneGraph.getSceneGraphNodeData().getUuid());
+					sceneGraph.getSceneGraphNodeData().remove();
 					return true;
 				}
 				return false;

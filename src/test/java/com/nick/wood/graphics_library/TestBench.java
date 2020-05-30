@@ -200,10 +200,11 @@ class TestBench {
 
 		DirectionalLight sun = new DirectionalLight(
 				new Vec3f(0.9f, 1.0f, 1.0f),
-				Vec3f.Y,
+				Vec3f.Y.add(Vec3f.Z.neg()).normalise(),
 				0.5f);
 
 		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, sun);
+
 
 		Camera camera = new Camera(new Vec3f(size, size, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 10f, 0.1f);
 
@@ -216,6 +217,10 @@ class TestBench {
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		MeshObject skybox = new MeshBuilder().setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture("/textures/2k_neptune.jpg").build();
+
+		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(cameraTransformGameObject, skybox);
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 

@@ -241,8 +241,12 @@ public class Window implements AutoCloseable {
 			switch (child.getSceneGraphNodeData().getType()) {
 
 				case TRANSFORM:
-					TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
-					createRenderLists(scene, transformGameObject, transformGameObject.getTransformForRender().multiply(transformationSoFar));
+					if (child.getSceneGraphNodeData().isDelete()) {
+						iterator.remove();
+					} else {
+						TransformSceneGraph transformGameObject = (TransformSceneGraph) child;
+						createRenderLists(scene, transformGameObject, transformGameObject.getTransformForRender().multiply(transformationSoFar));
+					}
 					break;
 				case LIGHT:
 					if (child.getSceneGraphNodeData().isDelete()) {
@@ -296,7 +300,11 @@ public class Window implements AutoCloseable {
 					}
 					break;
 				default:
-					createRenderLists(scene, child, transformationSoFar);
+					if (child.getSceneGraphNodeData().isDelete()) {
+						iterator.remove();
+					} else {
+						createRenderLists(scene, child, transformationSoFar);
+					}
 					break;
 
 			}

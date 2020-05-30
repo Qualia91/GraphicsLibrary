@@ -53,7 +53,7 @@ public class Terrain implements MeshObject {
 
 				vertex[y * width + x] =
 						new Vertex(
-								new Vec3f((float) cellSpace * x, (float) cellSpace * y, (float) terrainHeightMap[x][y]),
+								new Vec3f((float) cellSpace * x, (float) cellSpace * y, terrainHeightMap[x][y]),
 								texCoord,
 								Vec3f.Z);
 			}
@@ -62,6 +62,7 @@ public class Terrain implements MeshObject {
 		// now go through and fix all normals.
 		// normals should be the normal of the plane made by the 4 vertex around the point that make a square
 		// start one in and end one before the ends
+		// make the edges have the same as the next lines in
 		for (int y = 1; y < terrainHeightMap.length - 1; y++) {
 			for (int x = 1; x < terrainHeightMap[y].length - 1; x++) {
 
@@ -81,6 +82,22 @@ public class Terrain implements MeshObject {
 				Vec3f normalTwo = normalOfTriangle(down, up, right);
 
 				vertex[y * width + x].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+
+				if (y == 1) {
+					vertex[x].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				}
+
+				if (x == 1) {
+					vertex[y * width].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				}
+
+				if (y == terrainHeightMap.length - 2) {
+					vertex[(y + 1) * width + x].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				}
+
+				if (x == terrainHeightMap[y].length - 2) {
+					vertex[y * width + x + 1].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				}
 
 			}
 		}

@@ -6,10 +6,10 @@ import com.nick.wood.graphics_library.lighting.DirectionalLight;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.RenderObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -34,35 +34,11 @@ public class Renderer {
 	private static final int VECTOR4F_SIZE_BYTES = 4 * Renderer.FLOAT_SIZE_BYTES;
 	private static final int MATRIX_SIZE_BYTES = Renderer.MATRIX_SIZE_FLOATS * Renderer.FLOAT_SIZE_BYTES;
 
-	private final Shader shader;
-	private final Shader hudShader;
 	private final Matrix4f projectionMatrix;
 
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
-	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
-	private Vec3f hudAmbientLight = new Vec3f(0.2f, 0.1f, 0.1f);
-
-	private Matrix4f createOrthoProjMatrix() {
-
-		float right = 10;
-		float left = -10;
-		float top = 10;
-		float bottom = -10;
-		float far = 10;
-		float near = -10;
-
-		return new Matrix4f(
-				2.0f / (right - left), 0f, 0f, -(right + left) / (right - left),
-				0f, 2.0f / (top - bottom), 0f, -(top + bottom) / (top - bottom),
-				0f, 0f, -2.0f / (far - near), -(far + near) / (far - near),
-				0f, 0f, 0f, 1.0f
-		);
-	}
-
 	public Renderer(Window window) {
-		this.shader = window.getShader();
-		this.hudShader = window.getHudShader();
 		this.projectionMatrix = window.getProjectionMatrix();
 	}
 
@@ -70,7 +46,55 @@ public class Renderer {
 
 	}
 
-	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<Light, InstanceObject> lights) {
+	public void renderSkybox(MeshObject meshObject, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
+
+		shader.bind();
+
+		meshObject.getMesh().initRender();
+
+		shader.setUniform("ambientLight", ambientLight);
+		shader.setUniform("projection", projectionMatrix);
+		Matrix4f translation = Matrix4f.Translation(cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
+		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation()));
+
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObject.getMesh().getIbo());
+
+		// bind texture
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObject.getMesh().getMaterial().getTextureId());
+
+		int modelViewVBO = glGenBuffers();
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		int start = 3;
+		for (int i = 0; i < 4; i++) {
+			glEnableVertexAttribArray(start);
+			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+			glVertexAttribDivisor(start, 1);
+			start++;
+		}
+
+		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+		modelViewBuffer.put(0, meshObject.getMeshTransformation().multiply(translation).transpose().getValues());
+
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
+		MemoryUtil.memFree(modelViewBuffer);
+
+		glDrawElements(GL11.GL_TRIANGLES, meshObject.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+
+		// clean up
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		meshObject.getMesh().endRender();
+
+		shader.unbind();
+
+	}
+
+	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<Light, InstanceObject> lights, Shader shader, Vec3f ambientLight) {
 
 		shader.bind();
 
@@ -196,9 +220,5 @@ public class Renderer {
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.constant", pointLight.getAttenuation().getConstant());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.linear", pointLight.getAttenuation().getLinear());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.exponent", pointLight.getAttenuation().getExponent());
-	}
-
-	public void setAmbientLight(Vec3f ambientLight) {
-		this.ambientLight = ambientLight;
 	}
 }

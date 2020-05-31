@@ -218,9 +218,10 @@ class TestBench {
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
+		SceneGraph skyboxSceneGraph = new SceneGraph();
 		MeshObject skybox = new MeshBuilder().setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture("/textures/2k_neptune.jpg").build();
-
-		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(cameraTransformGameObject, skybox);
+		SkyBox meshSceneGraph = new SkyBox(skyboxSceneGraph, skybox);
+		gameObjects.put(skyboxSceneGraph.getSceneGraphNodeData().getUuid(), skyboxSceneGraph);
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
@@ -494,7 +495,6 @@ class TestBench {
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
 			window.init();
-			window.setAmbientLight(new Vec3f(0.7f, 0.7f, 0.7f));
 
 			while (!window.shouldClose()) {
 
@@ -588,7 +588,6 @@ class TestBench {
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
 			window.init();
-			window.setAmbientLight(new Vec3f(0.7f, 0.7f, 0.7f));
 
 			HashMap<UUID, SceneGraph> objectObjectHashMap = new HashMap<>();
 

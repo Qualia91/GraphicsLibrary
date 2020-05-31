@@ -87,16 +87,13 @@ public class Mesh {
 		GL30.glBindVertexArray(vao);
 		// enable position attribute
 		GL30.glEnableVertexAttribArray(0);
-		// enable colour attribute
+		// enable texture attribute
 		GL30.glEnableVertexAttribArray(1);
-		// enable texture
+		// enable normal
 		GL30.glEnableVertexAttribArray(2);
-		// enable normals
-		GL30.glEnableVertexAttribArray(3);
 	}
 
 	public void endRender() {
-		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);

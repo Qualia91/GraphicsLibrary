@@ -7,5 +7,5 @@ public enum RenderObjectType {
 	MESH,
 	TRANSFORM,
 	PLAYER,
-	INDEXED
+	SKYBOX
 }

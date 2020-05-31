@@ -40,6 +40,7 @@ public class Window implements AutoCloseable {
 
 	private Shader shader;
 	private Shader hudShader;
+	private Shader skyboxShader;
 	private Renderer renderer;
 	private final Matrix4f projectionMatrix;
 
@@ -59,10 +60,6 @@ public class Window implements AutoCloseable {
 
 	}
 
-	public void setAmbientLight(Vec3f ambientLight) {
-		renderer.setAmbientLight(ambientLight);
-	}
-
 	public GraphicsLibraryInput getGraphicsLibraryInput() {
 		return graphicsLibraryInput;
 	}
@@ -75,6 +72,8 @@ public class Window implements AutoCloseable {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
+		skyboxShader = new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl");
+
 		renderer = new Renderer(this);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -156,7 +155,12 @@ public class Window implements AutoCloseable {
 		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		shader.create();
-		//hudShader.create();
+		skyboxShader.create();
+		hudShader.create();
+
+		this.scene.attachShader(shader);
+		this.scene.attachSkyboxShader(skyboxShader);
+		this.hudScene.attachShader(hudShader);
 
 	}
 
@@ -238,6 +242,10 @@ public class Window implements AutoCloseable {
 
 			SceneGraphNode child = iterator.next();
 
+			if (child == null) {
+				System.out.println();
+			}
+
 			switch (child.getSceneGraphNodeData().getType()) {
 
 				case TRANSFORM:
@@ -282,6 +290,19 @@ public class Window implements AutoCloseable {
 							}
 						}
 						createRenderLists(scene, meshGameObject, transformationSoFar);
+					}
+					break;
+				case SKYBOX:
+					if (child.getSceneGraphNodeData().isDelete()) {
+						scene.removeSkybox();
+						iterator.remove();
+					} else {
+						SkyBox skyBox = (SkyBox) child;
+						if (!skyBox.getSkybox().getMesh().isCreated()) {
+							skyBox.getSkybox().getMesh().create();
+						}
+						scene.setSkybox(skyBox.getSkybox());
+						createRenderLists(scene, skyBox, transformationSoFar);
 					}
 					break;
 				case CAMERA:

@@ -99,6 +99,13 @@ public class Terrain implements MeshObject {
 					vertex[y * width + x + 1].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
 				}
 
+				if (y == 1 && x == 1) {
+					vertex[0].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				}
+				if (y == terrainHeightMap.length - 2 && x == terrainHeightMap[y].length - 2) {
+					vertex[vertex.length - 1].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				}
+
 			}
 		}
 

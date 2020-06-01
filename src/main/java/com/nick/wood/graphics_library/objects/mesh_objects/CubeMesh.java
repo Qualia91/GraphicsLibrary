@@ -49,42 +49,45 @@ public class CubeMesh implements MeshObject {
 			triangleIndexes = temp;
 		}
 
+		float xSeg = (float) (1.0/3.0);
+		float ySeg = 0.5f;
+
 		mesh = new Mesh(new Vertex[]{
 
-				//Back Face
-				new Vertex(new Vec3f(0.5f, 0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.scale(normalSign)),
-				new Vertex(new Vec3f(0.5f, -0.5f, 0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.scale(normalSign)),
-				new Vertex(new Vec3f(0.5f, -0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.scale(normalSign)),
-				new Vertex(new Vec3f(0.5f, 0.5f, -0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.scale(normalSign)),
-
 				//Front Face
-				new Vertex(new Vec3f(-0.5f, 0.5f, -0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.scale(-normalSign)),
-				new Vertex(new Vec3f(-0.5f, -0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.scale(-normalSign)),
-				new Vertex(new Vec3f(-0.5f, -0.5f, 0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.scale(-normalSign)),
-				new Vertex(new Vec3f(-0.5f, 0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.scale(-normalSign)),
+				new Vertex(new Vec3f(0.5f, 0.5f, 0.5f), new Vec2f(xSeg, ySeg), Vec3f.X.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, -0.5f, 0.5f), new Vec2f(0, ySeg), Vec3f.X.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, -0.5f, -0.5f), new Vec2f(0, 1), Vec3f.X.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, 0.5f, -0.5f), new Vec2f(xSeg, 1), Vec3f.X.scale(normalSign)),
+
+				//Back Face
+				new Vertex(new Vec3f(-0.5f, 0.5f, -0.5f), new Vec2f(xSeg, ySeg), Vec3f.X.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, -0.5f, -0.5f), new Vec2f(xSeg * 2, ySeg), Vec3f.X.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, -0.5f, 0.5f), new Vec2f(xSeg * 2, 0), Vec3f.X.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, 0.5f, 0.5f), new Vec2f(xSeg, 0.0f), Vec3f.X.scale(-normalSign)),
 
 				//Bottom Face
-				new Vertex(new Vec3f(0.5f, 0.5f, -0.5f), new Vec2f(1.0f, 0.0f), Vec3f.Z.scale(-normalSign)),
-				new Vertex(new Vec3f(0.5f, -0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.Z.scale(-normalSign)),
-				new Vertex(new Vec3f(-0.5f, -0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.Z.scale(-normalSign)),
-				new Vertex(new Vec3f(-0.5f, 0.5f, -0.5f), new Vec2f(0.0f, 0.0f), Vec3f.Z.scale(-normalSign)),
+				new Vertex(new Vec3f(0.5f, 0.5f, -0.5f), new Vec2f(1, 0), Vec3f.Z.scale(-normalSign)),
+				new Vertex(new Vec3f(0.5f, -0.5f, -0.5f), new Vec2f(1, 1), Vec3f.Z.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, -0.5f, -0.5f), new Vec2f(0, 1), Vec3f.Z.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, 0.5f, -0.5f), new Vec2f(0, 0), Vec3f.Z.scale(-normalSign)),
 
 				//Top Face
-				new Vertex(new Vec3f(-0.5f, 0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.Z.scale(normalSign)),
-				new Vertex(new Vec3f(-0.5f, -0.5f, 0.5f), new Vec2f(0.0f, 1.0f), Vec3f.Z.scale(normalSign)),
-				new Vertex(new Vec3f(0.5f, -0.5f, 0.5f), new Vec2f(1.0f, 1.0f), Vec3f.Z.scale(normalSign)),
-				new Vertex(new Vec3f(0.5f, 0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.Z.scale(normalSign)),
+				new Vertex(new Vec3f(-0.5f, 0.5f, 0.5f), new Vec2f(xSeg, ySeg), Vec3f.Z.scale(normalSign)),
+				new Vertex(new Vec3f(-0.5f, -0.5f, 0.5f), new Vec2f(xSeg, 1), Vec3f.Z.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, -0.5f, 0.5f), new Vec2f((float) (2.0/3.0), 1), Vec3f.Z.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, 0.5f, 0.5f), new Vec2f((float) (2.0/3.0), ySeg), Vec3f.Z.scale(normalSign)),
 
 				//Left Face
-				new Vertex(new Vec3f(0.5f, 0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.Y.scale(normalSign)),
-				new Vertex(new Vec3f(0.5f, 0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.Y.scale(normalSign)),
-				new Vertex(new Vec3f(-0.5f, 0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.Y.scale(normalSign)),
-				new Vertex(new Vec3f(-0.5f, 0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.Y.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, 0.5f, 0.5f), new Vec2f(0, 0), Vec3f.Y.scale(normalSign)),
+				new Vertex(new Vec3f(0.5f, 0.5f, -0.5f), new Vec2f(0, ySeg), Vec3f.Y.scale(normalSign)),
+				new Vertex(new Vec3f(-0.5f, 0.5f, -0.5f), new Vec2f(xSeg, ySeg), Vec3f.Y.scale(normalSign)),
+				new Vertex(new Vec3f(-0.5f, 0.5f, 0.5f), new Vec2f(xSeg, 0), Vec3f.Y.scale(normalSign)),
 
 				//Right Face
-				new Vertex(new Vec3f(-0.5f, -0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.Y.scale(-normalSign)),
-				new Vertex(new Vec3f(-0.5f, -0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.Y.scale(-normalSign)),
-				new Vertex(new Vec3f(0.5f, -0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.Y.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, -0.5f, 0.5f), new Vec2f(xSeg * 2, 0.0f), Vec3f.Y.scale(-normalSign)),
+				new Vertex(new Vec3f(-0.5f, -0.5f, -0.5f), new Vec2f(xSeg * 2, ySeg), Vec3f.Y.scale(-normalSign)),
+				new Vertex(new Vec3f(0.5f, -0.5f, -0.5f), new Vec2f(1.0f, ySeg), Vec3f.Y.scale(-normalSign)),
 				new Vertex(new Vec3f(0.5f, -0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.Y.scale(-normalSign)),
 		},
 				triangleIndexes,

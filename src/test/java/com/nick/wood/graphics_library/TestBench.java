@@ -11,8 +11,10 @@ import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
+import com.nick.wood.graphics_library.utils.Cell;
 import com.nick.wood.graphics_library.utils.ChunkLoader;
 import com.nick.wood.graphics_library.utils.ProceduralGeneration;
+import com.nick.wood.graphics_library.utils.RecursiveBackTracker;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
@@ -219,8 +221,7 @@ class TestBench {
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
 		SceneGraph skyboxSceneGraph = new SceneGraph();
-		MeshObject skybox = new MeshBuilder().setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture("/textures/2k_neptune.jpg").build();
-		SkyBox meshSceneGraph = new SkyBox(skyboxSceneGraph, skybox);
+		SkyBox skyBox = new SkyBox(skyboxSceneGraph, "/textures/8k_stars.jpg", SkyboxType.SPHERE);
 		gameObjects.put(skyboxSceneGraph.getSceneGraphNodeData().getUuid(), skyboxSceneGraph);
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
@@ -553,7 +554,7 @@ class TestBench {
 		DirectionalLight pos = new DirectionalLight(
 				new Vec3f(1f, 1f, 1f),
 				Vec3f.Y.add(Vec3f.X).add(Vec3f.Z),
-				0.6f);
+				1f);
 
 		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, pos);
 
@@ -569,9 +570,7 @@ class TestBench {
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
-		MeshObject skybox = new MeshBuilder().setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(1000, 1000, 1000))).setTexture("/textures/2k_neptune.jpg").build();
-
-		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(cameraTransformGameObject, skybox);
+		SkyBox skyBox = new SkyBox(rootGameObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE);
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
@@ -583,7 +582,6 @@ class TestBench {
 				1200,
 				800,
 				"")) {
-
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
@@ -599,10 +597,9 @@ class TestBench {
 
 				createMap(camera.getPos(), cullCube, perlin3D, perlin2D, cubeSize, gameObjects, hillHeight, cubeFire, cubeSand, cubeGrass, cubeSnow);
 
-
 				if (cubeMap.size() > 1000) {
 					cullCubes(rootGameObject, camera.getPos());
-					//System.gc();
+					System.gc();
 				}
 
 			}
@@ -1119,4 +1116,149 @@ class TestBench {
 		}
 	}
 
+	@Test
+	public void mase() {
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+
+		SceneGraph rootGameObject = new SceneGraph();
+
+		Transform hudTransform = new Transform(
+				Vec3f.X,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		Transform transform = new Transform(
+				Vec3f.X.scale(0),
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
+
+		TransformSceneGraph hudTransformGameObject = new TransformSceneGraph(rootGameObject, hudTransform);
+
+		MeshObject point = new MeshBuilder()
+				.setMeshType(MeshType.POINT)
+				.build();
+
+		MeshSceneGraph textMeshObject = new MeshSceneGraph(wholeSceneTransform, point);
+
+		PointLight pointLight = new PointLight(
+				new Vec3f(0.0f, 1.0f, 0.0f),
+				10f);
+		DirectionalLight directionalLight = new DirectionalLight(
+				new Vec3f(1.0f, 1.0f, 1.0f),
+				new Vec3f(0.0f, 0.0f, -1.0f),
+				1f);
+		SpotLight spotLight = new SpotLight(
+				new PointLight(
+						new Vec3f(1.0f, 0.0f, 0.0f),
+						100f),
+				Vec3f.Y,
+				0.1f
+		);
+
+		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, Matrix4f.Identity, point);
+
+		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+
+		Transform cameraTransform = new Transform(
+				Vec3f.X,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
+		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
+
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+
+		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+
+		RecursiveBackTracker recursiveBackTracker = new RecursiveBackTracker(50, 50);
+		ArrayList<Cell> visited = recursiveBackTracker.getVisited();
+
+		// build mase
+		MeshObject cuboid = new MeshBuilder().setMeshType(MeshType.CUBOID).build();
+
+		for (Cell cell : visited) {
+
+			Transform cellTransformcell = new Transform(
+					new Vec3f(cell.getPosition().getX() * 2, cell.getPosition().getY() * 2, 0),
+					Vec3f.ONE,
+					Matrix4f.Identity);
+
+			TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
+
+			MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
+
+			if (cell.isEastPath()) {
+				Transform cellTransform = new Transform(
+						new Vec3f(cell.getPosition().getX() * 2 + 1, cell.getPosition().getY() * 2, 0),
+						Vec3f.ONE,
+						Matrix4f.Identity);
+
+				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+
+				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+			}
+			if (cell.isWestPath()) {
+				Transform cellTransform = new Transform(
+						new Vec3f(cell.getPosition().getX() * 2 - 1, cell.getPosition().getY() * 2, 0),
+						Vec3f.ONE,
+						Matrix4f.Identity);
+
+				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+
+				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+			}
+			if (cell.isNorthPath()) {
+				Transform cellTransform = new Transform(
+						new Vec3f(cell.getPosition().getX() * 2, cell.getPosition().getY() * 2 - 1, 0),
+						Vec3f.ONE,
+						Matrix4f.Identity);
+
+				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+
+				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+			}
+			if (cell.isSouthPath()) {
+				Transform cellTransform = new Transform(
+						new Vec3f(cell.getPosition().getX() * 2, cell.getPosition().getY() * 2 + 1, 0),
+						Vec3f.ONE,
+						Matrix4f.Identity);
+
+				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+
+				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+			}
+
+		}
+
+		try (Window window = new Window(
+				1200,
+				800,
+				"")) {
+
+			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+
+			window.init();
+
+			while (!window.shouldClose()) {
+
+				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+				LWJGLGameControlManager.checkInputs();
+
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
 }

@@ -134,13 +134,15 @@ public class ChunkLoader {
 
 		// no go through and unload the chunks that shouldn't be active
 		activeChunkIndices.removeIf(activeChunk -> {
-			if (Math.abs(activeChunk.getX() - xIndex) > 10 || Math.abs(activeChunk.getY() - yIndex) > 10) {
+			if (Math.abs(activeChunk.getX() - xIndex) > 15 || Math.abs(activeChunk.getY() - yIndex) > 15) {
 				MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
 				removeFromScene(meshObject);
+
 				return true;
 			}
 			return false;
 		});
+
 
 	}
 

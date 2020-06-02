@@ -28,6 +28,9 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 public class Renderer {
 
 	private final static int MAX_INSTANCE = 1500;
+	private int modelViewVBO;
+
+	private FloatBuffer modelViewBuffer;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
@@ -40,10 +43,15 @@ public class Renderer {
 
 	public Renderer(Window window) {
 		this.projectionMatrix = window.getProjectionMatrix();
+
+	}
+
+	public void init() {
+		this.modelViewVBO = glGenBuffers();
 	}
 
 	public void destroy() {
-
+		glDeleteBuffers(modelViewVBO);
 	}
 
 	public void renderSkybox(MeshObject meshObject, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
@@ -63,7 +71,6 @@ public class Renderer {
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObject.getMesh().getMaterial().getTextureId());
 
-		int modelViewVBO = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
 		for (int i = 0; i < 4; i++) {
@@ -73,7 +80,7 @@ public class Renderer {
 			start++;
 		}
 
-		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
 		modelViewBuffer.put(0, meshObject.getMeshTransformation().multiply(translation).transpose().getValues());
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
@@ -163,7 +170,6 @@ public class Renderer {
 		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
 		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
 
-		int modelViewVBO = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
 		for (int i = 0; i < 4; i++) {
@@ -175,7 +181,7 @@ public class Renderer {
 
 		int index = 0;
 
-		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
 			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().multiply(instanceObject.getTransformation()).transpose().getValues());
 			index++;

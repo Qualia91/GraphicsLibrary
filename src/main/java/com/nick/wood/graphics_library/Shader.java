@@ -64,6 +64,7 @@ public class Shader {
 	public void setUniform(String name, Matrix4f value) {
 		matrixBuffer.put(value.getValues()).flip();
 		glUniformMatrix4fv(getUniformLocation(name), true, matrixBuffer);
+		matrixBuffer.clear();
 	}
 
 	public void setUniform(String name, Vec3f vec) {

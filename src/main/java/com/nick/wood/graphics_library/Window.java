@@ -13,7 +13,10 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
+import org.lwjgl.system.Callback;
+import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -161,6 +164,8 @@ public class Window implements AutoCloseable {
 		this.scene.attachShader(shader);
 		this.scene.attachSkyboxShader(skyboxShader);
 		this.hudScene.attachShader(hudShader);
+
+		this.renderer.init();
 
 	}
 

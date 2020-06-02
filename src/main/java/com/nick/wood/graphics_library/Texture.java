@@ -95,7 +95,7 @@ public class Texture {
 	 *
 	 * @throws IOException if an IO error occurs
 	 */
-	public static ByteBuffer ioResourceToByteBuffer(String resource, int bufferSize, InputStream resourceAsStream) throws IOException {
+	public ByteBuffer ioResourceToByteBuffer(String resource, int bufferSize, InputStream resourceAsStream) throws IOException {
 		ByteBuffer buffer;
 
 		Path path = Paths.get(resource);

@@ -134,8 +134,11 @@ public class Renderer {
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
+		Vec3f multiply = cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos());
+		Matrix4f view = cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation());
+
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
-		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation()));
+		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation().invert()));
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 
 		// do all but text

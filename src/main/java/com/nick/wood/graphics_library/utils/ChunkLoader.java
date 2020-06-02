@@ -43,7 +43,7 @@ public class ChunkLoader {
 		for (int i = 0; i < octaves; i++) {
 			double frequency = Math.pow(lacunarity, i);
 			int currentSegmentSize = (int) (segmentSize / frequency);
-			perlin2Ds[i] = new Perlin2Df(100000, currentSegmentSize);
+			perlin2Ds[i] = new Perlin2Df(10000, currentSegmentSize);
 		}
 
 		this.sceneGraph = new SceneGraph();
@@ -68,8 +68,8 @@ public class ChunkLoader {
 
 
 					// load all 16 chunks around it
-					for (int x = xIndex - 20; x <= xIndex + 20; x++) {
-						for (int y = yIndex - 20; y <= yIndex + 20; y++) {
+					for (int x = xIndex - 25; x <= xIndex + 25; x++) {
+						for (int y = yIndex - 25; y <= yIndex + 25; y++) {
 
 							ChunkIndex chunkIndex = new ChunkIndex(x, y);
 							newListOfChunkIndexes.add(chunkIndex);
@@ -134,7 +134,7 @@ public class ChunkLoader {
 
 		// no go through and unload the chunks that shouldn't be active
 		activeChunkIndices.removeIf(activeChunk -> {
-			if (Math.abs(activeChunk.getX() - xIndex) > 15 || Math.abs(activeChunk.getY() - yIndex) > 15) {
+			if (Math.abs(activeChunk.getX() - xIndex) > 20 || Math.abs(activeChunk.getY() - yIndex) > 20) {
 				MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
 				removeFromScene(meshObject);
 

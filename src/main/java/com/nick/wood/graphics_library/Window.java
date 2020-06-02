@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
+import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
@@ -165,6 +166,8 @@ public class Window implements AutoCloseable {
 		this.scene.attachSkyboxShader(skyboxShader);
 		this.hudScene.attachShader(hudShader);
 
+		hudScene.setAmbientLight(new Vec3f(0.8f, 0.8f, 0.8f));
+
 		this.renderer.init();
 
 	}
@@ -210,6 +213,7 @@ public class Window implements AutoCloseable {
 		glfwPollEvents();
 
 		scene.setPrimaryCamera(primaryCamera);
+		hudScene.setPrimaryCamera(primaryCamera);
 
 		Iterator<Map.Entry<UUID, SceneGraph>> mainIterator = gameObjects.entrySet().iterator();
 
@@ -228,6 +232,13 @@ public class Window implements AutoCloseable {
 			createRenderLists(hudScene, next.getValue(), Matrix4f.Identity);
 			if (next.getValue().getSceneGraphNodeData().isDelete()) {
 				hudIterator.remove();
+			}
+		}
+
+		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : scene.getCameras().entrySet()) {
+			if (cameraInstanceObjectEntry.getValue().getUuid().equals(primaryCamera)) {
+				hudScene.getCameras().clear();
+				hudScene.getCameras().put(cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
 			}
 		}
 
@@ -282,6 +293,9 @@ public class Window implements AutoCloseable {
 						iterator.remove();
 					} else {
 						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
+						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
+							meshGameObject.getMeshObject().getMesh().create();
+						}
 						if (scene.getMeshes().containsKey(meshGameObject.getMeshObject())) {
 							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
 							scene.getMeshes().get(meshGameObject.getMeshObject()).add(meshInstance);
@@ -290,9 +304,7 @@ public class Window implements AutoCloseable {
 							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
 							meshObjects.add(meshInstance);
 							scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
-							if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
-								meshGameObject.getMeshObject().getMesh().create();
-							}
+
 						}
 						createRenderLists(scene, meshGameObject, transformationSoFar);
 					}

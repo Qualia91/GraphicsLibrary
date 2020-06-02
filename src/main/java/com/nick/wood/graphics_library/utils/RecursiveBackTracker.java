@@ -39,23 +39,60 @@ public class RecursiveBackTracker {
 		// choose a square at random
 		visited.add(cell);
 		visitedStack.push(cell);
-		checkSquare(cell);
+
+		RecBackTrackReturnValue recBackTrackReturnValue = new RecBackTrackReturnValue(cell, findNeighbours(cell));
+
+		while (visited.size() != (width * height)) {
+
+			recBackTrackReturnValue = checkSquare(recBackTrackReturnValue);
+
+
+		}
 
 
 	}
 
-	private void checkSquare(Cell startCell) {
+	private RecBackTrackReturnValue checkSquare(RecBackTrackReturnValue recBackTrackReturnValue) {
 
+		int i = random.nextInt(recBackTrackReturnValue.getNeighbours().size());
+
+		// get next cell
+		Cell nextCell = recBackTrackReturnValue.getNeighbours().get(i);
+
+		// add it to visited and stack
+		visited.add(nextCell);
+		visitedStack.push(nextCell);
+
+		// find direction of travel and add onto path directions of start cell
+		recBackTrackReturnValue.getCell().getPathDirections().add(nextCell.getPosition().subtract(recBackTrackReturnValue.getCell().getPosition()));
+
+		// add path directions onto current cell
+		nextCell.getPathDirections().add(recBackTrackReturnValue.getCell().getPosition().subtract(nextCell.getPosition()));
+
+		// return if all visited
 		if (visited.size() == (width * height)) {
-			return;
+			return null;
 		}
 
-		ArrayList<Vec2i> nextValidSquares = new ArrayList<>();
-		ArrayList<MovementDirection> movementDirections = new ArrayList<>();
+		// find neighbours of the next cell
+		ArrayList<Cell> nextNeighbours = findNeighbours(nextCell);
 
-		for (int directionIndex = 0; directionIndex < directions.length; directionIndex++) {
-			Vec2i direction = directions[directionIndex];
+		// if neighbours is empty, find the last cell that has valid neighbours
+		if (nextNeighbours.isEmpty()) {
+			Cell lastFree = findLastFree(visitedStack);
+			// and repeat function on it
+			return new RecBackTrackReturnValue(lastFree, findNeighbours(lastFree));
+		}
+		// if it has neighbours, repeat function
+		else {
+			return new RecBackTrackReturnValue(nextCell, nextNeighbours);
+		}
 
+	}
+
+	private ArrayList<Cell> findNeighbours(Cell startCell) {
+		ArrayList<Cell> neighbours = new ArrayList<>();
+		for (Vec2i direction : directions) {
 			// get the new positions of the next square given 4 directions they could be
 			Vec2i nextSquare = startCell.getPosition().add(direction);
 
@@ -73,93 +110,31 @@ public class RecursiveBackTracker {
 				}
 				if (!found) {
 
-					nextValidSquares.add(nextSquare);
-					movementDirections.add(MovementDirection.values()[directionIndex]);
+					neighbours.add(new Cell(nextSquare));
 
 				}
 			}
 		}
 
-		if (nextValidSquares.isEmpty()) {
-
-			// find last space with free neighbours
-			checkSquare(findLastFree(visitedStack));
-
-		} else {
-
-			int i = random.nextInt(nextValidSquares.size());
-			Vec2i nextSquare = nextValidSquares.get(i);
-
-			if (movementDirections.get(i).equals(MovementDirection.SOUTH)) {
-				startCell.setSouthPath(true);
-			} else if (movementDirections.get(i).equals(MovementDirection.EAST)) {
-				startCell.setEastPath(true);
-			} else if (movementDirections.get(i).equals(MovementDirection.NORTH)) {
-				startCell.setNorthPath(true);
-			} else if (movementDirections.get(i).equals(MovementDirection.WEST)) {
-				startCell.setWestPath(true);
-			}
-
-			// check if already visted
-			boolean found = false;
-			Cell nextCell = null;
-			for (Cell cell : visited) {
-				if (cell.getPosition().equals(nextSquare)) {
-					found = true;
-					nextCell = cell;
-					break;
-				}
-			}
-
-			if (!found) {
-				nextCell = new Cell(nextSquare);
-				visited.add(nextCell);
-				visitedStack.push(nextCell);
-			}
-			checkSquare(nextCell);
-
-		}
+		return neighbours;
 	}
 
 	private Cell findLastFree(Stack<Cell> visitedStack) {
 
-		ArrayList<Vec2i> nextValidSquares = new ArrayList<>();
 		while (true) {
-			Cell pop = visitedStack.pop();
-			for (int directionIndex = 0; directionIndex < directions.length; directionIndex++) {
-				Vec2i direction = directions[directionIndex];
-
-				// get the new positions of the next square given 4 directions they could be
-				Vec2i nextSquare = pop.getPosition().add(direction);
-
-				// check for valid square
-				if (nextSquare.getX() >= 0 && nextSquare.getX() < width && nextSquare.getY() >= 0 && nextSquare.getY() < height) {
-
-					// check if its already been visited
-					// check if already visted
-					boolean found = false;
-					for (Cell cell : visited) {
-						if (cell.getPosition().equals(nextSquare)) {
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-
-						nextValidSquares.add(nextSquare);
-
-					}
-				}
+			if (visitedStack.isEmpty()) {
+				System.out.println();
 			}
-
-			if (!nextValidSquares.isEmpty()) {
+			Cell pop = visitedStack.pop();
+			ArrayList<Cell> neighbours = findNeighbours(pop);
+			if (!neighbours.isEmpty()) {
 				return pop;
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		RecursiveBackTracker recursiveBackTracker = new RecursiveBackTracker(3, 3);
+		RecursiveBackTracker recursiveBackTracker = new RecursiveBackTracker(100, 100);
 
 		System.out.println();
 	}

@@ -18,6 +18,7 @@ import com.nick.wood.graphics_library.utils.RecursiveBackTracker;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec2i;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.junit.jupiter.api.Test;
 
@@ -1130,7 +1131,7 @@ class TestBench {
 
 		Transform transform = new Transform(
 				Vec3f.X.scale(0),
-				Vec3f.ONE,
+				Vec3f.ONE.scale(3),
 				Matrix4f.Identity
 		);
 
@@ -1181,62 +1182,91 @@ class TestBench {
 
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
-		RecursiveBackTracker recursiveBackTracker = new RecursiveBackTracker(50, 50);
+		int width = 100;
+		int height = 100;
+
+		RecursiveBackTracker recursiveBackTracker = new RecursiveBackTracker(width, height);
 		ArrayList<Cell> visited = recursiveBackTracker.getVisited();
 
 		// build mase
 		MeshObject cuboid = new MeshBuilder().setMeshType(MeshType.CUBOID).build();
 
+		// render diagonals
+		for (int i = -1; i < width * 2 + 1; i += 2) {
+
+			for (int j = -1; j < height * 2 + 1; j += 2) {
+
+				Transform cellTransformcell = new Transform(
+						new Vec3f(i, j, 0),
+						Vec3f.ONE,
+						Matrix4f.Identity);
+
+				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
+
+				MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
+
+			}
+
+		}
+
+		Vec2i north = new Vec2i(0, -1);
+		Vec2i west = new Vec2i(-1, 0);
+		Vec2i south = new Vec2i(0, 1);
+		Vec2i east = new Vec2i(1, 0);
+
+		// render walls
 		for (Cell cell : visited) {
 
-			Transform cellTransformcell = new Transform(
-					new Vec3f(cell.getPosition().getX() * 2, cell.getPosition().getY() * 2, 0),
-					Vec3f.ONE,
-					Matrix4f.Identity);
+			if (!cell.getPathDirections().contains(north)) {
 
-			TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
-
-			MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
-
-			if (cell.isEastPath()) {
-				Transform cellTransform = new Transform(
-						new Vec3f(cell.getPosition().getX() * 2 + 1, cell.getPosition().getY() * 2, 0),
+				Transform cellTransformcell = new Transform(
+						new Vec3f((cell.getPosition().getX() * 2), (cell.getPosition().getY() * 2) - 1, 0),
 						Vec3f.ONE,
 						Matrix4f.Identity);
 
-				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
-				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+				MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
+
 			}
-			if (cell.isWestPath()) {
-				Transform cellTransform = new Transform(
-						new Vec3f(cell.getPosition().getX() * 2 - 1, cell.getPosition().getY() * 2, 0),
+
+			if (!cell.getPathDirections().contains(south)) {
+
+				Transform cellTransformcell = new Transform(
+						new Vec3f((cell.getPosition().getX() * 2), (cell.getPosition().getY() * 2) + 1, 0),
 						Vec3f.ONE,
 						Matrix4f.Identity);
 
-				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
-				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+				MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
+
 			}
-			if (cell.isNorthPath()) {
-				Transform cellTransform = new Transform(
-						new Vec3f(cell.getPosition().getX() * 2, cell.getPosition().getY() * 2 - 1, 0),
+
+			if (!cell.getPathDirections().contains(west) && !cell.getPosition().equals(Vec2i.ZERO)) {
+
+				Transform cellTransformcell = new Transform(
+						new Vec3f((cell.getPosition().getX() * 2) - 1, (cell.getPosition().getY() * 2), 0),
 						Vec3f.ONE,
 						Matrix4f.Identity);
 
-				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
-				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+				MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
+
 			}
-			if (cell.isSouthPath()) {
-				Transform cellTransform = new Transform(
-						new Vec3f(cell.getPosition().getX() * 2, cell.getPosition().getY() * 2 + 1, 0),
+
+			if (!cell.getPathDirections().contains(east) && !cell.getPosition().equals(new Vec2i(width - 1, height - 1))) {
+
+				Transform cellTransformcell = new Transform(
+						new Vec3f((cell.getPosition().getX() * 2) + 1, (cell.getPosition().getY() * 2), 0),
 						Vec3f.ONE,
 						Matrix4f.Identity);
 
-				TransformSceneGraph transformSceneGraph = new TransformSceneGraph(wholeSceneTransform, cellTransform);
+				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
-				MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cuboid);
+				MeshSceneGraph meshSceneGraphcell = new MeshSceneGraph(transformSceneGraphcell, cuboid);
+
 			}
 
 		}

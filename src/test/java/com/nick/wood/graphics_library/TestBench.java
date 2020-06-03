@@ -264,11 +264,11 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		int size = 1000;
+		int size = 10000;
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
 		float[][] grid = proceduralGeneration.generateHeightMapChunk(
-				1000,
+				100000,
 				size,
 				5,
 				2,
@@ -380,10 +380,10 @@ class TestBench {
 				.build();
 
 		int segmentSize = 10;
-		int hillHeight = 60;
+		int hillHeight = 20;
 		Perlin3D perlin3D = new Perlin3D(500, segmentSize);
 		Perlin2Df perlin2D = new Perlin2Df(500, segmentSize);
-		int size = 30;
+		int size = 50;
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++) {

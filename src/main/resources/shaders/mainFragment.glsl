@@ -1,14 +1,21 @@
 #version 460 core
 
-const int MAX_POINT_LIGHTS = 60;
-const int MAX_SPOT_LIGHTS = 60;
-const int MAX_DIRECTIONAL_LIGHTS = 60;
+const int MAX_POINT_LIGHTS = 50;
+const int MAX_SPOT_LIGHTS = 50;
+const int MAX_DIRECTIONAL_LIGHTS = 50;
 
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;
 in vec3 passVertexPos;
 
 out vec4 outColour;
+
+struct Fog
+{
+    int isactive;
+    vec3 colour;
+    float density;
+};
 
 struct Attenuation
 {
@@ -56,10 +63,11 @@ uniform sampler2D tex;
 uniform vec3 ambientLight;
 uniform float specularPower;
 uniform Material material;
-uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform vec3 cameraPos;
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
+uniform Fog fog;
 
 vec4 ambientC;
 vec4 diffuseC;
@@ -70,6 +78,7 @@ void setupColours()
     ambientC = texture(tex, passTextureCoord);
     diffuseC = ambientC;
     speculrC = ambientC;
+
 }
 
 vec4 calcLightColour(vec3 vertexPosition, vec3 vertexNormal, float lightIntensity, vec3 toLightDirection, vec3 lightColour) {
@@ -140,8 +149,18 @@ vec4 calcDirectionalLight(vec3 vertexPosition, vec3 vertexNormal, DirectionalLig
     return calcLightColour(vertexPosition, vertexNormal, intensity, toLightDir, colour);
 }
 
+vec4 calcFog(vec3 pos, vec4 colour, Fog fog) {
+    float distance = length(pos);
+    float fogFactor = 1.0 / exp((distance * fog.density) * (distance * fog.density));
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+    vec3 resultColour = mix(fog.colour, colour.xyz, fogFactor);
+    return vec4(resultColour, colour.w);
+}
+
 void main() {
     setupColours();
+
     vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
     for (int i=0; i<MAX_POINT_LIGHTS; i++)
     {
@@ -169,4 +188,9 @@ void main() {
     }
 
     outColour = ambientC * vec4(ambientLight, 1.0) + diffuseSpecularComp;
+
+    if ( fog.isactive == 1 )
+    {
+        outColour = calcFog(cameraPos - passVertexPos, outColour, fog);
+    }
 }

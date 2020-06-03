@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library.objects.render_scene;
 
 import com.nick.wood.graphics_library.Renderer;
 import com.nick.wood.graphics_library.Shader;
+import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
@@ -12,7 +13,8 @@ import java.util.*;
 public class Scene {
 
 
-	private Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+	private Fog fog;
+	private Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
 	private Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
 	private Shader shader;
 	private final HashMap<Light, InstanceObject> lights;
@@ -26,6 +28,39 @@ public class Scene {
 		this.lights = new HashMap<>();
 		this.meshes = new HashMap<>();
 		this.cameras = new HashMap<>();
+		this.fog = new Fog(true, ambientLight, 0.0003f);
+	}
+
+	public Fog getFog() {
+		return fog;
+	}
+
+	public void setFog(Fog fog) {
+		this.fog = fog;
+	}
+
+	public Shader getShader() {
+		return shader;
+	}
+
+	public void setShader(Shader shader) {
+		this.shader = shader;
+	}
+
+	public UUID getPrimaryCamera() {
+		return primaryCamera;
+	}
+
+	public Shader getSkyboxShader() {
+		return skyboxShader;
+	}
+
+	public void setSkyboxShader(Shader skyboxShader) {
+		this.skyboxShader = skyboxShader;
+	}
+
+	public MeshObject getSkybox() {
+		return skybox;
 	}
 
 	public HashMap<MeshObject, ArrayList<InstanceObject>> getMeshes() {
@@ -51,7 +86,7 @@ public class Scene {
 					}
 
 					if (shader != null) {
-						renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight);
+						renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight, fog);
 					}
 					break;
 				}

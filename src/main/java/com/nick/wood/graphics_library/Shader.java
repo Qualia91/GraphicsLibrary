@@ -75,6 +75,10 @@ public class Shader {
 		glUniform1f(getUniformLocation(name), v);
 	}
 
+	public void setUniform(String name, int v) {
+		glUniform1i(getUniformLocation(name), v);
+	}
+
 	public void bind() {
 		glUseProgram(programId);
 	}

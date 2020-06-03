@@ -1,10 +1,7 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.lighting.Light;
+import com.nick.wood.graphics_library.lighting.*;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.lighting.DirectionalLight;
-import com.nick.wood.graphics_library.lighting.PointLight;
-import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
@@ -43,7 +40,6 @@ public class Renderer {
 
 	public Renderer(Window window) {
 		this.projectionMatrix = window.getProjectionMatrix();
-
 	}
 
 	public void init() {
@@ -101,7 +97,7 @@ public class Renderer {
 
 	}
 
-	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<Light, InstanceObject> lights, Shader shader, Vec3f ambientLight) {
+	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<Light, InstanceObject> lights, Shader shader, Vec3f ambientLight, Fog fog) {
 
 		shader.bind();
 
@@ -134,12 +130,11 @@ public class Renderer {
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
-		Vec3f multiply = cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos());
-		Matrix4f view = cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation());
-
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
 		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation().invert()));
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+
+		createFog(fog, shader);
 
 		// do all but text
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
@@ -229,5 +224,11 @@ public class Renderer {
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.constant", pointLight.getAttenuation().getConstant());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.linear", pointLight.getAttenuation().getLinear());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.exponent", pointLight.getAttenuation().getExponent());
+	}
+
+	private void createFog(Fog fog, Shader shader) {
+		shader.setUniform("fog.isactive", fog.isActive() ? 1 : 0);
+		shader.setUniform("fog.colour", fog.getColour());
+		shader.setUniform("fog.density", fog.getDensity());
 	}
 }

@@ -28,12 +28,17 @@ public class ChunkLoader {
 	private AtomicBoolean buildingActive = new AtomicBoolean(false);
 
 	private final HashMap<UUID, SceneGraph> gameObjects;
-	private final int chunkSize = 100;
-	private final int segmentSize = 2000;
+	private final int chunkSize = 50;
+	private final int segmentSize = 500;
 	private final ArrayList<ChunkIndex> activeChunkIndices = new ArrayList<>();
 	private final ArrayList<ChunkIndex> loadedChunkIndices = new ArrayList<>();
 	private final ConcurrentHashMap<ChunkIndex, MeshObject> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
 	private final Perlin2Df[] perlin2Ds;
+	private final int cellSpace = 5;
+
+	private final  int visualClippingDistance = 20;
+	private final  int loadingClippingDistance = visualClippingDistance + 6;
+
 
 	ArrayList<ChunkIndex> newListOfChunkIndexes = new ArrayList<>();
 
@@ -63,13 +68,13 @@ public class ChunkLoader {
 					newListOfChunkIndexes.clear();
 
 					// work out what index the player would be in
-					int xIndex = (int) (currentPlayerPosition.getX() / (double) chunkSize);
-					int yIndex = (int) (currentPlayerPosition.getY() / (double) chunkSize);
+					int xIndex = (int) (currentPlayerPosition.getX() / (double) (chunkSize * cellSpace));
+					int yIndex = (int) (currentPlayerPosition.getY() / (double) (chunkSize * cellSpace));
 
 
 					// load all 16 chunks around it
-					for (int x = xIndex - 25; x <= xIndex + 25; x++) {
-						for (int y = yIndex - 25; y <= yIndex + 25; y++) {
+					for (int x = xIndex - loadingClippingDistance; x <= xIndex + loadingClippingDistance; x++) {
+						for (int y = yIndex - loadingClippingDistance; y <= yIndex + loadingClippingDistance; y++) {
 
 							ChunkIndex chunkIndex = new ChunkIndex(x, y);
 							newListOfChunkIndexes.add(chunkIndex);
@@ -105,12 +110,12 @@ public class ChunkLoader {
 
 		}
 		// work out what index the player would be in
-		int xIndex = (int) (currentPlayerPosition.getX() / (double) chunkSize);
-		int yIndex = (int) (currentPlayerPosition.getY() / (double) chunkSize);
+		int xIndex = (int) (currentPlayerPosition.getX() / (double) (chunkSize * cellSpace));
+		int yIndex = (int) (currentPlayerPosition.getY() / (double) (chunkSize * cellSpace));
 
 		// load all 8 chunks around it
-		for (int x = xIndex - 15; x <= xIndex + 15; x++) {
-			for (int y = yIndex - 15; y <= yIndex + 15; y++) {
+		for (int x = xIndex - visualClippingDistance; x <= xIndex + visualClippingDistance; x++) {
+			for (int y = yIndex - visualClippingDistance; y <= yIndex + visualClippingDistance; y++) {
 
 				ChunkIndex chunkIndex = new ChunkIndex(x, y);
 
@@ -134,7 +139,7 @@ public class ChunkLoader {
 
 		// no go through and unload the chunks that shouldn't be active
 		activeChunkIndices.removeIf(activeChunk -> {
-			if (Math.abs(activeChunk.getX() - xIndex) > 20 || Math.abs(activeChunk.getY() - yIndex) > 20) {
+			if (Math.abs(activeChunk.getX() - xIndex) > visualClippingDistance + 5 || Math.abs(activeChunk.getY() - yIndex) > visualClippingDistance + 5) {
 				MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
 				removeFromScene(meshObject);
 
@@ -171,7 +176,7 @@ public class ChunkLoader {
 	private void addToScene(MeshObject meshObject, ChunkIndex chunkIndex) {
 
 		Transform transform = new Transform(
-				new Vec3f(chunkIndex.getX() * chunkSize, chunkIndex.getY() * chunkSize, 0),
+				new Vec3f(chunkIndex.getX() * chunkSize * cellSpace, chunkIndex.getY() * chunkSize * cellSpace, 0),
 				Vec3f.ONE,
 				Matrix4f.Identity
 		);
@@ -192,13 +197,14 @@ public class ChunkLoader {
 				(int) chunkPositionY,
 				perlin2Ds,
 				200,
-				amp -> (amp > 150) ? amp * 4 : amp
+				amp -> amp
 		);
 
 		return new MeshBuilder()
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
 				.setTexture("/textures/terrain.png")
+				.setCellSpace(cellSpace)
 				.build();
 	}
 }

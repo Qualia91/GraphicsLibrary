@@ -8,6 +8,7 @@ public class MeshBuilder {
 	private MeshType meshType = MeshType.SPHERE;
 	private boolean invertedNormals = false;
 	private String texture = "/textures/white.png";
+	private String normalTexture = null;
 	private Matrix4f transformation = Matrix4f.Identity;
 	private int triangleNumber = 5;
 	private Material material;
@@ -26,6 +27,10 @@ public class MeshBuilder {
 
 		if (material == null) {
 			material = new Material(texture);
+
+			if (normalTexture != null) {
+				material.setNormalMap(normalTexture);
+			}
 		}
 
 		return switch (meshType) {
@@ -34,7 +39,7 @@ public class MeshBuilder {
 			case MODEL -> new ModelMesh(modelFile, texture, invertedNormals, transformation);
 			case SQUARE -> new Square(material, transformation);
 			case TEXT -> new TextItem(text, fontFile, rowNum, colNum);
-			case TERRAIN -> new Terrain(terrainHeightMap, texture, cellSpace);
+			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);
 			case POINT -> new Point(transformation, material);
 			default -> new SphereMesh(1, new Material("/textures/white.png"), true, Matrix4f.Identity);
 		};
@@ -70,6 +75,10 @@ public class MeshBuilder {
 	};
 	public MeshBuilder setTexture(String texture) {
 		this.texture = texture;
+		return this;
+	};
+	public MeshBuilder setNormalTexture(String normalTexture) {
+		this.normalTexture = normalTexture;
 		return this;
 	};
 	public MeshBuilder setTransform(Matrix4f transformation) {

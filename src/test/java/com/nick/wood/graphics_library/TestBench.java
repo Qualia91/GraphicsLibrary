@@ -222,7 +222,7 @@ class TestBench {
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
 		SceneGraph skyboxSceneGraph = new SceneGraph();
-		SkyBox skyBox = new SkyBox(skyboxSceneGraph, "/textures/8k_stars.jpg", SkyboxType.SPHERE);
+		SkyBox skyBox = new SkyBox(skyboxSceneGraph, "/textures/mars.jpg", SkyboxType.SPHERE);
 		gameObjects.put(skyboxSceneGraph.getSceneGraphNodeData().getUuid(), skyboxSceneGraph);
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
@@ -357,13 +357,15 @@ class TestBench {
 
 		MeshObject cubeSand = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/sand_blocky.jpg")
+				.setTexture("/textures/brickwall.jpg")
+				.setNormalTexture("/textures/brickwall_normal.jpg")
 				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		MeshObject cubeGrass = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/grass.png")
+				//.setNormalTexture("/textures/sandNormalMap.jpg")
 				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
@@ -376,6 +378,7 @@ class TestBench {
 		MeshObject cubeFire = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/8k_venus_surface.jpg")
+				//.setNormalTexture("/textures/sandNormalMap.jpg")
 				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
@@ -755,6 +758,16 @@ class TestBench {
 				.setTexture("/textures/mars.jpg")
 				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10)))
 				.build();
+
+		MeshObject mesh = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/rock.png")
+				.setNormalTexture("/textures/tangentNormalMap.jpg")
+				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(1)))
+				.build();
+
+
+		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(wholeSceneTransform, mesh);
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -1189,7 +1202,7 @@ class TestBench {
 		ArrayList<Cell> visited = recursiveBackTracker.getVisited();
 
 		// build mase
-		MeshObject cuboid = new MeshBuilder().setMeshType(MeshType.CUBOID).build();
+		MeshObject cuboid = new MeshBuilder().setMeshType(MeshType.CUBOID).setNormalTexture("/textures/sandNormalMap.jpg").build();
 
 		// render diagonals
 		for (int i = -1; i < width * 2 + 1; i += 2) {

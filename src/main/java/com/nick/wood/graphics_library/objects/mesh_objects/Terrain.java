@@ -18,11 +18,11 @@ public class Terrain implements MeshObject {
 	private final int height;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, String texture, double cellSpace) {
+	Terrain(float[][] terrainHeightMap, Material material, double cellSpace) {
 		super();
 		this.terrainHeightMap = terrainHeightMap;
-		this.material = new Material(texture);
 		this.cellSpace = cellSpace;
+		this.material = material;
 		this.width = terrainHeightMap.length;
 		this.height = terrainHeightMap[0].length;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
@@ -81,31 +81,25 @@ public class Terrain implements MeshObject {
 				Vec3f normalOne = normalOfTriangle(up, down, left);
 				Vec3f normalTwo = normalOfTriangle(down, up, right);
 
-				vertex[y * width + x].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+				Vec3f norm = normalOne.add(normalTwo).scale(0.5f).normalise();
+
+				vertex[y * width + x].setNormal(norm);
 
 				if (y == 1) {
-					vertex[x].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+					vertex[x].setNormal(norm);
 				}
 
 				if (x == 1) {
-					vertex[y * width].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+					vertex[y * width].setNormal(norm);
 				}
 
 				if (y == terrainHeightMap.length - 2) {
-					vertex[(y + 1) * width + x].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+					vertex[(y + 1) * width + x].setNormal(norm);
 				}
 
 				if (x == terrainHeightMap[y].length - 2) {
-					vertex[y * width + x + 1].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
+					vertex[y * width + x + 1].setNormal(norm);
 				}
-
-				if (y == 1 && x == 1) {
-					vertex[0].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
-				}
-				if (y == terrainHeightMap.length - 2 && x == terrainHeightMap[y].length - 2) {
-					vertex[vertex.length - 1].setNormal(normalOne.add(normalTwo).scale(0.5f).normalise());
-				}
-
 			}
 		}
 

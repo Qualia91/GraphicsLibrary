@@ -9,9 +9,10 @@ import java.io.IOException;
 public class Material {
 
 	private Texture texture = null;
+	private Texture normalMap = null;
 	private float width, height;
-	private int textureId;
 	private String path;
+	private String normalMapPath;
 	private Vec3f diffuseColour;
 	private Vec3f specularColour;
 	private float shininess;
@@ -38,20 +39,38 @@ public class Material {
 			if (texture == null) {
 				texture = new Texture(path, GL11.GL_LINEAR);
 			}
+			if (normalMapPath != null && normalMap == null) {
+				normalMap = new Texture(normalMapPath, GL11.GL_LINEAR);
+			}
 		} catch (IOException e) {
 			System.err.println("Cant find texture at " + path);
 		}
 		width = texture.getWidth();
 		height = texture.getHeight();
-		textureId = texture.getId();
 
 	}
 
 	public void destroy() {
 		if (texture != null) {
 			texture.destroy();
-			GL13.glDeleteTextures(textureId);
+			GL13.glDeleteTextures(texture.getId());
 		}
+		if (normalMap != null) {
+			normalMap.destroy();
+			GL13.glDeleteTextures(normalMap.getId());
+		}
+	}
+
+	public boolean hasNormalMap() {
+		return this.normalMap != null;
+	}
+
+	public Texture getNormalMap() {
+		return normalMap;
+	}
+
+	public void setNormalMap(String normalMapPath) {
+		this.normalMapPath = normalMapPath;
 	}
 
 	public Texture getTexture() {
@@ -66,10 +85,6 @@ public class Material {
 		return height;
 	}
 
-	public int getTextureId() {
-		return textureId;
-	}
-
 	public void setTexture(Texture texture) {
 		this.texture = texture;
 	}
@@ -80,10 +95,6 @@ public class Material {
 
 	public void setHeight(float height) {
 		this.height = height;
-	}
-
-	public void setTextureId(int textureId) {
-		this.textureId = textureId;
 	}
 
 	public String getPath() {

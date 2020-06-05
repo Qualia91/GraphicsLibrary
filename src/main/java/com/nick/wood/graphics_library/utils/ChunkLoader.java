@@ -36,7 +36,7 @@ public class ChunkLoader {
 	private final Perlin2Df[] perlin2Ds;
 	private final int cellSpace = 5;
 
-	private final  int visualClippingDistance = 20;
+	private final  int visualClippingDistance = 10;
 	private final  int loadingClippingDistance = visualClippingDistance + 6;
 
 
@@ -204,6 +204,7 @@ public class ChunkLoader {
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
 				.setTexture("/textures/terrain.png")
+				.setNormalTexture("/textures/tangentNormalMap.jpg")
 				.setCellSpace(cellSpace)
 				.build();
 	}

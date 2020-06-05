@@ -65,7 +65,7 @@ public class Renderer {
 
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObject.getMesh().getMaterial().getTextureId());
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObject.getMesh().getMaterial().getTexture().getId());
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -161,12 +161,21 @@ public class Renderer {
 
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTextureId());
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().getId());
+		shader.setUniform("tex", 0);
+
+		// bind normal map if available
+		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
+			GL13.glActiveTexture(GL13.GL_TEXTURE1);
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMap().getId());
+			shader.setUniform("normal_text_sampler", 1);
+		}
 
 		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());
 		shader.setUniform("material.specular", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getSpecularColour());
 		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
 		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
+		shader.setUniform("material.hasNormalMap", meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -192,6 +201,7 @@ public class Renderer {
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
 
 		// clean up
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);

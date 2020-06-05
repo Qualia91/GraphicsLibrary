@@ -7,6 +7,7 @@ const int MAX_DIRECTIONAL_LIGHTS = 50;
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;
 in vec3 passVertexPos;
+in mat4 modelViewMatrix;
 
 out vec4 outColour;
 
@@ -52,6 +53,7 @@ struct Material
     vec4 specular;
     vec4 shininess;
     float reflectance;
+    int hasNormalMap;
 };
 
 struct Camera
@@ -60,6 +62,7 @@ struct Camera
 };
 
 uniform sampler2D tex;
+uniform sampler2D normal_text_sampler;
 uniform vec3 ambientLight;
 uniform float specularPower;
 uniform Material material;
@@ -158,15 +161,31 @@ vec4 calcFog(vec3 pos, vec4 colour, Fog fog) {
     return vec4(resultColour, colour.w);
 }
 
+vec3 calcNormal(Material material, vec3 normal, vec2 text_coord, mat4 modelViewMatrix) {
+
+    vec3 newNormal = normal;
+
+    if ( material.hasNormalMap == 1 ) {
+        newNormal = texture(normal_text_sampler, text_coord).rgb;
+        newNormal = normalize(newNormal * 2.0 - 1.0);
+        newNormal = normalize(modelViewMatrix * vec4(newNormal, 0.0)).xyz;
+    }
+
+    return newNormal;
+
+}
+
 void main() {
     setupColours();
+
+    vec3 newNormal = calcNormal(material, passVertexNormal, passTextureCoord, modelViewMatrix);
 
     vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
     for (int i=0; i<MAX_POINT_LIGHTS; i++)
     {
         if ( pointLights[i].intensity > 0 )
         {
-            diffuseSpecularComp += calcPointLight(passVertexPos, passVertexNormal, pointLights[i]);
+            diffuseSpecularComp += calcPointLight(passVertexPos, newNormal, pointLights[i]);
         }
     }
 
@@ -174,7 +193,7 @@ void main() {
     {
         if ( spotLights[i].pointLight.intensity > 0 )
         {
-            diffuseSpecularComp += calcSpotLight(passVertexPos, passVertexNormal, spotLights[i]);
+            diffuseSpecularComp += calcSpotLight(passVertexPos, newNormal, spotLights[i]);
         }
     }
 
@@ -183,7 +202,7 @@ void main() {
     {
         if ( directionalLights[i].intensity > 0 )
         {
-            diffuseSpecularComp += calcDirectionalLight(passVertexPos, passVertexNormal, directionalLights[i]);
+            diffuseSpecularComp += calcDirectionalLight(passVertexPos, newNormal, directionalLights[i]);
         }
     }
 

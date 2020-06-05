@@ -1,5 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
+import com.nick.wood.graphics_library.Material;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 import java.io.IOException;
@@ -9,24 +10,28 @@ public class ModelMesh implements MeshObject {
 
 	private final ModelLoader modelLoader = new ModelLoader();
 	private final String filePath;
-	private final String texturePath;
+	private final Material material;
 	private final Matrix4f transform;
 	private Mesh mesh;
 
-	ModelMesh(String filePath, String texturePath, boolean invertedNormals, Matrix4f transform) {
+	ModelMesh(String filePath, Material material, boolean invertedNormals, Matrix4f transform) {
 
 		this.transform = transform;
 		this.filePath = filePath;
-		this.texturePath = texturePath;
+		this.material = material;
 		try {
-			mesh = modelLoader.loadModel(filePath, texturePath, invertedNormals);
+			mesh = modelLoader.loadModel(filePath, material, invertedNormals);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	public Material getMaterial() {
+		return material;
+	}
+
 	public String getStringToCompare() {
-		return filePath + texturePath;
+		return filePath + material.getPath();
 	}
 
 	@Override
@@ -40,12 +45,12 @@ public class ModelMesh implements MeshObject {
 		if (o == null || getClass() != o.getClass()) return false;
 		ModelMesh modelMesh = (ModelMesh) o;
 		return Objects.equals(filePath, modelMesh.filePath) &&
-				Objects.equals(texturePath, modelMesh.texturePath);
+				Objects.equals(material.getPath(), modelMesh.getMaterial().getPath());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(filePath, texturePath);
+		return Objects.hash(filePath, getMaterial().getPath());
 	}
 
 	@Override

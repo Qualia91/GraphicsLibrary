@@ -23,7 +23,7 @@ public class Square implements MeshObject {
 		}, new int[]{
 				0, 1, 2,
 				3, 0, 2
-		}, material, false);
+		}, material, false, false);
 		this.material = material;
 	}
 

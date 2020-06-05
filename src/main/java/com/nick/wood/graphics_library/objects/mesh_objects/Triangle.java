@@ -105,7 +105,7 @@ public class Triangle implements MeshObject {
 
 		}
 
-		mesh = new Mesh(vertices, indexList, new Material("/textures/texture.png"), invertedNormals);
+		mesh = new Mesh(vertices, indexList, new Material("/textures/texture.png"), invertedNormals, false);
 	}
 
 	public Mesh getMesh() {

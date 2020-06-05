@@ -10,9 +10,9 @@ import java.io.IOException;
 
 public class ModelLoader {
 
-	public Mesh loadModel(String filePath, String texturePath, boolean invertedNormals) throws IOException {
+	public Mesh loadModel(String filePath, Material material, boolean invertedNormals) throws IOException {
 		// load 3d model data
-		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate);
+		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
 
 		if (aiScene == null) {
 			throw new IOException(Assimp.aiGetErrorString());
@@ -24,6 +24,8 @@ public class ModelLoader {
 
 		AIVector3D.Buffer vertices = aiMesh.mVertices();
 		AIVector3D.Buffer normals = aiMesh.mNormals();
+		AIVector3D.Buffer tangents = aiMesh.mTangents();
+		AIVector3D.Buffer bitangents = aiMesh.mBitangents();
 
 		Vertex[] vertexArray = new Vertex[vertexCount];
 
@@ -31,6 +33,8 @@ public class ModelLoader {
 
 			Vec3f vertexVec = getVecFromData(vertices, i);
 			Vec3f normalVec = getVecFromData(normals, i);
+			Vec3f tangentVec = getVecFromData(tangents, i);
+			Vec3f bitangentVec = getVecFromData(bitangents, i);
 			if (invertedNormals) {
 				normalVec = normalVec.neg();
 			}
@@ -39,7 +43,7 @@ public class ModelLoader {
 				AIVector3D textCoordAI = aiMesh.mTextureCoords(0).get(i);
 				texCoord = new Vec2f(textCoordAI.x(), textCoordAI.y());
 			}
-			vertexArray[i] = new Vertex(vertexVec, texCoord, normalVec);
+			vertexArray[i] = new Vertex(vertexVec, texCoord, normalVec, tangentVec, bitangentVec);
 
 		}
 
@@ -63,7 +67,7 @@ public class ModelLoader {
 			}
 		}
 
-		return new Mesh(vertexArray, indexList, new Material(texturePath), invertedNormals);
+		return new Mesh(vertexArray, indexList, material, invertedNormals, true);
 	}
 
 	private Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {

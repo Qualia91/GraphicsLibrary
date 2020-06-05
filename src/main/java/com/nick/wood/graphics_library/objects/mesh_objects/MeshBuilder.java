@@ -36,7 +36,7 @@ public class MeshBuilder {
 		return switch (meshType) {
 			case SPHERE -> new SphereMesh(triangleNumber, material, invertedNormals, transformation);
 			case CUBOID -> new CubeMesh(material, invertedNormals, transformation);
-			case MODEL -> new ModelMesh(modelFile, texture, invertedNormals, transformation);
+			case MODEL -> new ModelMesh(modelFile, material, invertedNormals, transformation);
 			case SQUARE -> new Square(material, transformation);
 			case TEXT -> new TextItem(text, fontFile, rowNum, colNum);
 			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);

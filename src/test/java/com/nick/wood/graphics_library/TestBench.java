@@ -356,30 +356,32 @@ class TestBench {
 		int cubeSize = 2;
 
 		MeshObject cubeSand = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
 				.setTexture("/textures/brickwall.jpg")
 				.setNormalTexture("/textures/brickwall_normal.jpg")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		MeshObject cubeGrass = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
 				.setTexture("/textures/grass.png")
-				//.setNormalTexture("/textures/sandNormalMap.jpg")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setNormalTexture("/textures/sandNormalMap.jpg")
+				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		MeshObject cubeSnow = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/white.png")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		MeshObject cubeFire = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/8k_venus_surface.jpg")
 				//.setNormalTexture("/textures/sandNormalMap.jpg")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		int segmentSize = 10;
@@ -438,44 +440,9 @@ class TestBench {
 			}
 		}
 
-		DirectionalLight y = new DirectionalLight(
-				new Vec3f(1f, 1f, 1f),
-				Vec3f.Y,
-				0.5f);
 
-		DirectionalLight yn = new DirectionalLight(
-				new Vec3f(1f, 1f, 1f),
-				Vec3f.Y.neg(),
-				0.2f);
 
-		DirectionalLight x = new DirectionalLight(
-				new Vec3f(1f, 1f, 1f),
-				Vec3f.X,
-				0.5f);
-
-		DirectionalLight xn = new DirectionalLight(
-				new Vec3f(1f, 1f, 1f),
-				Vec3f.X.neg(),
-				0.2f);
-
-		DirectionalLight z = new DirectionalLight(
-				new Vec3f(1f, 1f, 1f),
-				Vec3f.Z,
-				0.5f);
-
-		DirectionalLight zn = new DirectionalLight(
-				new Vec3f(1f, 1f, 1f),
-				Vec3f.Z.neg(),
-				0.2f);
-
-		LightSceneGraph lightGameObjectZ = new LightSceneGraph(rootGameObject, z);
-		LightSceneGraph lightGameObjectZn = new LightSceneGraph(rootGameObject, zn);
-		LightSceneGraph lightGameObjectY = new LightSceneGraph(rootGameObject, y);
-		LightSceneGraph lightGameObjectYn = new LightSceneGraph(rootGameObject, yn);
-		LightSceneGraph lightGameObjectX = new LightSceneGraph(rootGameObject, x);
-		LightSceneGraph lightGameObjectXn = new LightSceneGraph(rootGameObject, xn);
-
-		Camera camera = new Camera(new Vec3f(0, 0, size * 2), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(new Vec3f(0, 0, 0), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
 				Vec3f.X.scale(10),
@@ -486,6 +453,32 @@ class TestBench {
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+
+		float width = (size * cubeSize);
+		int space = 50;
+
+		int counter = 0;
+		for (int i = -space; i < width + space; i+= space) {
+			for (int j = -space; j < width + space; j+= space) {
+				for (int k = -space; k < width + space; k+= space) {
+					Transform t = new Transform(
+							new Vec3f(i, j, k),
+							Vec3f.ONE,
+							Matrix4f.Identity
+					);
+					PointLight pointLight = new PointLight(
+							new Vec3f(0.5412f, 0.1f, 0.1f),
+							50
+					);
+					TransformSceneGraph ct = new TransformSceneGraph(rootGameObject, t);
+					LightSceneGraph pointLightSceneObj = new LightSceneGraph(ct, pointLight);
+					counter++;
+				}
+			}
+		}
+
+		System.out.println(counter);
+
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
@@ -500,6 +493,8 @@ class TestBench {
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
 
 			window.init();
+
+			window.getScene().setAmbientLight(new Vec3f(0.9765f/2, 0.8431f/2, 0.1098f/2));
 
 			while (!window.shouldClose()) {
 
@@ -760,9 +755,10 @@ class TestBench {
 				.build();
 
 		MeshObject mesh = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/rock.png")
-				.setNormalTexture("/textures/tangentNormalMap.jpg")
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
+				.setTexture("/textures/brickwall.jpg")
+				.setNormalTexture("/textures/brickwall_normal.jpg")
 				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(1)))
 				.build();
 

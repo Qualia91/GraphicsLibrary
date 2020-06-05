@@ -17,7 +17,7 @@ public class Point implements MeshObject {
 		mesh = new Mesh(
 				new Vertex[] {new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.ONE)}, new int[]{0},
 				material,
-				false);
+				false, false);
 		this.material = material;
 	}
 

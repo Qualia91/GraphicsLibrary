@@ -64,6 +64,14 @@ public class Window implements AutoCloseable {
 
 	}
 
+	public Scene getScene() {
+		return scene;
+	}
+
+	public Scene getHudScene() {
+		return hudScene;
+	}
+
 	public GraphicsLibraryInput getGraphicsLibraryInput() {
 		return graphicsLibraryInput;
 	}

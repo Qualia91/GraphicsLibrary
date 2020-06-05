@@ -92,7 +92,8 @@ public class CubeMesh implements MeshObject {
 		},
 				triangleIndexes,
 				material,
-				invertedNormals);
+				invertedNormals,
+				false);
 	}
 
 	public Mesh getMesh() {

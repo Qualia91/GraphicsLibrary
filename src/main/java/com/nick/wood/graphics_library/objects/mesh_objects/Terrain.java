@@ -130,7 +130,7 @@ public class Terrain implements MeshObject {
 			}
 		}
 
-		return new Mesh(vertex, indices, material, false);
+		return new Mesh(vertex, indices, material, false, false);
 
 	}
 

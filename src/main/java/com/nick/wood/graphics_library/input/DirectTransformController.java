@@ -2,7 +2,9 @@ package com.nick.wood.graphics_library.input;
 
 import com.nick.wood.game_control.input.ActionEnum;
 import com.nick.wood.game_control.input.Control;
+import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.TransformSceneGraph;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 import java.util.HashMap;
@@ -25,6 +27,13 @@ public class DirectTransformController implements Control {
 	}
 
 	public void mouseMove(double dx, double dy, boolean shiftPressed) {
+
+		Matrix4f xRot = Matrix4f.Rotation((float)dx, Vec3f.Z);
+		Matrix4f yRot = Matrix4f.Rotation((float)dy, Vec3f.Y.neg());
+		Matrix4f rot = xRot.multiply(yRot);
+
+		transformSceneGraph.getTransform().setRotation(
+				rot.multiply(transformSceneGraph.getTransform().getRotation()));
 	}
 
 	public void leftLinear() {

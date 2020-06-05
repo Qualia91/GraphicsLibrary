@@ -7,7 +7,7 @@ const int MAX_DIRECTIONAL_LIGHTS = 50;
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;
 in vec3 passVertexPos;
-in mat4 modelViewMatrix;
+in mat3 tbn;
 
 out vec4 outColour;
 
@@ -161,14 +161,14 @@ vec4 calcFog(vec3 pos, vec4 colour, Fog fog) {
     return vec4(resultColour, colour.w);
 }
 
-vec3 calcNormal(Material material, vec3 normal, vec2 text_coord, mat4 modelViewMatrix) {
+vec3 calcNormal(Material material, vec3 normal, vec2 text_coord, mat3 tbnMatrix) {
 
     vec3 newNormal = normal;
 
     if ( material.hasNormalMap == 1 ) {
         newNormal = texture(normal_text_sampler, text_coord).rgb;
-        newNormal = normalize(newNormal * 2.0 - 1.0);
-        newNormal = normalize(modelViewMatrix * vec4(newNormal, 0.0)).xyz;
+        newNormal = newNormal * 2.0 - 1.0;
+        newNormal = normalize(tbnMatrix * newNormal);
     }
 
     return newNormal;
@@ -178,7 +178,7 @@ vec3 calcNormal(Material material, vec3 normal, vec2 text_coord, mat4 modelViewM
 void main() {
     setupColours();
 
-    vec3 newNormal = calcNormal(material, passVertexNormal, passTextureCoord, modelViewMatrix);
+    vec3 newNormal = calcNormal(material, passVertexNormal, passTextureCoord, tbn);
 
     vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
     for (int i=0; i<MAX_POINT_LIGHTS; i++)

@@ -264,7 +264,7 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		int size = 10000;
+		int size = 1000;
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
 		float[][] grid = proceduralGeneration.generateHeightMapChunk(
@@ -284,6 +284,7 @@ class TestBench {
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
 				.setTexture("/textures/terrain.png")
+				.setNormalTexture("/textures/brickwall_normal.jpg")
 				.setCellSpace(2.0)
 				.build();
 
@@ -372,15 +373,17 @@ class TestBench {
 				.build();
 
 		MeshObject cubeSnow = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
 				.setTexture("/textures/white.png")
-				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
 		MeshObject cubeFire = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
 				.setTexture("/textures/8k_venus_surface.jpg")
-				//.setNormalTexture("/textures/sandNormalMap.jpg")
+				.setNormalTexture("/textures/sandNormalMap.jpg")
 				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
@@ -755,11 +758,10 @@ class TestBench {
 				.build();
 
 		MeshObject mesh = new MeshBuilder()
-				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
+				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/brickwall.jpg")
 				.setNormalTexture("/textures/brickwall_normal.jpg")
-				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(1)))
+				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10)))
 				.build();
 
 

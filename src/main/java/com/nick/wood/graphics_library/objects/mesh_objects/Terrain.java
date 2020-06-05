@@ -42,19 +42,12 @@ public class Terrain implements MeshObject {
 		for (int y = 0; y < terrainHeightMap.length; y++) {
 			for (int x = 0; x < terrainHeightMap[y].length; x++) {
 
-				// tex coord based on height
-				Vec2f texCoord = new Vec2f(0.2f, 0.2f);
-				if (terrainHeightMap[x][y] < -0) {
-					texCoord = new Vec2f(0.7f, 0.7f);
-				}
-				else if (terrainHeightMap[x][y] < 30) {
-					texCoord = new Vec2f(0.7f, 0.2f);
-				}
-
 				vertex[y * width + x] =
 						new Vertex(
 								new Vec3f((float) cellSpace * x, (float) cellSpace * y, terrainHeightMap[x][y]),
-								texCoord,
+								new Vec2f((float)x/terrainHeightMap[y].length, (float)y/terrainHeightMap.length),
+								Vec3f.Z,
+								Vec3f.Z,
 								Vec3f.Z);
 			}
 		}
@@ -84,21 +77,31 @@ public class Terrain implements MeshObject {
 				Vec3f norm = normalOne.add(normalTwo).scale(0.5f).normalise();
 
 				vertex[y * width + x].setNormal(norm);
+				vertex[y * width + x].setTangent(up);
+				vertex[y * width + x].setBitangent(left);
 
 				if (y == 1) {
 					vertex[x].setNormal(norm);
+					vertex[x].setTangent(up);
+					vertex[x].setBitangent(left);
 				}
 
 				if (x == 1) {
 					vertex[y * width].setNormal(norm);
+					vertex[y * width].setTangent(up);
+					vertex[y * width].setBitangent(left);
 				}
 
 				if (y == terrainHeightMap.length - 2) {
 					vertex[(y + 1) * width + x].setNormal(norm);
+					vertex[(y + 1) * width + x].setTangent(up);
+					vertex[(y + 1) * width + x].setBitangent(left);
 				}
 
 				if (x == terrainHeightMap[y].length - 2) {
 					vertex[y * width + x + 1].setNormal(norm);
+					vertex[y * width + x + 1].setTangent(up);
+					vertex[y * width + x + 1].setBitangent(left);
 				}
 			}
 		}
@@ -130,7 +133,7 @@ public class Terrain implements MeshObject {
 			}
 		}
 
-		return new Mesh(vertex, indices, material, false, false);
+		return new Mesh(vertex, indices, material, false, true);
 
 	}
 

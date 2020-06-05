@@ -16,14 +16,14 @@ public class Square implements MeshObject {
 	Square(Material material, Matrix4f transformation) {
 		this.transformation = transformation;
 		mesh = new Mesh(new Vertex[] {
-				new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg()),
-				new Vertex(new Vec3f(0.0f,  0.5f,  0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg()),
-				new Vertex(new Vec3f(0.0f,  0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.neg()),
-				new Vertex(new Vec3f(0.0f, -0.5f, -0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg())
+				new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f,  0.5f,  0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f,  0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f, -0.5f, -0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg())
 		}, new int[]{
 				0, 1, 2,
 				3, 0, 2
-		}, material, false, false);
+		}, material, false, true);
 		this.material = material;
 	}
 
@@ -42,6 +42,6 @@ public class Square implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SQUARE" + mesh.getMaterial().getPath();
+		return "SQUARE" + material.getPath();
 	}
 }

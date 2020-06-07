@@ -20,14 +20,13 @@ import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec2i;
 import com.nick.wood.maths.objects.vector.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec4f;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 class TestBench {
 
@@ -171,7 +170,7 @@ class TestBench {
 
 	}
 
-	private void createObject(Vec3f pos, SceneGraphNode parent, MeshObject meshGroup) {
+	private Transform createObject(Vec3f pos, SceneGraphNode parent, MeshObject meshGroup) {
 
 		Transform transformMesh = new Transform(
 				pos,
@@ -186,6 +185,25 @@ class TestBench {
 				meshTransform,
 				meshGroup
 		);
+
+		return transformMesh;
+	}
+
+	private Transform createObject(Vec3f pos, Matrix4f rotation, SceneGraphNode parent, MeshObject meshGroup) {
+
+		Transform transformMesh = new Transform(
+				pos,
+				Vec3f.ONE,
+				rotation
+		);
+
+		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
+		MeshSceneGraph meshGameObject = new MeshSceneGraph(
+				meshTransform,
+				meshGroup
+		);
+
+		return transformMesh;
 	}
 
 	@Test
@@ -264,7 +282,7 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		int size = 1000;
+		int size = 500;
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
 		float[][] grid = proceduralGeneration.generateHeightMapChunk(
@@ -273,22 +291,25 @@ class TestBench {
 				5,
 				2,
 				0.7,
-				1000,
+				100,
 				0,
 				0,
-				20,
+				5,
 				(amp) -> amp * amp
 		);
+
+		SkyBox skyBox = new SkyBox(rootGameObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE);
 
 		MeshObject terrain = new MeshBuilder()
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
-				.setTexture("/textures/terrain.png")
-				.setNormalTexture("/textures/brickwall_normal.jpg")
+				.setTexture("/textures/mars.jpg")
 				.setCellSpace(2.0)
 				.build();
 
 		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(rootGameObject, terrain);
+
+		WaterSceneObject water = new WaterSceneObject(rootGameObject, "/textures/blue.png", size, 0, 2);
 
 		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
@@ -296,15 +317,15 @@ class TestBench {
 
 		DirectionalLight sun = new DirectionalLight(
 				new Vec3f(0.9f, 1.0f, 1.0f),
-				Vec3f.Y,
+				Vec3f.Y.add(Vec3f.Z.neg()),
 				0.5f);
 
 		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, sun);
 
-		Camera camera = new Camera(new Vec3f(size / 2.0f, size / 2.0f, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+		Camera camera = new Camera(Vec3f.ZERO, new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
 		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(10),
+				new Vec3f(size / 2.0f, size / 2.0f, 100.0f),
 				Vec3f.ONE,
 				Matrix4f.Identity
 		);
@@ -313,7 +334,8 @@ class TestBench {
 
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 
-		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+		DirectTransformController directCameraController = new DirectTransformController(cameraTransformGameObject, true, true);
+		//DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
@@ -326,20 +348,11 @@ class TestBench {
 
 			window.init();
 
-			float scaleVal = 0.005f;
-			Vec3f sumMovement = Vec3f.Z.scale(-scaleVal).add(Vec3f.Y.scale(-scaleVal));
-
 			while (!window.shouldClose()) {
 
 				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
-
-				//sun.setDirection(sun.getDirection().add(sumMovement).normalise());
-//
-				//if (sun.getDirection().getZ() < -0.99) {
-				//	sumMovement = Vec3f.Z.scale(scaleVal).add(Vec3f.Y.scale(-scaleVal));
-				//}
 
 			}
 		} catch (Exception exception) {
@@ -986,7 +999,7 @@ class TestBench {
 
 		MeshObject meshGroupY = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/red.png")
+				.setTexture("/textures/blue.png")
 				.build();
 
 		Transform transformMeshY = new Transform(
@@ -1002,7 +1015,7 @@ class TestBench {
 
 		MeshObject meshGroupZ = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/red.png")
+				.setTexture("/textures/green.png")
 				.build();
 
 		Transform transformMeshZ = new Transform(
@@ -1302,4 +1315,107 @@ class TestBench {
 			exception.printStackTrace();
 		}
 	}
+
+	@Test
+	public void reflectionOverAPlane() {
+		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+
+		SceneGraph rootGameObject = new SceneGraph();
+
+		gameObjects.put(rootGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+
+		Transform transform = new Transform(
+				Vec3f.ZERO,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
+
+		createAxis(wholeSceneTransform);
+
+		MeshObject meshGroup = new MeshBuilder()
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
+				.setTexture("/textures/white.png")
+				.build();
+
+		Vec3f pointWeWantToReflect = Vec3f.Z.add(Vec3f.Y).add(Vec3f.X).scale(10);
+		Transform object = createObject(pointWeWantToReflect, Matrix4f.Rotation(-135, Vec3f.X), rootGameObject, meshGroup);
+
+		Vec4f plane = new Vec4f(0, 0, 1, 20);
+		//Transform object = createObject(pointWeWantToReflect.reflectionOverPlane(plane), rootGameObject, meshGroup);
+		Matrix4f matrix = object.getTransform();
+
+		Matrix4f reflectionMatrix = new Matrix4f(
+				1 - (2 * plane.getX() * plane.getX()), -2 * plane.getX() * plane.getY(), -2 * plane.getX() * plane.getZ(), 2 * plane.getX() * plane.getS(),
+				-2 * plane.getX() * plane.getY(), 1 - (2 * plane.getY() * plane.getY()), -2 * plane.getY() * plane.getZ(), 2 * plane.getY() * plane.getS(),
+				-2 * plane.getX() * plane.getZ(), -2 * plane.getY() * plane.getZ(), 1 - (2 * plane.getZ() * plane.getZ()), 2 * plane.getZ() * plane.getS(),
+				0, 0, 0, 1);
+
+		Matrix4f backFaceCullFlip = new Matrix4f(
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, -1, 0,
+				0, 0, 0, 1
+		);
+
+		Matrix4f multiply = backFaceCullFlip.multiply(matrix).multiply(reflectionMatrix);
+
+		Matrix4f rotation = new Matrix4f(
+				multiply.get(0,0), multiply.get(1,0), multiply.get(2,0), 0,
+				multiply.get(0,1), multiply.get(1,1), multiply.get(2,1), 0,
+				multiply.get(0,2), multiply.get(1,2), multiply.get(2,2), 0,
+				0, 0, 0, 1);
+
+
+
+		Transform object2 = createObject(multiply.getTranslation(), rotation, rootGameObject, meshGroup);
+
+		MeshObject point = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.build();
+
+		DirectionalLight directionalLight = new DirectionalLight(
+				new Vec3f(1.0f, 1.0f, 1.0f),
+				new Vec3f(1.0f, 1.0f, 1.0f),
+				1);
+
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(100.0f, 100.0f, 100), Vec3f.ONE, Matrix4f.Identity, point);
+
+		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
+
+		Transform cameraTransform = new Transform(
+				Vec3f.X,
+				Vec3f.ONE,
+				Matrix4f.Identity
+		);
+
+		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
+
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(wholeSceneTransform, camera, CameraType.PRIMARY);
+
+		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
+
+		try (Window window = new Window(
+				1200,
+				800,
+				"")) {
+
+			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
+
+			window.init();
+
+			while (!window.shouldClose()) {
+
+				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+
+				LWJGLGameControlManager.checkInputs();
+
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
+
 }

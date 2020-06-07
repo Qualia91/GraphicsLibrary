@@ -16,10 +16,9 @@ public class SkyBox implements SceneGraphNode {
 		this.skyboxSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.SKYBOX, this);
 
 		skybox = switch (skyboxType) {
-			case CUBE -> new MeshBuilder().setMeshType(MeshType.CUBOID).setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture(skyboxTexture).build();
-			default ->  new MeshBuilder().setMeshType(MeshType.MODEL).setInvertedNormals(true).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture(skyboxTexture).build();
+			case CUBE -> new MeshBuilder().setMeshType(MeshType.CUBOID).setInvertedNormals(false).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture(skyboxTexture).build();
+			default ->  new MeshBuilder().setMeshType(MeshType.MODEL).setInvertedNormals(false).setTransform(Matrix4f.Scale(new Vec3f(10000, 10000, 10000))).setTexture(skyboxTexture).build();
 		};
-
 
 	}
 

@@ -1,5 +1,6 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
@@ -14,6 +15,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.Callback;
@@ -45,10 +47,12 @@ public class Window implements AutoCloseable {
 	private Shader shader;
 	private Shader hudShader;
 	private Shader skyboxShader;
+	private Shader waterShader;
 	private Renderer renderer;
 	private final Matrix4f projectionMatrix;
 
 	private boolean windowSizeChanged = false;
+	private WaterFrameBuffer waterFrameBuffer;
 
 	public Window(int WIDTH, int HEIGHT, String title) {
 
@@ -85,6 +89,7 @@ public class Window implements AutoCloseable {
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		skyboxShader = new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl");
+		waterShader = new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl");
 
 		renderer = new Renderer(this);
 
@@ -169,9 +174,14 @@ public class Window implements AutoCloseable {
 		shader.create();
 		skyboxShader.create();
 		hudShader.create();
+		waterShader.create();
+
+		this.waterFrameBuffer = new WaterFrameBuffer(WIDTH, HEIGHT);
 
 		this.scene.attachShader(shader);
 		this.scene.attachSkyboxShader(skyboxShader);
+		this.scene.attachWaterShader(waterShader);
+		this.scene.addFrameBufferObject(waterFrameBuffer);
 		this.hudScene.attachShader(hudShader);
 
 		hudScene.setAmbientLight(new Vec3f(0.8f, 0.8f, 0.8f));
@@ -233,6 +243,10 @@ public class Window implements AutoCloseable {
 			}
 		}
 
+		scene.render(renderer, WIDTH, HEIGHT);
+		// this makes sure hud is ontop of everything in scene
+		glClear(GL_DEPTH_BUFFER_BIT);
+
 		Iterator<Map.Entry<UUID, SceneGraph>> hudIterator = hudObjects.entrySet().iterator();
 
 		while (hudIterator.hasNext()) {
@@ -250,10 +264,7 @@ public class Window implements AutoCloseable {
 			}
 		}
 
-		scene.render(renderer);
-		// this makes sure hud is ontop of everything in scene
-		glClear(GL_DEPTH_BUFFER_BIT);
-		hudScene.render(renderer);
+		hudScene.render(renderer, WIDTH, HEIGHT);
 		glfwSwapBuffers(window); // swap the color buffers
 
 	}
@@ -265,10 +276,6 @@ public class Window implements AutoCloseable {
 		while (iterator.hasNext()) {
 
 			SceneGraphNode child = iterator.next();
-
-			if (child == null) {
-				System.out.println();
-			}
 
 			switch (child.getSceneGraphNodeData().getType()) {
 
@@ -312,6 +319,28 @@ public class Window implements AutoCloseable {
 							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
 							meshObjects.add(meshInstance);
 							scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
+
+						}
+						createRenderLists(scene, meshGameObject, transformationSoFar);
+					}
+					break;
+				case WATER:
+					if (child.getSceneGraphNodeData().isDelete()) {
+						scene.removeWater(child.getSceneGraphNodeData().getUuid());
+						iterator.remove();
+					} else {
+						WaterSceneObject meshGameObject = (WaterSceneObject) child;
+						if (!meshGameObject.getWater().getMesh().isCreated()) {
+							meshGameObject.getWater().getMesh().create();
+						}
+						if (scene.getWaterMeshes().containsKey(meshGameObject.getWater())) {
+							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+							scene.getWaterMeshes().get(meshGameObject.getWater()).add(meshInstance);
+						} else {
+							ArrayList<InstanceObject> meshObjects = new ArrayList<>();
+							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+							meshObjects.add(meshInstance);
+							scene.getWaterMeshes().put(meshGameObject.getWater(), meshObjects);
 
 						}
 						createRenderLists(scene, meshGameObject, transformationSoFar);
@@ -389,8 +418,12 @@ public class Window implements AutoCloseable {
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);
 
+		waterFrameBuffer.destroy();
+
 		shader.destroy();
 		hudShader.destroy();
+		skyboxShader.destroy();
+		waterShader.destroy();
 		renderer.destroy();
 
 		// Terminate GLFW and free the error callback

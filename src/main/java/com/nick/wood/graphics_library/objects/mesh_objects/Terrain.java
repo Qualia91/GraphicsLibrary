@@ -15,7 +15,6 @@ public class Terrain implements MeshObject {
 	private final Mesh mesh;
 	private final double cellSpace;
 	private final int width;
-	private final int height;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
 	Terrain(float[][] terrainHeightMap, Material material, double cellSpace) {
@@ -24,7 +23,19 @@ public class Terrain implements MeshObject {
 		this.cellSpace = cellSpace;
 		this.material = material;
 		this.width = terrainHeightMap.length;
-		this.height = terrainHeightMap[0].length;
+		this.mesh = buildMesh(terrainHeightMap, cellSpace);
+	}
+
+	// package private so you have to use builder so builder can build mesh's when open gl is initialised
+	Terrain(int size, int height, Material material, double cellSpace) {
+		super();
+		this.terrainHeightMap = new float[size][size];
+		for (float[] floats : this.terrainHeightMap) {
+			Arrays.fill(floats, height);
+		}
+		this.cellSpace = cellSpace;
+		this.material = material;
+		this.width = size;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
 	}
 
@@ -39,13 +50,13 @@ public class Terrain implements MeshObject {
 				];
 
 		// make all vertex's
-		for (int y = 0; y < terrainHeightMap.length; y++) {
-			for (int x = 0; x < terrainHeightMap[y].length; x++) {
+		for (int x = 0; x < terrainHeightMap.length; x++) {
+			for (int y = 0; y < terrainHeightMap[x].length; y++) {
 
 				vertex[y * width + x] =
 						new Vertex(
 								new Vec3f((float) cellSpace * x, (float) cellSpace * y, terrainHeightMap[x][y]),
-								new Vec2f((float)x/terrainHeightMap[y].length, (float)y/terrainHeightMap.length),
+								new Vec2f(1 - ((float)y/terrainHeightMap[y].length), ((float)x/terrainHeightMap.length)),
 								Vec3f.Z,
 								Vec3f.Z,
 								Vec3f.Z);

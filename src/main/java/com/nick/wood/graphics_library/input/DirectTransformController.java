@@ -27,13 +27,6 @@ public class DirectTransformController implements Control {
 	}
 
 	public void mouseMove(double dx, double dy, boolean shiftPressed) {
-
-		Matrix4f xRot = Matrix4f.Rotation((float)dx, Vec3f.Z);
-		Matrix4f yRot = Matrix4f.Rotation((float)dy, Vec3f.Y.neg());
-		Matrix4f rot = xRot.multiply(yRot);
-
-		transformSceneGraph.getTransform().setRotation(
-				rot.multiply(transformSceneGraph.getTransform().getRotation()));
 	}
 
 	public void leftLinear() {

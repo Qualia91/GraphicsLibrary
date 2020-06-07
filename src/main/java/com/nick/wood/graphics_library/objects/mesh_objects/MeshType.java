@@ -7,5 +7,6 @@ public enum MeshType {
 	TEXT,
 	MODEL,
 	TERRAIN,
-	POINT
+	POINT,
+	WATER
 }

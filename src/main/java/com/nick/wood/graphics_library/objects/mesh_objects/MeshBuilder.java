@@ -16,6 +16,8 @@ public class MeshBuilder {
 	private String fontFile = "/font/gothic.png";
 	private int rowNum = 16;
 	private int colNum = 16;
+	private int waterSquareWidth = 100;
+	private int waterHeight = 0;
 	private String modelFile = "D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj";
 	private float[][] terrainHeightMap = new float[][] {
 			{0, 0},
@@ -40,11 +42,20 @@ public class MeshBuilder {
 			case SQUARE -> new Square(material, transformation);
 			case TEXT -> new TextItem(text, fontFile, rowNum, colNum);
 			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);
+			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace);
 			case POINT -> new Point(transformation, material);
 			default -> new SphereMesh(1, new Material("/textures/white.png"), true, Matrix4f.Identity);
 		};
 	}
 
+	public MeshBuilder setWaterSquareWidth(int waterSquareWidth) {
+		this.waterSquareWidth = waterSquareWidth;
+		return this;
+	}
+	public MeshBuilder setWaterHeight(int waterHeight) {
+		this.waterHeight = waterHeight;
+		return this;
+	}
 	public MeshBuilder setModelFile(String modelFile) {
 		this.modelFile = modelFile;
 		return this;

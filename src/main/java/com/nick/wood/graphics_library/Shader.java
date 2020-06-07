@@ -3,6 +3,7 @@ package com.nick.wood.graphics_library;
 import com.nick.wood.graphics_library.utils.FileUtils;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
@@ -65,6 +66,10 @@ public class Shader {
 		matrixBuffer.put(value.getValues()).flip();
 		glUniformMatrix4fv(getUniformLocation(name), true, matrixBuffer);
 		matrixBuffer.clear();
+	}
+
+	public void setUniform(String name, Vec4f vec) {
+		glUniform4f(getUniformLocation(name), vec.getX(), vec.getY(), vec.getZ(), vec.getS());
 	}
 
 	public void setUniform(String name, Vec3f vec) {

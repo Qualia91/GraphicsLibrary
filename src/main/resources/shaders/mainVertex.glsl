@@ -20,13 +20,16 @@ out mat3 tbn;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec4 clippingPlane;
 
 void main() {
-    gl_Position = projection * view * model * vec4(position, 1.0);
+    vec4 worldPos = model * vec4(position, 1.0);
+    gl_ClipDistance[0] = dot(worldPos, clippingPlane);
+    gl_Position = projection * view * worldPos;
     passTextureCoord = textureCoord;
     passVertexNormal = normalize(model * vec4(normal, 0.0)).xyz;
     vec3 passVertexTangent = normalize(model * vec4(tangent, 0.0)).xyz;
     vec3 passVertexBitangent = normalize(model * vec4(bitangent, 0.0)).xyz;
-    passVertexPos = (model * vec4(position, 1.0)).xyz;
+    passVertexPos = worldPos.xyz;
     tbn = mat3(passVertexTangent, passVertexBitangent, passVertexNormal);
 }

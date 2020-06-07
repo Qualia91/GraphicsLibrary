@@ -8,6 +8,7 @@ import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3d;
 import com.nick.wood.maths.objects.vector.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
@@ -97,7 +98,45 @@ public class Renderer {
 
 	}
 
-	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<Light, InstanceObject> lights, Shader shader, Vec3f ambientLight, Fog fog) {
+	public void renderWater(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight, Fog fog) {
+
+		shader.bind();
+
+		shader.setUniform("ambientLight", ambientLight);
+		shader.setUniform("specularPower", 0.5f);
+		shader.setUniform("projection", projectionMatrix);
+
+		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
+		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation().invert()));
+		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+
+		createFog(fog, shader);
+
+		// do all but text
+		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+			if (!(meshObjectArrayListEntry.getKey() instanceof TextItem)) {
+				renderInstance(meshObjectArrayListEntry, shader);
+			}
+		}
+		// do all text ones last as the background wont be see through properly if they dont
+		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+			if ((meshObjectArrayListEntry.getKey() instanceof TextItem)) {
+				renderInstance(meshObjectArrayListEntry, shader);
+			}
+		}
+
+
+		shader.unbind();
+
+	}
+
+	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
+	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
+	                        HashMap<Light, InstanceObject> lights,
+	                        Shader shader,
+	                        Vec3f ambientLight,
+	                        Fog fog,
+	                        Vec4f clippingPlane) {
 
 		shader.bind();
 
@@ -133,6 +172,12 @@ public class Renderer {
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
 		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation().invert()));
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+
+		if (clippingPlane != null) {
+			shader.setUniform("clippingPlane", clippingPlane);
+		} else {
+			shader.setUniform("clippingPlane", Vec4f.ZERO);
+		}
 
 		createFog(fog, shader);
 

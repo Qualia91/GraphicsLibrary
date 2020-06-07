@@ -115,7 +115,7 @@ public class Scene {
 		if (primaryCamera != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
 				if (cameraInstanceObjectEntry.getValue().getUuid().equals(primaryCamera)) {
-					if (waterFrameBuffer != null) {
+					if (waterFrameBuffer != null && waterShader != null && !waterMeshes.isEmpty()) {
 						// move camera down by 2 * height to get reflection
 						Matrix4f newCameraMatrix = backFaceCullFlip.multiply(cameraInstanceObjectEntry.getValue().getTransformation()).multiply(waterCameraReflection);
 						Map.Entry<Camera, InstanceObject> reflectedCamera =

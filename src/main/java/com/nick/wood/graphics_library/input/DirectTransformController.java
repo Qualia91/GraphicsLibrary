@@ -4,6 +4,7 @@ import com.nick.wood.game_control.input.ActionEnum;
 import com.nick.wood.game_control.input.Control;
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.TransformSceneGraph;
+import com.nick.wood.maths.objects.QuaternionF;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
@@ -16,6 +17,8 @@ public class DirectTransformController implements Control {
 	private final HashMap<ActionEnum, Boolean> actions = new HashMap<>();
 	private final boolean enableLook;
 	private final boolean enableMove;
+	private float sensitivity = 0.01f;
+	private float speed = .1f;
 
 	public DirectTransformController(TransformSceneGraph transformSceneGraph, boolean enableLook, boolean enableMove) {
 		this.transformSceneGraph = transformSceneGraph;
@@ -27,42 +30,55 @@ public class DirectTransformController implements Control {
 	}
 
 	public void mouseMove(double dx, double dy, boolean shiftPressed) {
+		if (enableLook) {
+
+			QuaternionF rotationX = QuaternionF.RotationZ((float) -dx * sensitivity);
+			QuaternionF rotationZ = QuaternionF.RotationX((float) -dy * sensitivity);
+
+			// x axis rotation in local frame
+			QuaternionF multiplyGlobalAxisX = rotationX.multiply(transformSceneGraph.getTransform().getRotation()).normalise();
+			// y axis rotation in globals frame
+			QuaternionF multiplyGlobalAxisZ = transformSceneGraph.getTransform().getRotation().multiply(rotationZ).normalise();
+
+			transformSceneGraph.getTransform().setRotation(multiplyGlobalAxisX.add(multiplyGlobalAxisZ).normalise());
+
+		}
 	}
 
 	public void leftLinear() {
 			transformSceneGraph.getTransform().setPosition(
 					transformSceneGraph.getTransform().getPosition()
-							.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Z.neg()).toVec3f()));
+							.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.X.scale(-speed)).toVec3f()));
 	}
 
 	public void rightLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Z).toVec3f()));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.X.scale(speed)).toVec3f()));
 	}
 
 	public void forwardLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.X).toVec3f()));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Z.scale(-speed)).toVec3f()));
 	}
 
 	public void backLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.X.neg()).toVec3f()));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Z.scale(speed)).toVec3f()));
 	}
 
 	public void upLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Y).toVec3f()));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Y.scale(speed)).toVec3f()));
 	}
 
 	public void downLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Y.neg()).toVec3f()));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Y.scale(-speed)).toVec3f()));
 	}
 
 	public void leftRoll() {

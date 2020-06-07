@@ -59,8 +59,7 @@ public class Renderer {
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("projection", projectionMatrix);
-		Matrix4f translation = Matrix4f.Translation(cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
-		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation()));
+		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObject.getMesh().getIbo());
 
@@ -78,7 +77,10 @@ public class Renderer {
 		}
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
-		modelViewBuffer.put(0, meshObject.getMeshTransformation().getRotation().toMatrix().multiply(translation).transpose().getValues());
+
+		Matrix4f transform = Matrix4f.Transform(cameraInstanceObjectEntry.getValue().getTransformation().getTranslation(), meshObject.getMeshTransformation().getRotation().toMatrix(), meshObject.getMeshTransformation().getScale());
+
+		modelViewBuffer.put(0, transform.transpose().getValues());
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
@@ -106,8 +108,8 @@ public class Renderer {
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
-		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
-		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation().invert()));
+		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
+		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 
 		createFog(fog, shader);
@@ -169,8 +171,8 @@ public class Renderer {
 		shader.setUniform("specularPower", 0.5f);
 		shader.setUniform("projection", projectionMatrix);
 
-		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().multiply(cameraInstanceObjectEntry.getKey().getPos()));
-		shader.setUniform("view", cameraInstanceObjectEntry.getKey().getView(cameraInstanceObjectEntry.getValue().getTransformation().invert()));
+		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
+		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 
 		if (clippingPlane != null) {

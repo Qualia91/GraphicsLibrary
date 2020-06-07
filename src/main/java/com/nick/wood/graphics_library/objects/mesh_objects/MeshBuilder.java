@@ -1,7 +1,7 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
 
 public class MeshBuilder {
 
@@ -9,7 +9,7 @@ public class MeshBuilder {
 	private boolean invertedNormals = false;
 	private String texture = "/textures/white.png";
 	private String normalTexture = null;
-	private Matrix4f transformation = Matrix4f.Identity;
+	private Transform transformation = Transform.Identity;
 	private int triangleNumber = 5;
 	private Material material;
 	private String text = "DEFAULT_STRING";
@@ -44,7 +44,7 @@ public class MeshBuilder {
 			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);
 			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace);
 			case POINT -> new Point(transformation, material);
-			default -> new SphereMesh(1, new Material("/textures/white.png"), true, Matrix4f.Identity);
+			default -> new SphereMesh(1, new Material("/textures/white.png"), true, Transform.Identity);
 		};
 	}
 
@@ -92,7 +92,7 @@ public class MeshBuilder {
 		this.normalTexture = normalTexture;
 		return this;
 	};
-	public MeshBuilder setTransform(Matrix4f transformation) {
+	public MeshBuilder setTransform(Transform transformation) {
 		this.transformation = transformation;
 		return this;
 	};

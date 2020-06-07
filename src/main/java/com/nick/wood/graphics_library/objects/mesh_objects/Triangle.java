@@ -3,16 +3,18 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
+import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class Triangle implements MeshObject {
 	
-	private Matrix4f transformation;
+	private Transform transformation;
 	private final Mesh mesh;
 	private final int triangleNumber;
 
-	public Triangle(Matrix4f transform, int triangleNumber, boolean invertedNormals) {
+	public Triangle(Transform transform, int triangleNumber, boolean invertedNormals) {
 
 		this.transformation = transform;
 		this.triangleNumber = triangleNumber;
@@ -113,7 +115,7 @@ public class Triangle implements MeshObject {
 	}
 
 	@Override
-	public Matrix4f getMeshTransformation() {
+	public Transform getMeshTransformation() {
 		return transformation;
 	}
 

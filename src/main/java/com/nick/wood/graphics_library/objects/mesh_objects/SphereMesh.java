@@ -3,6 +3,7 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
@@ -10,9 +11,9 @@ public class SphereMesh implements MeshObject {
 
 	private Mesh mesh;
 	private final int triangleNumber;
-	private Matrix4f meshTransformation;
+	private Transform meshTransformation;
 
-	SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Matrix4f transformation) {
+	SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Transform transformation) {
 		this.triangleNumber = triangleNumber;
 		this.meshTransformation = transformation;
 		int normalSign = invertedNormals ? -1 : 1;
@@ -149,12 +150,12 @@ public class SphereMesh implements MeshObject {
 		return mesh;
 	}
 
-	public void setMeshTransformation(Matrix4f meshTransformation) {
+	public void setMeshTransformation(Transform meshTransformation) {
 		this.meshTransformation = meshTransformation;
 	}
 
 	@Override
-	public Matrix4f getMeshTransformation() {
+	public Transform getMeshTransformation() {
 		return meshTransformation;
 	}
 

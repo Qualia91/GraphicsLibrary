@@ -1,7 +1,7 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -11,10 +11,10 @@ public class ModelMesh implements MeshObject {
 	private final ModelLoader modelLoader = new ModelLoader();
 	private final String filePath;
 	private final Material material;
-	private final Matrix4f transform;
+	private final Transform transform;
 	private Mesh mesh;
 
-	ModelMesh(String filePath, Material material, boolean invertedNormals, Matrix4f transform) {
+	ModelMesh(String filePath, Material material, boolean invertedNormals, Transform transform) {
 
 		this.transform = transform;
 		this.filePath = filePath;
@@ -54,7 +54,7 @@ public class ModelMesh implements MeshObject {
 	}
 
 	@Override
-	public Matrix4f getMeshTransformation() {
+	public Transform getMeshTransformation() {
 		return transform;
 	}
 }

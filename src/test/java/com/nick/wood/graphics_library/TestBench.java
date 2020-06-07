@@ -9,7 +9,6 @@ import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
-import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
 import com.nick.wood.graphics_library.utils.Cell;
 import com.nick.wood.graphics_library.utils.ChunkLoader;
@@ -17,7 +16,10 @@ import com.nick.wood.graphics_library.utils.ProceduralGeneration;
 import com.nick.wood.graphics_library.utils.RecursiveBackTracker;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
+import com.nick.wood.maths.objects.QuaternionF;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
+import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec2i;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -39,14 +41,8 @@ class TestBench {
 
 		Camera camera = new Camera(new Vec3f(-10.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(-10),
-				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
-		);
+		Transform cameraTransform = new TransformBuilder()
+				.setPosition(Vec3f.X.scale(-10)).build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
@@ -80,21 +76,19 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		Transform transform = new Transform(
-				Vec3f.X.scale(0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
-		);
+		TransformBuilder transformBuilder = new TransformBuilder();
+
+		Transform transform = transformBuilder
+				.setPosition(Vec3f.X.scale(0)).build();
 
 
 		MeshObject meshGroup = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
 				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
 				.setTexture("/textures/white.png")
-				.setTransform(Matrix4f.Rotation(-90, Vec3f.X))
+				.setTransform(transformBuilder
+						.setPosition(Vec3f.ZERO)
+						.setRotation(QuaternionF.RotationX(-90)).build())
 				.build();
 
 
@@ -126,9 +120,9 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10f), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), Matrix4f.Rotation(0.0f, Vec3f.Y), meshGroupLight);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);
+		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 
 		Camera camera = new Camera(new Vec3f(0.0f, 0.0f, 10.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
@@ -172,14 +166,9 @@ class TestBench {
 
 	private Transform createObject(Vec3f pos, SceneGraphNode parent, MeshObject meshGroup) {
 
-		Transform transformMesh = new Transform(
-				pos,
-				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Y))
-				//.multiply(Matrix4f.Rotation(90, Vec3f.Z))
-		);
+		Transform transformMesh = new TransformBuilder()
+				.setPosition(pos).build();
+
 		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
 		MeshSceneGraph meshGameObject = new MeshSceneGraph(
 				meshTransform,
@@ -189,13 +178,12 @@ class TestBench {
 		return transformMesh;
 	}
 
-	private Transform createObject(Vec3f pos, Matrix4f rotation, SceneGraphNode parent, MeshObject meshGroup) {
+	private Transform createObject(Vec3f pos, QuaternionF rotation, SceneGraphNode parent, MeshObject meshGroup) {
 
-		Transform transformMesh = new Transform(
-				pos,
-				Vec3f.ONE,
-				rotation
-		);
+		Transform transformMesh = new TransformBuilder()
+				.setPosition(pos)
+				.setRotation(rotation)
+				.build();
 
 		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
 		MeshSceneGraph meshGameObject = new MeshSceneGraph(
@@ -229,11 +217,8 @@ class TestBench {
 
 		Camera camera = new Camera(new Vec3f(size, size, 100.0f), new Vec3f(0.0f, 0.0f, 0.0f), 10f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(10),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = new TransformBuilder()
+				.setPosition(Vec3f.X.scale(10)).build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
@@ -324,11 +309,8 @@ class TestBench {
 
 		Camera camera = new Camera(Vec3f.ZERO, new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				new Vec3f(size / 2.0f, size / 2.0f, 100.0f),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = new TransformBuilder()
+				.setPosition(new Vec3f(size / 2.0f, size / 2.0f, 100.0f)).build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
@@ -369,6 +351,8 @@ class TestBench {
 
 		int cubeSize = 2;
 
+		TransformBuilder transformBuilder = new TransformBuilder();
+
 		MeshObject cubeSand = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
 				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
@@ -389,7 +373,7 @@ class TestBench {
 				.setMeshType(MeshType.MODEL)
 				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
 				.setTexture("/textures/white.png")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setTransform(transformBuilder.setScale(new Vec3f(cubeSize, cubeSize, cubeSize)).build())
 				.build();
 
 		MeshObject cubeFire = new MeshBuilder()
@@ -414,11 +398,9 @@ class TestBench {
 
 					if (point < (weight * weight * weight * weight)) {
 
-						Transform transform = new Transform(
-								new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize),
-								Vec3f.ONE,
-								Matrix4f.Identity
-						);
+						Transform transform = transformBuilder
+								.setPosition(new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize))
+								.setScale(Vec3f.ONE).build();
 
 						TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootGameObject, transform);
 
@@ -438,11 +420,8 @@ class TestBench {
 
 				for (int k = 0; k < point; k++) {
 
-					Transform transform = new Transform(
-							new Vec3f(i * cubeSize, j * cubeSize, (k + size) * cubeSize),
-							Vec3f.ONE,
-							Matrix4f.Identity
-					);
+					Transform transform = transformBuilder
+							.setPosition(new Vec3f(i * cubeSize, j * cubeSize, (k + size) * cubeSize)).build();
 
 					TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootGameObject, transform);
 
@@ -460,11 +439,8 @@ class TestBench {
 
 		Camera camera = new Camera(new Vec3f(0, 0, 0), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(10),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = transformBuilder
+				.setPosition(Vec3f.X.scale(10)).build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
@@ -477,11 +453,9 @@ class TestBench {
 		for (int i = -space; i < width + space; i+= space) {
 			for (int j = -space; j < width + space; j+= space) {
 				for (int k = -space; k < width + space; k+= space) {
-					Transform t = new Transform(
-							new Vec3f(i, j, k),
-							Vec3f.ONE,
-							Matrix4f.Identity
-					);
+					Transform t = transformBuilder
+							.setPosition(new Vec3f(i, j, k)).build();
+
 					PointLight pointLight = new PointLight(
 							new Vec3f(0.5412f, 0.1f, 0.1f),
 							50
@@ -492,9 +466,6 @@ class TestBench {
 				}
 			}
 		}
-
-		System.out.println(counter);
-
 
 		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
 
@@ -536,28 +507,31 @@ class TestBench {
 
 		int cubeSize = 1;
 
+		TransformBuilder transformBuilder = new TransformBuilder();
+
 		MeshObject cubeSand = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/sand_blocky.jpg")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setTransform(transformBuilder
+						.setScale(new Vec3f(cubeSize, cubeSize, cubeSize)).build())
 				.build();
 
 		MeshObject cubeGrass = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/grass.png")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setTransform(transformBuilder.build())
 				.build();
 
 		MeshObject cubeSnow = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/white.png")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setTransform(transformBuilder.build())
 				.build();
 
 		MeshObject cubeFire = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/8k_venus_surface.jpg")
-				.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
+				.setTransform(transformBuilder.build())
 				.build();
 
 		int segmentSize = 10;
@@ -577,11 +551,8 @@ class TestBench {
 
 		Camera camera = new Camera(cameraStartPos, new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.ZERO,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = transformBuilder
+				.setScale(Vec3f.ONE).build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
@@ -678,6 +649,8 @@ class TestBench {
 		Vec3f bottomCornerToLoad = center.add(cullCube.scale(-0.5f));
 		Vec3f topCornerToLoad = bottomCornerToLoad.add(cullCube);
 
+		TransformBuilder transformBuilder = new TransformBuilder();
+
 		for (int i = (int) bottomCornerToLoad.getX(); i < topCornerToLoad.getX(); i++) {
 			for (int j = (int) bottomCornerToLoad.getY(); j < topCornerToLoad.getY(); j++) {
 				for (int k = (int) bottomCornerToLoad.getZ(); k < topCornerToLoad.getZ(); k++) {
@@ -705,11 +678,8 @@ class TestBench {
 
 									SceneGraph sceneGraph = new SceneGraph();
 
-									Transform transform = new Transform(
-											new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize),
-											Vec3f.ONE,
-											Matrix4f.Identity
-									);
+									Transform transform = transformBuilder
+											.setPosition(new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize)).build();
 
 									TransformSceneGraph transformSceneGraph = new TransformSceneGraph(sceneGraph, transform);
 
@@ -738,20 +708,15 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		Transform hudTransform = new Transform(
-				Vec3f.X,
-				Vec3f.ONE.scale(10),
-				Matrix4f.Identity
-		);
+		TransformBuilder transformBuilder = new TransformBuilder();
 
-		Transform transform = new Transform(
-				Vec3f.X.scale(0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-				//Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
-		);
+		Transform hudTransform = transformBuilder
+				.setPosition(Vec3f.X)
+				.setScale(Vec3f.ONE.scale(10)).build();
+
+		Transform transform = transformBuilder
+				.setPosition(Vec3f.ZERO)
+				.setScale(Vec3f.ONE).build();
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
@@ -767,14 +732,15 @@ class TestBench {
 				.setMeshType(MeshType.MODEL)
 				.setInvertedNormals(true)
 				.setTexture("/textures/mars.jpg")
-				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10)))
+				.setTransform(transformBuilder
+						.setScale(Vec3f.ONE).build())
 				.build();
 
 		MeshObject mesh = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/brickwall.jpg")
 				.setNormalTexture("/textures/brickwall_normal.jpg")
-				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE.scale(10)))
+				.setTransform(transformBuilder.build())
 				.build();
 
 
@@ -795,20 +761,17 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), Matrix4f.Rotation(0.0f, Vec3f.Y), meshGroupLight);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), Matrix4f.Identity, meshGroupLight);
+		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 
 		Camera camera = new Camera(new Vec3f(-50.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(10),
-				Vec3f.ONE,
-				//Matrix4f.Identity
-				Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
-		);
+		Transform cameraTransform = transformBuilder
+				.setPosition(Vec3f.X.scale(10))
+				.setRotation(QuaternionF.RotationX(90))
+				.setScale(Vec3f.ONE)
+				.build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
@@ -840,94 +803,6 @@ class TestBench {
 			exception.printStackTrace();
 		}
 
-	}
-
-	@Test
-	public void wgs84() {
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
-
-		SceneGraph rootGameObject = new SceneGraph();
-
-		Transform transform = new Transform(
-				Vec3f.X.scale(0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
-
-		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
-
-
-		//new Vec3f(-90.0f, 180.0f, 90.0f)
-
-		Matrix4f multiply = Matrix4f.Rotation(-90, Vec3f.X).multiply(Matrix4f.Rotation(180, Vec3f.Y)).multiply(Matrix4f.Rotation(90, Vec3f.Z));
-
-		//MeshObject earth = new MeshBuilder()
-		//		.setMeshType(MeshType.MODEL)
-		//		.setInvertedNormals(false)
-		//		.setTexture("/textures/worldHeightMapUpsideDown.png")
-		//		.setTransform(Matrix4f.Transform(Vec3f.ZERO, multiply, Vec3f.ONE.scale(10)))
-		//		.build();
-//
-		//MeshSceneGraph meshSceneGraph = new MeshSceneGraph(wholeSceneTransform, earth);
-
-
-		MeshObject meshGroupLight = new MeshBuilder()
-				.setMeshType(MeshType.MODEL)
-				.setInvertedNormals(true)
-				.setTexture("/textures/mars.jpg")
-				.setTransform(Matrix4f.Transform(Vec3f.ZERO, Matrix4f.Identity, Vec3f.ONE))
-				.build();
-
-		PointLight pointLight = new PointLight(
-				new Vec3f(1.0f, 1.0f, 1.0f),
-				1000f);
-
-		createLight(pointLight, wholeSceneTransform, new Vec3f(50.0f, 0.0f, 0), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLight, wholeSceneTransform, new Vec3f(-50.0f, 0.0f, 0), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 50.0f, 0), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, -50.0f, 0), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, 50), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -50), Vec3f.ONE, Matrix4f.Identity, meshGroupLight);
-
-		Camera camera = new Camera(new Vec3f(-50.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
-
-		Transform cameraTransform = new Transform(
-				Vec3f.X.scale(10),
-				Vec3f.ONE,
-				//Matrix4f.Identity
-				Matrix4f.Rotation(90, Vec3f.X)
-				//Matrix4f.Rotation(90, Vec3f.Y)
-				//Matrix4f.Rotation(90, Vec3f.Z)
-		);
-
-		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
-
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
-
-		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
-
-
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
-
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
-
-			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
-
-			window.init();
-
-			while (!window.shouldClose()) {
-
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
-
-				LWJGLGameControlManager.checkInputs();
-
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
 	}
 
 	/*@Test
@@ -981,16 +856,17 @@ class TestBench {
 
 	private void createAxis(TransformSceneGraph wholeSceneTransform) {
 
+		TransformBuilder transformBuilder = new TransformBuilder();
+
 		MeshObject meshGroupX = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/red.png")
 				.build();
 
-		Transform transformMeshX = new Transform(
-				Vec3f.X.scale(5),
-				Vec3f.ONE.scale(0.1f).add(Vec3f.X.scale(10)),
-				Matrix4f.Identity
-		);
+		Transform transformMeshX = transformBuilder
+				.setPosition(Vec3f.X.scale(5))
+				.setScale(Vec3f.ONE.scale(0.1f).add(Vec3f.X.scale(10)))
+				.build();
 		TransformSceneGraph meshTransformX = new TransformSceneGraph(wholeSceneTransform, transformMeshX);
 		MeshSceneGraph meshGameObjectX = new MeshSceneGraph(
 				meshTransformX,
@@ -1002,11 +878,10 @@ class TestBench {
 				.setTexture("/textures/blue.png")
 				.build();
 
-		Transform transformMeshY = new Transform(
-				Vec3f.Y.scale(5),
-				Vec3f.ONE.scale(0.1f).add(Vec3f.Y.scale(10)),
-				Matrix4f.Identity
-		);
+		Transform transformMeshY = transformBuilder
+				.setRotation(QuaternionF.RotationZ(90))
+				.build();
+
 		TransformSceneGraph meshTransformY = new TransformSceneGraph(wholeSceneTransform, transformMeshY);
 		MeshSceneGraph meshGameObjectY = new MeshSceneGraph(
 				meshTransformY,
@@ -1018,11 +893,10 @@ class TestBench {
 				.setTexture("/textures/green.png")
 				.build();
 
-		Transform transformMeshZ = new Transform(
-				Vec3f.Z.scale(5),
-				Vec3f.ONE.scale(0.1f).add(Vec3f.Z.scale(10)),
-				Matrix4f.Identity
-		);
+		Transform transformMeshZ = transformBuilder
+				.setRotation(QuaternionF.RotationX(90))
+				.build();
+
 		TransformSceneGraph meshTransformZ = new TransformSceneGraph(wholeSceneTransform, transformMeshZ);
 		MeshSceneGraph meshGameObjectZ = new MeshSceneGraph(
 				meshTransformZ,
@@ -1030,13 +904,17 @@ class TestBench {
 		);
 	}
 
-	private void createLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale, Matrix4f
-			rotation, MeshObject meshGroup) {
-		Transform lightGameObjectTransform = new Transform(
+	private void createLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale,
+	                         QuaternionF rotation, MeshObject meshGroup) {
+
+		TransformBuilder transformBuilder = new TransformBuilder(
 				position,
 				scale,
 				rotation
 		);
+
+		Transform lightGameObjectTransform = transformBuilder.build();
+
 		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
 		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
 		MeshSceneGraph meshGameObject = new MeshSceneGraph(
@@ -1061,17 +939,15 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		Transform hudTransform = new Transform(
-				Vec3f.X,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		TransformBuilder transformBuilder = new TransformBuilder();
 
-		Transform transform = new Transform(
-				Vec3f.X.scale(0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform hudTransform = transformBuilder
+				.setPosition(Vec3f.X)
+				.build();
+
+		Transform transform = transformBuilder
+				.setPosition(Vec3f.ZERO)
+				.build();
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
@@ -1098,17 +974,15 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, Matrix4f.Identity, point);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, point);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
 
 		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = transformBuilder
+				.setPosition(Vec3f.X)
+				.build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
@@ -1147,21 +1021,11 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		Transform hudTransform = new Transform(
-				Vec3f.X,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		TransformBuilder transformBuilder = new TransformBuilder();
 
-		Transform transform = new Transform(
-				Vec3f.X.scale(0),
-				Vec3f.ONE.scale(3),
-				Matrix4f.Identity
-		);
+		Transform transform = transformBuilder.build();
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
-
-		TransformSceneGraph hudTransformGameObject = new TransformSceneGraph(rootGameObject, hudTransform);
 
 		MeshObject point = new MeshBuilder()
 				.setMeshType(MeshType.POINT)
@@ -1184,17 +1048,14 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, Matrix4f.Identity, point);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, Matrix4f.Identity, point);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
+		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
 
 		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = transformBuilder
+				.setPosition(Vec3f.X).build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
@@ -1220,10 +1081,8 @@ class TestBench {
 
 			for (int j = -1; j < height * 2 + 1; j += 2) {
 
-				Transform cellTransformcell = new Transform(
-						new Vec3f(i, j, 0),
-						Vec3f.ONE,
-						Matrix4f.Identity);
+				Transform cellTransformcell = transformBuilder
+						.setPosition(new Vec3f(i, j, 0)).build();
 
 				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
@@ -1243,10 +1102,8 @@ class TestBench {
 
 			if (!cell.getPathDirections().contains(north)) {
 
-				Transform cellTransformcell = new Transform(
-						new Vec3f((cell.getPosition().getX() * 2), (cell.getPosition().getY() * 2) - 1, 0),
-						Vec3f.ONE,
-						Matrix4f.Identity);
+				Transform cellTransformcell = transformBuilder
+						.setPosition(new Vec3f((cell.getPosition().getX() * 2), (cell.getPosition().getY() * 2) - 1, 0)).build();
 
 				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
@@ -1256,10 +1113,8 @@ class TestBench {
 
 			if (!cell.getPathDirections().contains(south)) {
 
-				Transform cellTransformcell = new Transform(
-						new Vec3f((cell.getPosition().getX() * 2), (cell.getPosition().getY() * 2) + 1, 0),
-						Vec3f.ONE,
-						Matrix4f.Identity);
+				Transform cellTransformcell = transformBuilder
+						.setPosition(new Vec3f((cell.getPosition().getX() * 2), (cell.getPosition().getY() * 2) + 1, 0)).build();
 
 				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
@@ -1269,10 +1124,8 @@ class TestBench {
 
 			if (!cell.getPathDirections().contains(west) && !cell.getPosition().equals(Vec2i.ZERO)) {
 
-				Transform cellTransformcell = new Transform(
-						new Vec3f((cell.getPosition().getX() * 2) - 1, (cell.getPosition().getY() * 2), 0),
-						Vec3f.ONE,
-						Matrix4f.Identity);
+				Transform cellTransformcell = transformBuilder
+						.setPosition(new Vec3f((cell.getPosition().getX() * 2) - 1, (cell.getPosition().getY() * 2), 0)).build();
 
 				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
@@ -1282,10 +1135,8 @@ class TestBench {
 
 			if (!cell.getPathDirections().contains(east) && !cell.getPosition().equals(new Vec2i(width - 1, height - 1))) {
 
-				Transform cellTransformcell = new Transform(
-						new Vec3f((cell.getPosition().getX() * 2) + 1, (cell.getPosition().getY() * 2), 0),
-						Vec3f.ONE,
-						Matrix4f.Identity);
+				Transform cellTransformcell = transformBuilder
+						.setPosition(new Vec3f((cell.getPosition().getX() * 2) + 1, (cell.getPosition().getY() * 2), 0)).build();
 
 				TransformSceneGraph transformSceneGraphcell = new TransformSceneGraph(wholeSceneTransform, cellTransformcell);
 
@@ -1316,7 +1167,7 @@ class TestBench {
 		}
 	}
 
-	@Test
+	/*@Test
 	public void reflectionOverAPlane() {
 		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
 
@@ -1324,11 +1175,9 @@ class TestBench {
 
 		gameObjects.put(rootGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
-		Transform transform = new Transform(
-				Vec3f.ZERO,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		TransformBuilder transformBuilder = new TransformBuilder();
+
+		Transform transform = transformBuilder.build();
 
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
@@ -1341,11 +1190,11 @@ class TestBench {
 				.build();
 
 		Vec3f pointWeWantToReflect = Vec3f.Z.add(Vec3f.Y).add(Vec3f.X).scale(10);
-		Transform object = createObject(pointWeWantToReflect, Matrix4f.Rotation(-135, Vec3f.X), rootGameObject, meshGroup);
+		Transform object = createObject(pointWeWantToReflect, QuaternionF.RotationX(-135), rootGameObject, meshGroup);
 
 		Vec4f plane = new Vec4f(0, 0, 1, 20);
 		//Transform object = createObject(pointWeWantToReflect.reflectionOverPlane(plane), rootGameObject, meshGroup);
-		Matrix4f matrix = object.getTransform();
+		Matrix4f matrix = object.getSRT();
 
 		Matrix4f reflectionMatrix = new Matrix4f(
 				1 - (2 * plane.getX() * plane.getX()), -2 * plane.getX() * plane.getY(), -2 * plane.getX() * plane.getZ(), 2 * plane.getX() * plane.getS(),
@@ -1381,15 +1230,15 @@ class TestBench {
 				new Vec3f(1.0f, 1.0f, 1.0f),
 				1);
 
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(100.0f, 100.0f, 100), Vec3f.ONE, Matrix4f.Identity, point);
+		createLight(directionalLight, wholeSceneTransform, new Vec3f(100.0f, 100.0f, 100), Vec3f.ONE, QuaternionF.Identity, point);
 
 		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
 
-		Transform cameraTransform = new Transform(
-				Vec3f.X,
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform cameraTransform = transformBuilder
+				.setPosition(Vec3f.X)
+				.setScale(Vec3f.ONE)
+				.setRotation(QuaternionF.Identity)
+				.build();
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 
@@ -1417,5 +1266,5 @@ class TestBench {
 			exception.printStackTrace();
 		}
 	}
-
+*/
 }

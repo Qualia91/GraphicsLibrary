@@ -2,13 +2,13 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.graphics_library.Vertex;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class CubeMesh implements MeshObject {
 
-	private Matrix4f transformation;
+	private Transform transformation;
 	private final Mesh mesh;
 
 	private int[] triangleIndexes = new int[]{
@@ -37,7 +37,7 @@ public class CubeMesh implements MeshObject {
 			23, 21, 22
 	};
 
-	CubeMesh(Material material, boolean invertedNormals, Matrix4f transform) {
+	CubeMesh(Material material, boolean invertedNormals, Transform transform) {
 		this.transformation = transform;
 		int normalSign = 1;
 		if (invertedNormals) {
@@ -101,11 +101,11 @@ public class CubeMesh implements MeshObject {
 	}
 
 	@Override
-	public Matrix4f getMeshTransformation() {
+	public Transform getMeshTransformation() {
 		return transformation;
 	}
 
-	public void setTransformation(Matrix4f transformation) {
+	public void setTransformation(Transform transformation) {
 		this.transformation = transformation;
 	}
 

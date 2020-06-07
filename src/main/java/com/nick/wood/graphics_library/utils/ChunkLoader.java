@@ -1,6 +1,5 @@
 package com.nick.wood.graphics_library.utils;
 
-import com.nick.wood.graphics_library.objects.Transform;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
@@ -9,7 +8,9 @@ import com.nick.wood.graphics_library.objects.scene_graph_objects.SceneGraph;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.SceneGraphNode;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.TransformSceneGraph;
 import com.nick.wood.maths.noise.Perlin2Df;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.QuaternionF;
+import com.nick.wood.maths.objects.srt.Transform;
+import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 import java.util.ArrayList;
@@ -175,11 +176,8 @@ public class ChunkLoader {
 
 	private void addToScene(MeshObject meshObject, ChunkIndex chunkIndex) {
 
-		Transform transform = new Transform(
-				new Vec3f(chunkIndex.getX() * chunkSize * cellSpace, chunkIndex.getY() * chunkSize * cellSpace, 0),
-				Vec3f.ONE,
-				Matrix4f.Identity
-		);
+		Transform transform = new TransformBuilder()
+				.setPosition(new Vec3f(chunkIndex.getX() * chunkSize * cellSpace, chunkIndex.getY() * chunkSize * cellSpace, 0)).build();
 
 		TransformSceneGraph transformSceneGraph = new TransformSceneGraph(sceneGraph, transform);
 

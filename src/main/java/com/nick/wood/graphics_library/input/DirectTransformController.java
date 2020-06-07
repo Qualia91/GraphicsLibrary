@@ -32,37 +32,37 @@ public class DirectTransformController implements Control {
 	public void leftLinear() {
 			transformSceneGraph.getTransform().setPosition(
 					transformSceneGraph.getTransform().getPosition()
-							.add(transformSceneGraph.getTransform().getRotation().multiply(Vec3f.Z.neg())));
+							.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Z.neg()).toVec3f()));
 	}
 
 	public void rightLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().multiply(Vec3f.Z)));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Z).toVec3f()));
 	}
 
 	public void forwardLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().multiply(Vec3f.X)));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.X).toVec3f()));
 	}
 
 	public void backLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().multiply(Vec3f.X.neg())));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.X.neg()).toVec3f()));
 	}
 
 	public void upLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().multiply(Vec3f.Y)));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Y).toVec3f()));
 	}
 
 	public void downLinear() {
 		transformSceneGraph.getTransform().setPosition(
 				transformSceneGraph.getTransform().getPosition()
-						.add(transformSceneGraph.getTransform().getRotation().multiply(Vec3f.Y.neg())));
+						.add(transformSceneGraph.getTransform().getRotation().rotateVector(Vec3f.Y.neg()).toVec3f()));
 	}
 
 	public void leftRoll() {

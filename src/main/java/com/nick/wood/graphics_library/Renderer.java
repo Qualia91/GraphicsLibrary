@@ -78,7 +78,7 @@ public class Renderer {
 		}
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
-		modelViewBuffer.put(0, meshObject.getMeshTransformation().multiply(translation).transpose().getValues());
+		modelViewBuffer.put(0, meshObject.getMeshTransformation().getRotation().toMatrix().multiply(translation).transpose().getValues());
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
@@ -235,7 +235,7 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
-			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().multiply(instanceObject.getTransformation()).transpose().getValues());
+			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
 			index++;
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);

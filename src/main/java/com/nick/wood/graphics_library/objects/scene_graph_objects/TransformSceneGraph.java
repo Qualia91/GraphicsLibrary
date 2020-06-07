@@ -1,7 +1,8 @@
 package com.nick.wood.graphics_library.objects.scene_graph_objects;
 
-import com.nick.wood.graphics_library.objects.Transform;
+import com.nick.wood.maths.objects.QuaternionF;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class TransformSceneGraph implements SceneGraphNode {
@@ -17,7 +18,7 @@ public class TransformSceneGraph implements SceneGraphNode {
 
 	public Matrix4f getTransformForRender() {
 		changedSinceRender = false;
-		return transform.getTransform();
+		return transform.getSRT();
 	}
 
 	public void setPosition(Vec3f pos) {
@@ -25,7 +26,7 @@ public class TransformSceneGraph implements SceneGraphNode {
 		transform.setPosition(pos);
 	}
 
-	public void setRotation(Matrix4f rot) {
+	public void setRotation(QuaternionF rot) {
 		changedSinceRender = true;
 		transform.setRotation(rot);
 	}

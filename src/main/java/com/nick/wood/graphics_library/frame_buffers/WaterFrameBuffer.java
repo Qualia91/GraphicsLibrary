@@ -75,6 +75,7 @@ public class WaterFrameBuffer {
 	private int createFrameBuffer() {
 		// create
 		int frameBuffer = GL30.glGenFramebuffers();
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		// bind
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBuffer);
 		// create draw buffers (just colour this one)

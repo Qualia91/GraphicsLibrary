@@ -12,6 +12,7 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengles.GLES20;
 
 import java.util.*;
 
@@ -32,8 +33,8 @@ public class Scene {
 	private Shader waterShader;
 	private WaterFrameBuffer waterFrameBuffer;
 
-	private final Vec4f reflectionClippingPlane = new Vec4f(0, 0, -1, -0.1f);
-	private final Vec4f refractionClippingPlane = new Vec4f(0, 0, 1, 0.1f);
+	private final Vec4f reflectionClippingPlane = new Vec4f(0, 0, 1, -0.1f);
+	private final Vec4f refractionClippingPlane = new Vec4f(0, 0, -1, -0.1f);
 
 	private final Matrix4f waterCameraReflection;
 
@@ -116,29 +117,31 @@ public class Scene {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
 				if (cameraInstanceObjectEntry.getValue().getUuid().equals(primaryCamera)) {
 					if (waterFrameBuffer != null && waterShader != null && !waterMeshes.isEmpty()) {
+
 						// move camera down by 2 * height to get reflection
-						Matrix4f newCameraMatrix = backFaceCullFlip.multiply(cameraInstanceObjectEntry.getValue().getTransformation()).multiply(waterCameraReflection);
+						Matrix4f newCameraMatrix = cameraInstanceObjectEntry.getValue().getTransformation().multiply(waterCameraReflection);
 						Map.Entry<Camera, InstanceObject> reflectedCamera =
 								new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
 										new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
 						waterFrameBuffer.bindReflectionFrameBuffer();
 						renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane);
 						waterFrameBuffer.bindRefractionFrameBuffer();
-						renderSceneToBuffer(renderer, reflectedCamera, refractionClippingPlane);
+						renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane);
 						waterFrameBuffer.unbindCurrentFrameBuffer(width, height);
+
 					}
 					if (skyboxShader != null && skybox != null) {
+						GL11.glDisable(GLES20.GL_CULL_FACE);
 						renderer.renderSkybox(skybox, cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
+						GL11.glEnable(GLES20.GL_CULL_FACE);
+						GL11.glCullFace(GLES20.GL_BACK);
 					}
 					if (waterShader != null) {
-						waterMeshes.forEach((meshObject, instanceObjects) -> {
-							meshObject.getMesh().getMaterial().getTexture().setId(waterFrameBuffer.getReflectionTexture());
-						});
-						renderer.renderWater(waterMeshes, cameraInstanceObjectEntry, waterShader, skyboxAmbientLight, fog);
+						renderer.renderWater(waterMeshes, cameraInstanceObjectEntry, waterShader, skyboxAmbientLight, fog, waterFrameBuffer.getReflectionTexture(), waterFrameBuffer.getRefractionTexture());
 					}
 					if (shader != null) {
-						GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-						renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight, fog, null);
+						//GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+						//renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight, fog, null);
 					}
 					break;
 				}
@@ -159,7 +162,13 @@ public class Scene {
 		// this clips everything under the water
 		GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 		if (skyboxShader != null && skybox != null) {
+
+			//GL11.glDisable(GLES20.GL_CULL_FACE);
+
 			renderer.renderSkybox(skybox, cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
+
+			//GL11.glEnable(GLES20.GL_CULL_FACE);
+			//GL11.glCullFace(GLES20.GL_BACK);
 		}
 		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight, fog, clippingPlane);
 	}

@@ -100,7 +100,13 @@ public class Renderer {
 
 	}
 
-	public void renderWater(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight, Fog fog) {
+	public void renderWater(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
+	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
+	                        Shader shader,
+	                        Vec3f ambientLight,
+	                        Fog fog,
+	                        int reflectionTexture,
+	                        int refractionTexture) {
 
 		shader.bind();
 
@@ -114,22 +120,64 @@ public class Renderer {
 
 		createFog(fog, shader);
 
-		// do all but text
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			if (!(meshObjectArrayListEntry.getKey() instanceof TextItem)) {
-				renderInstance(meshObjectArrayListEntry, shader);
-			}
-		}
 		// do all text ones last as the background wont be see through properly if they dont
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			if ((meshObjectArrayListEntry.getKey() instanceof TextItem)) {
-				renderInstance(meshObjectArrayListEntry, shader);
-			}
+			renderWaterMesh(meshObjectArrayListEntry, shader, reflectionTexture, refractionTexture);
 		}
 
 
 		shader.unbind();
 
+	}
+
+	public void renderWaterMesh(Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry,
+	                            Shader shader, int reflectionTexture, int refractionTexture) {
+		meshObjectArrayListEntry.getKey().getMesh().initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
+
+		// bind texture
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, reflectionTexture);
+		shader.setUniform("reflectionTexture", 0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
+		shader.setUniform("refractionTexture", 1);
+
+		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());
+		shader.setUniform("material.specular", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getSpecularColour());
+		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
+		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
+
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		int start = 3;
+		for (int i = 0; i < 4; i++) {
+			glEnableVertexAttribArray(start);
+			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+			glVertexAttribDivisor(start, 1);
+			start++;
+		}
+
+		int index = 0;
+
+		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
+			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+			index++;
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
+		MemoryUtil.memFree(modelViewBuffer);
+
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
+
+		// clean up
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		meshObjectArrayListEntry.getKey().getMesh().endRender();
 	}
 
 	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,

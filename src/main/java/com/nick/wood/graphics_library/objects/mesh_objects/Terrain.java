@@ -56,7 +56,8 @@ public class Terrain implements MeshObject {
 				vertex[y * width + x] =
 						new Vertex(
 								new Vec3f((float) cellSpace * x, (float) cellSpace * y, terrainHeightMap[x][y]),
-								new Vec2f(1 - ((float)y/terrainHeightMap[y].length), ((float)x/terrainHeightMap.length)),
+								new Vec2f(1 - ((float)y/terrainHeightMap[y].length), 1 - ((float)x/terrainHeightMap.length)),
+								//new Vec2f((float)y/terrainHeightMap[x].length, (float)x/terrainHeightMap.length),
 								Vec3f.Z,
 								Vec3f.Z,
 								Vec3f.Z);

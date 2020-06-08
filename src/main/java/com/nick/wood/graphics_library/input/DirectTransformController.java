@@ -18,7 +18,7 @@ public class DirectTransformController implements Control {
 	private final boolean enableLook;
 	private final boolean enableMove;
 	private float sensitivity = 0.01f;
-	private float speed = .1f;
+	private float speed = 1f;
 
 	public DirectTransformController(TransformSceneGraph transformSceneGraph, boolean enableLook, boolean enableMove) {
 		this.transformSceneGraph = transformSceneGraph;

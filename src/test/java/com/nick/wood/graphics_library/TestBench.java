@@ -16,10 +16,12 @@ import com.nick.wood.graphics_library.utils.RecursiveBackTracker;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.QuaternionF;
+import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec2i;
 import com.nick.wood.maths.objects.vector.Vec3f;
+import com.nick.wood.maths.objects.vector.Vec4f;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -284,7 +286,7 @@ class TestBench {
 				100,
 				0,
 				0,
-				5,
+				10,
 				(amp) -> amp * amp
 		);
 
@@ -1157,104 +1159,4 @@ class TestBench {
 		}
 	}
 
-	/*@Test
-	public void reflectionOverAPlane() {
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
-
-		SceneGraph rootGameObject = new SceneGraph();
-
-		gameObjects.put(rootGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
-
-		TransformBuilder transformBuilder = new TransformBuilder();
-
-		Transform transform = transformBuilder.build();
-
-		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
-
-		createAxis(wholeSceneTransform);
-
-		MeshObject meshGroup = new MeshBuilder()
-				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
-				.setTexture("/textures/white.png")
-				.build();
-
-		Vec3f pointWeWantToReflect = Vec3f.Z.add(Vec3f.Y).add(Vec3f.X).scale(10);
-		Transform object = createObject(pointWeWantToReflect, QuaternionF.RotationX(-135), rootGameObject, meshGroup);
-
-		Vec4f plane = new Vec4f(0, 0, 1, 20);
-		//Transform object = createObject(pointWeWantToReflect.reflectionOverPlane(plane), rootGameObject, meshGroup);
-		Matrix4f matrix = object.getSRT();
-
-		Matrix4f reflectionMatrix = new Matrix4f(
-				1 - (2 * plane.getX() * plane.getX()), -2 * plane.getX() * plane.getY(), -2 * plane.getX() * plane.getZ(), 2 * plane.getX() * plane.getS(),
-				-2 * plane.getX() * plane.getY(), 1 - (2 * plane.getY() * plane.getY()), -2 * plane.getY() * plane.getZ(), 2 * plane.getY() * plane.getS(),
-				-2 * plane.getX() * plane.getZ(), -2 * plane.getY() * plane.getZ(), 1 - (2 * plane.getZ() * plane.getZ()), 2 * plane.getZ() * plane.getS(),
-				0, 0, 0, 1);
-
-		Matrix4f backFaceCullFlip = new Matrix4f(
-				1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, -1, 0,
-				0, 0, 0, 1
-		);
-
-		Matrix4f multiply = backFaceCullFlip.multiply(matrix).multiply(reflectionMatrix);
-
-		Matrix4f rotation = new Matrix4f(
-				multiply.get(0,0), multiply.get(1,0), multiply.get(2,0), 0,
-				multiply.get(0,1), multiply.get(1,1), multiply.get(2,1), 0,
-				multiply.get(0,2), multiply.get(1,2), multiply.get(2,2), 0,
-				0, 0, 0, 1);
-
-
-
-		Transform object2 = createObject(multiply.getTranslation(), rotation, rootGameObject, meshGroup);
-
-		MeshObject point = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
-				.build();
-
-		DirectionalLight directionalLight = new DirectionalLight(
-				new Vec3f(1.0f, 1.0f, 1.0f),
-				new Vec3f(1.0f, 1.0f, 1.0f),
-				1);
-
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(100.0f, 100.0f, 100), Vec3f.ONE, QuaternionF.Identity, point);
-
-		Camera camera = new Camera(new Vec3f(-1.0f, 0.0f, 0.0f), new Vec3f(0.0f, 0.0f, 0.0f), 0.5f, 0.1f);
-
-		Transform cameraTransform = transformBuilder
-				.setPosition(Vec3f.X)
-				.setScale(Vec3f.ONE)
-				.setRotation(QuaternionF.Identity)
-				.build();
-
-		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
-
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(wholeSceneTransform, camera, CameraType.PRIMARY);
-
-		DirectCameraController directCameraController = new DirectCameraController(camera, true, true);
-
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
-
-			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
-
-			window.init();
-
-			while (!window.shouldClose()) {
-
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
-
-				LWJGLGameControlManager.checkInputs();
-
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
-	}
-*/
 }

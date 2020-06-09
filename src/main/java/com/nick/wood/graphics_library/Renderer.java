@@ -102,13 +102,40 @@ public class Renderer {
 
 	public void renderWater(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
-	                        Shader shader,
-	                        Vec3f ambientLight,
+	                        HashMap<Light, InstanceObject> lights, Shader shader,
 	                        Fog fog,
 	                        int reflectionTexture,
-	                        int refractionTexture) {
+	                        int refractionTexture,
+	                        float moveFactor,
+	                        Vec3f ambientLight) {
 
 		shader.bind();
+
+		int pointLightIndex = 0;
+		int spotLightIndex = 0;
+		int directionalLightIndex = 0;
+
+		for (Map.Entry<Light, InstanceObject> lightInstanceObjectEntry : lights.entrySet()) {
+
+			Light light = lightInstanceObjectEntry.getKey();
+			Matrix4f transform = lightInstanceObjectEntry.getValue().getTransformation();
+
+			switch (light.getType()) {
+				case POINT:
+					createPointLight("", (PointLight) light, pointLightIndex++, transform, shader);
+					break;
+				case SPOT:
+					createSpotLight((SpotLight) light, spotLightIndex++, transform, shader);
+					break;
+				case DIRECTIONAL:
+					createDirectionalLight((DirectionalLight) light, directionalLightIndex++, transform, shader);
+					break;
+				default:
+					break;
+			}
+
+		}
+
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("specularPower", 0.5f);
@@ -117,6 +144,8 @@ public class Renderer {
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+
+		shader.setUniform("moveFactor", moveFactor);
 
 		createFog(fog, shader);
 
@@ -142,11 +171,22 @@ public class Renderer {
 		GL13.glActiveTexture(GL13.GL_TEXTURE1);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
 		shader.setUniform("refractionTexture", 1);
+		GL13.glActiveTexture(GL13.GL_TEXTURE2);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().getId());
+		shader.setUniform("dudvmap", 2);
+
+		// bind normal map if available
+		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
+			GL13.glActiveTexture(GL13.GL_TEXTURE3);
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMap().getId());
+			shader.setUniform("normal_text_sampler", 3);
+		}
 
 		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());
 		shader.setUniform("material.specular", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getSpecularColour());
 		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
 		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
+		shader.setUniform("material.hasNormalMap", meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;

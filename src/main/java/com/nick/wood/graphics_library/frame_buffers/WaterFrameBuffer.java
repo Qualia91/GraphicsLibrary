@@ -7,6 +7,8 @@ import org.lwjgl.opengl.GL32;
 
 import java.nio.ByteBuffer;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class WaterFrameBuffer {
 
 	//protected static final int REFLECTION_WIDTH = 320;
@@ -70,12 +72,12 @@ public class WaterFrameBuffer {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBuffer);
 		GL11.glViewport(0, 0, width, height);
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	}
 
 	private int createFrameBuffer() {
 		// create
 		int frameBuffer = GL30.glGenFramebuffers();
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		// bind
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBuffer);
 		// create draw buffers (just colour this one)
@@ -105,11 +107,11 @@ public class WaterFrameBuffer {
 
 	private int createDepthBufferAttachment(int width, int height) {
 		// create
-		int depthBuffer = GL30.glGenFramebuffers();
+		int depthBuffer = GL30.glGenRenderbuffers();
 		// bind
 		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, depthBuffer);
 		// tell opengl what we are going to store in the buffer
-		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, width, height);
+		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT32, width, height);
 		// attach to frame buffer as depth buffer
 		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, depthBuffer);
 		return depthBuffer;

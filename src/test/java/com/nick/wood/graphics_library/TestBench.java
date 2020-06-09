@@ -301,7 +301,7 @@ class TestBench {
 
 		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(rootGameObject, terrain);
 
-		WaterSceneObject water = new WaterSceneObject(rootGameObject, "/textures/blue.png", size, 0, 2);
+		WaterSceneObject water = new WaterSceneObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 0, 2);
 
 		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)

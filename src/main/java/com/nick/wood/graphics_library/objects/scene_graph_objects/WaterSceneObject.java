@@ -12,7 +12,7 @@ public class WaterSceneObject implements SceneGraphNode {
 	private final MeshObject water;
 
 
-	public WaterSceneObject(SceneGraph parent, String waterTexture, int size, int waterHeight, int cellSize) {
+	public WaterSceneObject(SceneGraph parent, String waterTexture, String normalMap, int size, int waterHeight, int cellSize) {
 		this.waterSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.WATER, this);
 
 		water = new MeshBuilder()
@@ -20,6 +20,7 @@ public class WaterSceneObject implements SceneGraphNode {
 				.setWaterSquareWidth(size)
 				.setWaterHeight(waterHeight)
 				.setTexture(waterTexture)
+				.setNormalTexture(normalMap)
 				.setCellSpace(cellSize)
 				.build();
 

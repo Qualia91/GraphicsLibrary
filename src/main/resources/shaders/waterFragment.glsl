@@ -1,12 +1,18 @@
 #version 460 core
 
+in vec2 passTextureCoord;
+in vec3 passVertexNormal;
 in vec4 clipSpace;
+in vec3 passToCamera;
 
 out vec4 outColour;
 
 uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
-uniform vec3 ambientLight;
+uniform sampler2D dudvmap;
+uniform float moveFactor;
+
+const float distStrength = 0.005;
 
 void main() {
 
@@ -16,13 +22,32 @@ void main() {
     // put in tex coord unis (0 -> 1)
     ndc =  ndc / 2 + 0.5;
 
-    // above is refraction tex coords. reflection tex coors, you invert y
-    vec2 reflectionTextCoord = vec2(ndc.x, ndc.y);
+    // above is refraction tex coords. reflection tex coors, you invert x
+    vec2 reflectionTextCoord = vec2(-ndc.x, ndc.y);
     vec2 refractionTextCoord = vec2(ndc.x, ndc.y);
+
+    // get dudv map
+    vec2 distortion1 = (texture(dudvmap, vec2(passTextureCoord.x + moveFactor, passTextureCoord.y)).rg * 2 - 1) * distStrength;
+    vec2 distortion2 = (texture(dudvmap, vec2(passTextureCoord.x, passTextureCoord.y - moveFactor)).rg * 2 - 1) * distStrength;
+    vec2 distortion = distortion1 + distortion2;
+
+    reflectionTextCoord += distortion;
+    refractionTextCoord += distortion;
+
+    // need to clamp the above tex coords otherwise at points where the coord is 0, the distortion
+    // makes it warp around to the top of the texture (Screen in this case)
+    refractionTextCoord = clamp(refractionTextCoord, 0.001, 0.999);
+
+    // clamping needs to be flipped for the direction we flipped the coords in (x)
+    reflectionTextCoord.x = clamp(reflectionTextCoord.x, -0.999, -0.001);
+    reflectionTextCoord.y = clamp(reflectionTextCoord.y, 0.001, 0.999);
 
     vec4 refletionColour = texture(reflectionTexture, reflectionTextCoord);
     vec4 refrationColour = texture(refractionTexture, refractionTextCoord);
 
-    //outColour = mix(refletionColour, refrationColour, 0.5);
-    outColour = refletionColour;
+    // fresnel effect
+    float factor = dot(passToCamera, passVertexNormal);
+
+    outColour = mix(refletionColour, refrationColour, pow(factor, 2));
+    //outColour = vec4(passToCamera, 1);
 }

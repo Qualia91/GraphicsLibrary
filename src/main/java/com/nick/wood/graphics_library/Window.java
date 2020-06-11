@@ -305,9 +305,6 @@ public class Window implements AutoCloseable {
 						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
 						if (meshGameObject.getMeshObject() instanceof TextItem) {
 							TextItem textItem = (TextItem) meshGameObject.getMeshObject();
-							if (textItem.isChangeTextFlag()) {
-								textItem.changeText();
-							}
 						}
 						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
 							meshGameObject.getMeshObject().getMesh().create();

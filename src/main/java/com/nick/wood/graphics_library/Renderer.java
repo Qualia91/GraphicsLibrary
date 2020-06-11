@@ -26,6 +26,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 public class Renderer {
 
 	private final static int MAX_INSTANCE = 1500;
+	private final Window window;
 	private int modelViewVBO;
 
 	private FloatBuffer modelViewBuffer;
@@ -35,12 +36,10 @@ public class Renderer {
 	private static final int VECTOR4F_SIZE_BYTES = 4 * Renderer.FLOAT_SIZE_BYTES;
 	private static final int MATRIX_SIZE_BYTES = Renderer.MATRIX_SIZE_FLOATS * Renderer.FLOAT_SIZE_BYTES;
 
-	private final Matrix4f projectionMatrix;
-
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
 	public Renderer(Window window) {
-		this.projectionMatrix = window.getProjectionMatrix();
+		this.window = window;
 	}
 
 	public void init() {
@@ -58,7 +57,7 @@ public class Renderer {
 		meshObject.getMesh().initRender();
 
 		shader.setUniform("ambientLight", ambientLight);
-		shader.setUniform("projection", projectionMatrix);
+		shader.setUniform("projection", window.getProjectionMatrix());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObject.getMesh().getIbo());
@@ -139,7 +138,7 @@ public class Renderer {
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", projectionMatrix);
+		shader.setUniform("projection", window.getProjectionMatrix());
 
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
@@ -257,7 +256,7 @@ public class Renderer {
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", projectionMatrix);
+		shader.setUniform("projection", window.getProjectionMatrix());
 
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());

@@ -9,10 +9,7 @@ import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
-import com.nick.wood.graphics_library.utils.Cell;
-import com.nick.wood.graphics_library.utils.ChunkLoader;
-import com.nick.wood.graphics_library.utils.ProceduralGeneration;
-import com.nick.wood.graphics_library.utils.RecursiveBackTracker;
+import com.nick.wood.graphics_library.utils.*;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.QuaternionF;
@@ -55,12 +52,11 @@ class TestBench {
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
-			window.init();
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			while (!window.shouldClose()) {
 
@@ -98,11 +94,10 @@ class TestBench {
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
 		for (int i = 0; i < 1500; i++) {
-			createObject(Vec3f.Y.scale(i), wholeSceneTransform, meshGroup);
+			Creation.CreateObject(Vec3f.Y.scale(i), wholeSceneTransform, meshGroup);
 		}
 
-
-		createAxis(wholeSceneTransform);
+		Creation.CreateAxis(wholeSceneTransform);
 
 		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
@@ -123,9 +118,9 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 
 		Transform cameraTransform = transformBuilder
 				.setPosition(new Vec3f(-10, 0, 0))
@@ -139,16 +134,13 @@ class TestBench {
 
 		gameObjects.put(UUID.randomUUID(), rootGameObject);
 
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
+		try (Window window = new Window()) {
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
-
-			window.init();
 
 			long oldTime = System.currentTimeMillis();
 
@@ -170,36 +162,6 @@ class TestBench {
 			exception.printStackTrace();
 		}
 
-	}
-
-	private Transform createObject(Vec3f pos, SceneGraphNode parent, MeshObject meshGroup) {
-
-		Transform transformMesh = new TransformBuilder()
-				.setPosition(pos).build();
-
-		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
-		MeshSceneGraph meshGameObject = new MeshSceneGraph(
-				meshTransform,
-				meshGroup
-		);
-
-		return transformMesh;
-	}
-
-	private Transform createObject(Vec3f pos, QuaternionF rotation, SceneGraphNode parent, MeshObject meshGroup) {
-
-		Transform transformMesh = new TransformBuilder()
-				.setPosition(pos)
-				.setRotation(rotation)
-				.build();
-
-		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
-		MeshSceneGraph meshGameObject = new MeshSceneGraph(
-				meshTransform,
-				meshGroup
-		);
-
-		return transformMesh;
 	}
 
 	@Test
@@ -224,7 +186,7 @@ class TestBench {
 
 
 		Transform cameraTransform = new TransformBuilder()
-				.setPosition(new Vec3f(-10, 0, 0))
+				.setPosition(new Vec3f(1000, 1000, 500))
 				.setScale(Vec3f.ONE)
 				.setRotation(cameraRotation)
 				.build();
@@ -235,18 +197,18 @@ class TestBench {
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
 		SceneGraph skyboxSceneGraph = new SceneGraph();
-		SkyBox skyBox = new SkyBox(skyboxSceneGraph, "/textures/mars.jpg", SkyboxType.SPHERE);
+		SkyBox skyBox = new SkyBox(skyboxSceneGraph, "/textures/8k_stars.jpg", SkyboxType.SPHERE);
 		gameObjects.put(skyboxSceneGraph.getSceneGraphNodeData().getUuid(), skyboxSceneGraph);
+		WaterSceneObject water = new WaterSceneObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 10, 10);
 
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
-
-			window.init();
 
 			ChunkLoader chunkLoader = new ChunkLoader(gameObjects, 5, 2);
 
@@ -325,14 +287,14 @@ class TestBench {
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
 
-			window.init();
 
 			while (!window.shouldClose()) {
 
@@ -472,15 +434,13 @@ class TestBench {
 			}
 		}
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
-
-			window.init();
 
 			window.getScene().setAmbientLight(new Vec3f(0.9765f/2, 0.8431f/2, 0.1098f/2));
 
@@ -565,14 +525,13 @@ class TestBench {
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
-
-			window.init();
 
 			HashMap<UUID, SceneGraph> objectObjectHashMap = new HashMap<>();
 
@@ -761,11 +720,10 @@ class TestBench {
 				0.1f
 		);
 
-		createAxis(wholeSceneTransform);
-
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateAxis(wholeSceneTransform);
+		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 
 		Camera camera = new Camera();
 		Transform cameraTransform = transformBuilder
@@ -778,14 +736,13 @@ class TestBench {
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
-
-			window.init();
 
 			while (!window.shouldClose()) {
 
@@ -840,96 +797,6 @@ class TestBench {
 		}
 	}*/
 
-	public void buildMeshes(ArrayList<SceneGraphNode> gameObjects) {
-		for (SceneGraphNode gameObject : gameObjects) {
-			if (gameObject instanceof MeshObject) {
-				((MeshObject) gameObject).getMesh().create();
-			}
-			buildMeshes(gameObject.getSceneGraphNodeData().getChildren());
-		}
-	}
-
-	private void createAxis(TransformSceneGraph wholeSceneTransform) {
-
-		TransformBuilder transformBuilder = new TransformBuilder();
-
-		MeshObject meshGroupX = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/red.png")
-				.build();
-
-		Transform transformMeshX = transformBuilder
-				.setPosition(Vec3f.X.scale(2))
-				.setScale(Vec3f.ONE.scale(0.1f).add(Vec3f.X.scale(10)))
-				.build();
-		TransformSceneGraph meshTransformX = new TransformSceneGraph(wholeSceneTransform, transformMeshX);
-		MeshSceneGraph meshGameObjectX = new MeshSceneGraph(
-				meshTransformX,
-				meshGroupX
-		);
-
-		MeshObject meshGroupY = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/blue.png")
-				.build();
-
-		Transform transformMeshY = transformBuilder
-				.setPosition(Vec3f.Y.scale(2))
-				.setRotation(QuaternionF.RotationZ((float) Math.PI/2))
-				.build();
-
-		TransformSceneGraph meshTransformY = new TransformSceneGraph(wholeSceneTransform, transformMeshY);
-		MeshSceneGraph meshGameObjectY = new MeshSceneGraph(
-				meshTransformY,
-				meshGroupY
-		);
-
-		MeshObject meshGroupZ = new MeshBuilder()
-				.setMeshType(MeshType.CUBOID)
-				.setTexture("/textures/green.png")
-				.build();
-
-		Transform transformMeshZ = transformBuilder
-				.setPosition(Vec3f.Z.scale(2))
-				.setRotation(QuaternionF.RotationY((float) Math.PI/2))
-				.build();
-
-		TransformSceneGraph meshTransformZ = new TransformSceneGraph(wholeSceneTransform, transformMeshZ);
-		MeshSceneGraph meshGameObjectZ = new MeshSceneGraph(
-				meshTransformZ,
-				meshGroupZ
-		);
-	}
-
-	private void createLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale,
-	                         QuaternionF rotation, MeshObject meshGroup) {
-
-		TransformBuilder transformBuilder = new TransformBuilder(
-				position,
-				scale,
-				rotation
-		);
-
-		Transform lightGameObjectTransform = transformBuilder.build();
-
-		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
-		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
-		MeshSceneGraph meshGameObject = new MeshSceneGraph(
-				transformGameObject,
-				meshGroup
-		);
-	}
-
-	private void createLight(Light light, SceneGraphNode parent, Transform lightGameObjectTransform, MeshObject
-			meshGroup) {
-		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
-		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
-		MeshSceneGraph meshGameObject = new MeshSceneGraph(
-				transformGameObject,
-				meshGroup
-		);
-	}
-
 	@Test
 	public void particleSystem() {
 		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
@@ -971,9 +838,9 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
+		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
+		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
+		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
 
 		Camera camera = new Camera();
 
@@ -991,14 +858,13 @@ class TestBench {
 
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directCameraController);
-
-			window.init();
 
 			while (!window.shouldClose()) {
 
@@ -1045,9 +911,9 @@ class TestBench {
 				0.1f
 		);
 
-		createLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
-		createLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
-		createLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
+		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
+		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
+		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
 		Camera camera = new Camera();
 		Transform cameraTransform = transformBuilder
 				.setPosition(new Vec3f(-10, 0, 0))
@@ -1138,14 +1004,13 @@ class TestBench {
 
 		}
 
-		try (Window window = new Window(
-				1200,
-				800,
-				"")) {
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
-
-			window.init();
 
 			while (!window.shouldClose()) {
 

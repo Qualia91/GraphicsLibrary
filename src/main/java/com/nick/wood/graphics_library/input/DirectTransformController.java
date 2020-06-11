@@ -36,9 +36,9 @@ public class DirectTransformController implements Control {
 			QuaternionF rotationZ = QuaternionF.RotationX((float) -dy * sensitivity);
 
 			// x axis rotation in local frame
-			QuaternionF multiplyGlobalAxisX = rotationX.multiply(transformSceneGraph.getTransform().getRotation()).normalise();
+			QuaternionF multiplyGlobalAxisX = rotationX.multiply(transformSceneGraph.getTransform().getRotation());
 			// y axis rotation in globals frame
-			QuaternionF multiplyGlobalAxisZ = transformSceneGraph.getTransform().getRotation().multiply(rotationZ).normalise();
+			QuaternionF multiplyGlobalAxisZ = transformSceneGraph.getTransform().getRotation().multiply(rotationZ);
 
 			transformSceneGraph.getTransform().setRotation(multiplyGlobalAxisX.add(multiplyGlobalAxisZ).normalise());
 

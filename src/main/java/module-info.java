@@ -15,4 +15,5 @@ module com.nick.wood.graphics_library {
 	exports com.nick.wood.graphics_library.lighting;
 	exports com.nick.wood.graphics_library.objects.mesh_objects;
 	exports com.nick.wood.graphics_library;
+	exports com.nick.wood.graphics_library.utils;
 }

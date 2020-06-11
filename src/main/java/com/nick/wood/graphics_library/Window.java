@@ -9,17 +9,12 @@ import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
-import org.lwjgl.system.Callback;
-import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -39,9 +34,11 @@ public class Window implements AutoCloseable {
 	private final Scene scene;
 	private final Scene hudScene;
 	// The window handle
-	private long window;
+	private long windowHandler;
+
 	private int WIDTH;
 	private int HEIGHT;
+	private float fov;
 	private String title;
 
 	private Shader shader;
@@ -49,23 +46,17 @@ public class Window implements AutoCloseable {
 	private Shader skyboxShader;
 	private Shader waterShader;
 	private Renderer renderer;
-	private final Matrix4f projectionMatrix;
+	private Matrix4f projectionMatrix;
 
 	private boolean windowSizeChanged = false;
+	private boolean titleChanged = false;
+
 	private WaterFrameBuffer waterFrameBuffer;
 
-	public Window(int WIDTH, int HEIGHT, String title) {
-
+	public Window() {
 		this.scene = new Scene();
 		this.hudScene = new Scene();
-		this.WIDTH = WIDTH;
-		this.HEIGHT = HEIGHT;
-		this.title = title;
-
 		this.graphicsLibraryInput = new GraphicsLibraryInput();
-
-		this.projectionMatrix = Matrix4f.Projection((float) WIDTH / (float) HEIGHT, (float) Math.toRadians(70.0), 0.1f, 100000f);
-
 	}
 
 	public Scene getScene() {
@@ -81,10 +72,10 @@ public class Window implements AutoCloseable {
 	}
 
 	public boolean shouldClose() {
-		return glfwWindowShouldClose(window);
+		return glfwWindowShouldClose(windowHandler);
 	}
 
-	public void init() {
+	public void init(WindowInitialisationParameters windowInitialisationParameters) {
 
 		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
@@ -106,15 +97,16 @@ public class Window implements AutoCloseable {
 		// Configure GLFW
 		glfwDefaultWindowHints(); // optional, the current window hints are already the default
 
+
+		// window settings //
 		// debug
 		//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
-		// Create the window
-		window = glfwCreateWindow(WIDTH, HEIGHT, title, NULL, NULL);
-		if (window == NULL)
+		// create window with init params
+		windowHandler = windowInitialisationParameters.accept(this);
+
+		if (windowHandler == NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 
 		createCallbacks();
@@ -125,26 +117,26 @@ public class Window implements AutoCloseable {
 			IntBuffer pHeight = stack.mallocInt(1); // int*
 
 			// Get the window size passed to glfwCreateWindow
-			glfwGetWindowSize(window, pWidth, pHeight);
+			glfwGetWindowSize(windowHandler, pWidth, pHeight);
 
 			// Get the resolution of the primary monitor
 			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 			// Center the window
 			glfwSetWindowPos(
-					window,
+					windowHandler,
 					(vidmode.width() - pWidth.get(0)) / 2,
 					(vidmode.height() - pHeight.get(0)) / 2
 			);
 		} // the stack frame is popped automatically
 
 		// Make the OpenGL context current
-		glfwMakeContextCurrent(window);
+		glfwMakeContextCurrent(windowHandler);
 		// Enable v-sync
 		glfwSwapInterval(1);
 
 		// Make the window visible
-		glfwShowWindow(window);
+		glfwShowWindow(windowHandler);
 
 
 		// This line is critical for LWJGL's interoperation with GLFW's
@@ -161,15 +153,11 @@ public class Window implements AutoCloseable {
 		// cull back faces
 		GL11.glEnable(GLES20.GL_CULL_FACE);
 		GL11.glCullFace(GLES20.GL_BACK);
-
 		GL11.glEnable(GL_DEPTH_TEST);
 
 		// support for transparencies
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// this locks cursor to center so can always look about
-		GLFW.glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		shader.create();
 		skyboxShader.create();
@@ -192,13 +180,13 @@ public class Window implements AutoCloseable {
 
 	private void createCallbacks() {
 		// Setup a key callback. It will be called every time a key is pressed, repeated or released.
-		glfwSetKeyCallback(window, graphicsLibraryInput.getKeyboard());
-		glfwSetCursorPosCallback(window, graphicsLibraryInput.getMouseMove());
-		glfwSetMouseButtonCallback(window, graphicsLibraryInput.getMouseButton());
-		glfwSetScrollCallback(window, graphicsLibraryInput.getGlfwScrollCallback());
+		glfwSetKeyCallback(windowHandler, graphicsLibraryInput.getKeyboard());
+		glfwSetCursorPosCallback(windowHandler, graphicsLibraryInput.getMouseMove());
+		glfwSetMouseButtonCallback(windowHandler, graphicsLibraryInput.getMouseButton());
+		glfwSetScrollCallback(windowHandler, graphicsLibraryInput.getGlfwScrollCallback());
 		glfwSetJoystickCallback(graphicsLibraryInput.getGlfwJoystickCallback());
 
-		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
+		glfwSetWindowSizeCallback(windowHandler, new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
 				WIDTH = width;
@@ -213,12 +201,18 @@ public class Window implements AutoCloseable {
 
 		// user inputs
 		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
-			glfwSetWindowShouldClose(window, true);
+			glfwSetWindowShouldClose(windowHandler, true);
 		}
 
 		if (windowSizeChanged) {
 			glViewport(0, 0, WIDTH, HEIGHT);
 			windowSizeChanged = false;
+			this.projectionMatrix = this.projectionMatrix.updateProjection((float) WIDTH / (float) HEIGHT, fov);
+		}
+
+		if (titleChanged) {
+			glfwSetWindowTitle(windowHandler, title);
+			titleChanged = false;
 		}
 
 		// Set the clear color
@@ -265,7 +259,7 @@ public class Window implements AutoCloseable {
 		}
 
 		hudScene.render(renderer, WIDTH, HEIGHT);
-		glfwSwapBuffers(window); // swap the color buffers
+		glfwSwapBuffers(windowHandler); // swap the color buffers
 
 	}
 
@@ -393,11 +387,12 @@ public class Window implements AutoCloseable {
 	}
 
 	public void setTitle(String title) {
-		glfwSetWindowTitle(window, title);
+		this.title = title;
+		this.titleChanged = true;
 	}
 
-	public long getWindow() {
-		return window;
+	public long getWindowHandler() {
+		return windowHandler;
 	}
 
 	public Matrix4f getProjectionMatrix() {
@@ -412,11 +407,27 @@ public class Window implements AutoCloseable {
 		return hudShader;
 	}
 
+	public void setWIDTH(int WIDTH) {
+		this.WIDTH = WIDTH;
+	}
+
+	public void setHEIGHT(int HEIGHT) {
+		this.HEIGHT = HEIGHT;
+	}
+
+	public void setFov(float fov) {
+		this.fov = fov;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
 	@Override
 	public void close() throws Exception {
 		// Free the window callbacks and destroy the window
-		glfwFreeCallbacks(window);
-		glfwDestroyWindow(window);
+		glfwFreeCallbacks(windowHandler);
+		glfwDestroyWindow(windowHandler);
 
 		waterFrameBuffer.destroy();
 
@@ -430,5 +441,10 @@ public class Window implements AutoCloseable {
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
 		GL.setCapabilities(null);
+	}
+
+
+	public void setProjectionMatrix(Matrix4f projection) {
+		this.projectionMatrix = projection;
 	}
 }

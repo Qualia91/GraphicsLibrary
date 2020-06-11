@@ -675,13 +675,14 @@ class TestBench {
 		TransformSceneGraph wholeSceneTransform = new TransformSceneGraph(rootGameObject, transform);
 
 		Transform textTransform = transformBuilder
-				.setPosition(new Vec3f(0, 10, 0)).build();
+				.setPosition(new Vec3f(0, 10, 0))
+				.setScale(Vec3f.ONE.scale(100)).build();
 
 		transformBuilder.setPosition(Vec3f.ZERO);
 
 		TransformSceneGraph textTransformSceneGraph = new TransformSceneGraph(rootGameObject, textTransform);
 
-		MeshObject textItem = new MeshBuilder()
+		TextItem textItem = (TextItem) new MeshBuilder()
 				.setMeshType(MeshType.TEXT)
 				.build();
 
@@ -749,6 +750,8 @@ class TestBench {
 				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
+
+				textItem.changeText("Hellow");
 
 			}
 		} catch (Exception exception) {

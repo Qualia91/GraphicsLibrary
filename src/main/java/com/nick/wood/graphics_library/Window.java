@@ -3,6 +3,7 @@ package com.nick.wood.graphics_library;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
@@ -302,6 +303,12 @@ public class Window implements AutoCloseable {
 						iterator.remove();
 					} else {
 						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
+						if (meshGameObject.getMeshObject() instanceof TextItem) {
+							TextItem textItem = (TextItem) meshGameObject.getMeshObject();
+							if (textItem.isChangeTextFlag()) {
+								textItem.changeText();
+							}
+						}
 						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
 							meshGameObject.getMeshObject().getMesh().create();
 						}
@@ -446,5 +453,13 @@ public class Window implements AutoCloseable {
 
 	public void setProjectionMatrix(Matrix4f projection) {
 		this.projectionMatrix = projection;
+	}
+
+	public void setAmbientLight(Vec3f ambientLight) {
+		scene.setAmbientLight(ambientLight);
+	}
+
+	public void setAmbientHudLight(Vec3f ambientLight) {
+		hudScene.setAmbientLight(ambientLight);
 	}
 }

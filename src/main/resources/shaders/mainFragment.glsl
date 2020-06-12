@@ -112,7 +112,7 @@ vec4 calcPointLight(vec3 vertexPosition, vec3 vertexNormal, PointLight pointLigh
 
     // attenuation
     float dist = length(toLight);
-    float attenuation = 1.0 / (pointLight.att.constant + pointLight.att.linear*dist + pointLight.att.exponent*dist*dist);
+    float attenuation = 1.0 / (1 + pointLight.att.constant + pointLight.att.linear*dist + pointLight.att.exponent*dist*dist);
 
     float intensity = pointLight.intensity;
     vec3 colour = pointLight.colour;

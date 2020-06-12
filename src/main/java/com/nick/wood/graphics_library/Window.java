@@ -1,9 +1,9 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
@@ -47,12 +47,12 @@ public class Window implements AutoCloseable {
 	private Shader skyboxShader;
 	private Shader waterShader;
 	private Renderer renderer;
-	private Matrix4f projectionMatrix;
 
 	private boolean windowSizeChanged = false;
 	private boolean titleChanged = false;
 
 	private WaterFrameBuffer waterFrameBuffer;
+	private SceneFrameBuffer sceneFrameBuffer;
 
 	public Window() {
 		this.scene = new Scene();
@@ -166,11 +166,15 @@ public class Window implements AutoCloseable {
 		waterShader.create();
 
 		this.waterFrameBuffer = new WaterFrameBuffer(WIDTH, HEIGHT);
+		this.sceneFrameBuffer = new SceneFrameBuffer(1024);
+
+		GL11.glViewport(0, 0, WIDTH, HEIGHT);
 
 		this.scene.attachShader(shader);
 		this.scene.attachSkyboxShader(skyboxShader);
 		this.scene.attachWaterShader(waterShader);
-		this.scene.addFrameBufferObject(waterFrameBuffer);
+		this.scene.setWaterFrameBufferObject(waterFrameBuffer);
+		this.scene.setSceneFrameBufferObject(sceneFrameBuffer);
 		this.hudScene.attachShader(hudShader);
 
 		hudScene.setAmbientLight(new Vec3f(0.8f, 0.8f, 0.8f));
@@ -208,7 +212,7 @@ public class Window implements AutoCloseable {
 		if (windowSizeChanged) {
 			glViewport(0, 0, WIDTH, HEIGHT);
 			windowSizeChanged = false;
-			this.projectionMatrix = this.projectionMatrix.updateProjection((float) WIDTH / (float) HEIGHT, fov);
+			scene.updateScreen(WIDTH, HEIGHT);
 		}
 
 		if (titleChanged) {
@@ -303,9 +307,6 @@ public class Window implements AutoCloseable {
 						iterator.remove();
 					} else {
 						MeshSceneGraph meshGameObject = (MeshSceneGraph) child;
-						if (meshGameObject.getMeshObject() instanceof TextItem) {
-							TextItem textItem = (TextItem) meshGameObject.getMeshObject();
-						}
 						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
 							meshGameObject.getMeshObject().getMesh().create();
 						}
@@ -399,10 +400,6 @@ public class Window implements AutoCloseable {
 		return windowHandler;
 	}
 
-	public Matrix4f getProjectionMatrix() {
-		return projectionMatrix;
-	}
-
 	public Shader getShader() {
 		return shader;
 	}
@@ -413,6 +410,7 @@ public class Window implements AutoCloseable {
 
 	public void setWIDTH(int WIDTH) {
 		this.WIDTH = WIDTH;
+		scene.updateScreen(WIDTH, HEIGHT);
 	}
 
 	public void setHEIGHT(int HEIGHT) {
@@ -445,11 +443,6 @@ public class Window implements AutoCloseable {
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
 		GL.setCapabilities(null);
-	}
-
-
-	public void setProjectionMatrix(Matrix4f projection) {
-		this.projectionMatrix = projection;
 	}
 
 	public void setAmbientLight(Vec3f ambientLight) {

@@ -57,7 +57,7 @@ public class Renderer {
 		meshObject.getMesh().initRender();
 
 		shader.setUniform("ambientLight", ambientLight);
-		shader.setUniform("projection", window.getProjectionMatrix());
+		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObject.getMesh().getIbo());
@@ -138,7 +138,7 @@ public class Renderer {
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", window.getProjectionMatrix());
+		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
@@ -256,7 +256,7 @@ public class Renderer {
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", window.getProjectionMatrix());
+		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());

@@ -6,4 +6,13 @@ public interface MeshObject {
 	Mesh getMesh();
 	Transform getMeshTransformation();
 	String getStringToCompare();
+
+	// temp
+	default void setTextureViaFBO(boolean flag) {
+
+	}
+
+	default boolean isTextureViaFBOFlag() {
+		return false;
+	}
 }

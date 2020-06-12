@@ -1,5 +1,7 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.maths.objects.vector.Vec3f;
+
 public class WindowInitialisationParametersBuilder {
 
 	// defaults
@@ -7,12 +9,11 @@ public class WindowInitialisationParametersBuilder {
 	private boolean decorated = true;
 	private boolean lockCursor = false;
 	private boolean fullScreen = false;
-	private int windowWidth = 500;
-	private int windowHeight = 500;
+	private int windowWidth = 1200;
+	private int windowHeight = 800;
 	private String title = "My First Window";
-	private float near = 1f;
-	private float far = 100f;
-	private float fov = 1.22173f; // 70°
+	private Vec3f sceneAmbientLight = new Vec3f(.1f, .1f, .1f);
+	private Vec3f hudAmbientLight = new Vec3f(.9f, .9f, .9f);
 
 	public WindowInitialisationParameters build() {
 		return new WindowInitialisationParameters(
@@ -23,14 +24,18 @@ public class WindowInitialisationParametersBuilder {
 				windowWidth,
 				windowHeight,
 				title,
-				near,
-				far,
-				fov
+				sceneAmbientLight,
+				hudAmbientLight
 		);
 	}
 
-	public WindowInitialisationParametersBuilder setFov(float fov) {
-		this.fov = fov;
+	public WindowInitialisationParametersBuilder setSceneAmbientLight(Vec3f sceneAmbientLight) {
+		this.sceneAmbientLight = sceneAmbientLight;
+		return this;
+	}
+
+	public WindowInitialisationParametersBuilder setHudAmbientLight(Vec3f hudAmbientLight) {
+		this.hudAmbientLight = hudAmbientLight;
 		return this;
 	}
 
@@ -69,13 +74,4 @@ public class WindowInitialisationParametersBuilder {
 		return this;
 	}
 
-	public WindowInitialisationParametersBuilder setNear(float near) {
-		this.near = near;
-		return this;
-	}
-
-	public WindowInitialisationParametersBuilder setFar(float far) {
-		this.far = far;
-		return this;
-	}
 }

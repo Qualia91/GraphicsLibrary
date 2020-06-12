@@ -13,6 +13,7 @@ public class ModelMesh implements MeshObject {
 	private final Material material;
 	private final Transform transform;
 	private Mesh mesh;
+	private boolean textureViaFBOFlag;
 
 	ModelMesh(String filePath, Material material, boolean invertedNormals, Transform transform) {
 
@@ -56,5 +57,15 @@ public class ModelMesh implements MeshObject {
 	@Override
 	public Transform getMeshTransformation() {
 		return transform;
+	}
+
+	@Override
+	public void setTextureViaFBO(boolean flag) {
+		this.textureViaFBOFlag = flag;
+	}
+
+	@Override
+	public boolean isTextureViaFBOFlag() {
+		return textureViaFBOFlag;
 	}
 }

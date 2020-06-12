@@ -41,7 +41,7 @@ class TestBench {
 
 		SceneGraph rootGameObject = new SceneGraph();
 
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 
 		Transform cameraTransform = new TransformBuilder()
 				.setPosition(Vec3f.X.scale(-10)).build();
@@ -128,7 +128,7 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformSceneGraph cameraTransformObj = new TransformSceneGraph(rootGameObject, cameraTransform);
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera, CameraType.PRIMARY);
 		DirectTransformController directCameraController = new DirectTransformController(cameraTransformObj, true, true);
 
@@ -191,7 +191,7 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformSceneGraph cameraTransformObj = new TransformSceneGraph(rootGameObject, cameraTransform);
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera, CameraType.PRIMARY);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformObj, true, true);
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
@@ -203,6 +203,7 @@ class TestBench {
 
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+		windowInitialisationParametersBuilder.setLockCursor(true);
 
 		try (Window window = new Window()) {
 
@@ -276,7 +277,7 @@ class TestBench {
 
 		LightSceneGraph lightGameObject = new LightSceneGraph(rootGameObject, sun);
 
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		Transform cameraTransform = new TransformBuilder()
 				.setPosition(new Vec3f(0, 0, 100))
 				.setScale(Vec3f.ONE)
@@ -402,7 +403,7 @@ class TestBench {
 		}
 
 
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		Transform cameraTransform = transformBuilder
 				.setPosition(new Vec3f(0, 0, 100))
 				.setScale(Vec3f.ONE)
@@ -513,7 +514,7 @@ class TestBench {
 
 		SkyBox skyBox = new SkyBox(rootGameObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE);
 
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		Transform cameraTransform = transformBuilder
 				.setPosition(new Vec3f(0, 0, 100))
 				.setScale(Vec3f.ONE)
@@ -721,12 +722,15 @@ class TestBench {
 				0.1f
 		);
 
+
+		SkyBox skyBox = new SkyBox(rootGameObject, "/textures/altimeterSphere.png", SkyboxType.SPHERE);
+
 		Creation.CreateAxis(wholeSceneTransform);
 		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		Transform cameraTransform = transformBuilder
 				.setPosition(new Vec3f(-10, 0, 0))
 				.setScale(Vec3f.ONE)
@@ -738,6 +742,7 @@ class TestBench {
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+		windowInitialisationParametersBuilder.setLockCursor(true);
 
 		try (Window window = new Window()) {
 
@@ -845,7 +850,7 @@ class TestBench {
 		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
 		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
 
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 
 		Transform cameraTransform = transformBuilder
 				.setPosition(Vec3f.X)
@@ -917,7 +922,7 @@ class TestBench {
 		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -1), Vec3f.ONE, QuaternionF.Identity, point);
 		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0.0f), Vec3f.ONE, QuaternionF.Identity, point);
 		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -1.0f, 0), Vec3f.ONE, QuaternionF.Identity, point);
-		Camera camera = new Camera();
+		Camera camera = new Camera(1.22173f, 1, 100000);
 		Transform cameraTransform = transformBuilder
 				.setPosition(new Vec3f(-10, 0, 0))
 				.setScale(Vec3f.ONE)

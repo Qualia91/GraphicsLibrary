@@ -1,16 +1,21 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.Material;
+import com.nick.wood.graphics_library.Texture;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.assimp.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public class ModelLoader {
 
 	public Mesh loadModel(String filePath, Material material, boolean invertedNormals) throws IOException {
+
 		// load 3d model data
 		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
 

@@ -24,6 +24,7 @@ public class MeshBuilder {
 			{0, 0},
 	};
 	private double cellSpace = 1;
+	private boolean flag = false;
 
 	public MeshObject build() {
 
@@ -35,7 +36,7 @@ public class MeshBuilder {
 			}
 		}
 
-		return switch (meshType) {
+		MeshObject meshObject = switch (meshType) {
 			case SPHERE -> new SphereMesh(triangleNumber, material, invertedNormals, transformation);
 			case CUBOID -> new CubeMesh(material, invertedNormals, transformation);
 			case MODEL -> new ModelMesh(modelFile, material, invertedNormals, transformation);
@@ -44,8 +45,11 @@ public class MeshBuilder {
 			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);
 			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace);
 			case POINT -> new Point(transformation, material);
-			default -> new SphereMesh(1, new Material("/textures/white.png"), true, Transform.Identity);
 		};
+
+		meshObject.setTextureViaFBO(flag);
+
+		return meshObject;
 	}
 
 	public MeshBuilder setWaterSquareWidth(int waterSquareWidth) {
@@ -110,6 +114,11 @@ public class MeshBuilder {
 	}
 	public MeshBuilder setCellSpace(double cellSpace) {
 		this.cellSpace = cellSpace;
+		return this;
+	}
+
+	public MeshBuilder setTextureViaFbo(boolean flag) {
+		this.flag = flag;
 		return this;
 	}
 }

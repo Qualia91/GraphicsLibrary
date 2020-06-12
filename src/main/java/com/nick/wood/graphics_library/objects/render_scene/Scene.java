@@ -2,11 +2,14 @@ package com.nick.wood.graphics_library.objects.render_scene;
 
 import com.nick.wood.graphics_library.Renderer;
 import com.nick.wood.graphics_library.Shader;
+import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.SphereMesh;
+import com.nick.wood.graphics_library.objects.scene_graph_objects.CameraType;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -18,6 +21,9 @@ import java.util.*;
 
 public class Scene {
 
+	private int screenWidth;
+	private int screenHeight;
+	private boolean updateProjectionMatrices = false;
 
 	private Fog fog;
 	private Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
@@ -32,12 +38,14 @@ public class Scene {
 	private MeshObject skybox;
 	private Shader waterShader;
 	private WaterFrameBuffer waterFrameBuffer;
+	private SceneFrameBuffer sceneFrameBuffer;
 
 	private float waveSpeed = 0.0005f;
 	private float moveFactor = 0;
 
 	private final Vec4f reflectionClippingPlane = new Vec4f(0, 0, 1, 0);
 	private final Vec4f refractionClippingPlane = new Vec4f(0, 0, -1, 0);
+	private final Vec4f noClippingPlane = new Vec4f(0, 0, 0, 0);
 
 	private final Matrix4f waterCameraReflection;
 
@@ -121,9 +129,37 @@ public class Scene {
 
 		moveFactor %= 1;
 
+		// render scene fbos
+		if (sceneFrameBuffer != null) {
+			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
+					if (shader != null) {
+						sceneFrameBuffer.bindFrameBuffer();
+						renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null);
+						sceneFrameBuffer.unbindCurrentFrameBuffer();
+						GL11.glViewport(0, 0, width, height);
+					}
+					break;
+				}
+			}
+		}
+
+		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+			if (meshObjectArrayListEntry.getKey().isTextureViaFBOFlag()) {
+				meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(sceneFrameBuffer.getTexture());
+			}
+		};
+
 		if (primaryCamera != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
 				if (cameraInstanceObjectEntry.getValue().getUuid().equals(primaryCamera)) {
+
+					// see if projection matrix needs updating
+					if (updateProjectionMatrices) {
+						cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
+						updateProjectionMatrices= false;
+					}
+
 					if (waterFrameBuffer != null && waterShader != null && !waterMeshes.isEmpty()) {
 
 						// move camera down by 2 * height to get reflection
@@ -250,7 +286,17 @@ public class Scene {
 		this.waterShader = waterShader;
 	}
 
-	public void addFrameBufferObject(WaterFrameBuffer waterFrameBuffer) {
+	public void setWaterFrameBufferObject(WaterFrameBuffer waterFrameBuffer) {
 		this.waterFrameBuffer = waterFrameBuffer;
+	}
+
+	public void setSceneFrameBufferObject(SceneFrameBuffer sceneFrameBuffer) {
+		this.sceneFrameBuffer = sceneFrameBuffer;
+	}
+
+	public void updateScreen(int width, int height) {
+		screenWidth = width;
+		screenHeight = height;
+		updateProjectionMatrices = true;
 	}
 }

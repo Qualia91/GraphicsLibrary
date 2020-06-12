@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -15,9 +16,8 @@ public class WindowInitialisationParameters {
 	private final int windowWidth;
 	private final int windowHeight;
 	private final String title;
-	private final float near;
-	private final float far;
-	private final float fov;
+	private final Vec3f sceneAmbientLight;
+	private final Vec3f hudAmbientLight;
 
 	public WindowInitialisationParameters(boolean resizable,
 	                                      boolean decorated,
@@ -26,9 +26,8 @@ public class WindowInitialisationParameters {
 	                                      int windowWidth,
 	                                      int windowHeight,
 	                                      String title,
-	                                      float near,
-	                                      float far,
-	                                      float fov) {
+	                                      Vec3f sceneAmbientLight,
+	                                      Vec3f hudAmbientLight) {
 		this.resizable = resizable;
 		this.decorated = decorated;
 		this.lockCursor = lockCursor;
@@ -36,9 +35,8 @@ public class WindowInitialisationParameters {
 		this.windowWidth = windowWidth;
 		this.windowHeight = windowHeight;
 		this.title = title;
-		this.near = near;
-		this.far = far;
-		this.fov = fov;
+		this.sceneAmbientLight = sceneAmbientLight;
+		this.hudAmbientLight = hudAmbientLight;
 	}
 
 	public long accept(Window window) {
@@ -54,12 +52,12 @@ public class WindowInitialisationParameters {
 		// this locks cursor to center so can always look about
 		org.lwjgl.glfw.GLFW.glfwSetInputMode(windowHandler, GLFW_CURSOR, lockCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 
-		window.setFov(fov);
 		window.setWIDTH(windowWidth);
 		window.setHEIGHT(windowHeight);
 		window.setTitle(title);
 
-		window.setProjectionMatrix(Matrix4f.Projection((float) windowWidth / (float) windowHeight, fov, near, far));
+		window.setAmbientLight(sceneAmbientLight);
+		window.setAmbientHudLight(hudAmbientLight);
 
 		return windowHandler;
 	}

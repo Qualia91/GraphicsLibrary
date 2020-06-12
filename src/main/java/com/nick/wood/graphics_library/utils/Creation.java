@@ -34,6 +34,22 @@ public class Creation {
 		);
 	}
 
+	static public void CreateLight(Light light, SceneGraphNode parent, Vec3f position, Vec3f scale,
+	                               QuaternionF rotation) {
+
+		TransformBuilder transformBuilder = new TransformBuilder(
+				position,
+				scale,
+				rotation
+		);
+
+		Transform lightGameObjectTransform = transformBuilder.build();
+
+		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
+		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
+
+	}
+
 	static public void CreateLight(Light light, SceneGraphNode parent, Transform lightGameObjectTransform, MeshObject
 			meshGroup) {
 		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
@@ -42,6 +58,11 @@ public class Creation {
 				transformGameObject,
 				meshGroup
 		);
+	}
+
+	static public void CreateLight(Light light, SceneGraphNode parent, Transform lightGameObjectTransform) {
+		TransformSceneGraph transformGameObject = new TransformSceneGraph(parent, lightGameObjectTransform);
+		LightSceneGraph lightGameObject = new LightSceneGraph(transformGameObject, light);
 	}
 
 	static public void CreateAxis(TransformSceneGraph wholeSceneTransform) {

@@ -12,6 +12,7 @@ public class SphereMesh implements MeshObject {
 	private Mesh mesh;
 	private final int triangleNumber;
 	private Transform meshTransformation;
+	private boolean textureViaFBOFlag = false;
 
 	SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Transform transformation) {
 		this.triangleNumber = triangleNumber;
@@ -164,4 +165,12 @@ public class SphereMesh implements MeshObject {
 		return "SPHERE" + mesh.getMaterial().getPath() + triangleNumber;
 	}
 
+	@Override
+	public void setTextureViaFBO(boolean flag) {
+		this.textureViaFBOFlag = flag;
+	}
+
+	public boolean isTextureViaFBOFlag() {
+		return textureViaFBOFlag;
+	}
 }

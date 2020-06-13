@@ -41,7 +41,7 @@ public class MeshBuilder {
 			case CUBOID -> new CubeMesh(material, invertedNormals, transformation);
 			case MODEL -> new ModelMesh(modelFile, material, invertedNormals, transformation);
 			case SQUARE -> new Square(material, transformation);
-			case TEXT -> new TextItem(text, fontFile, rowNum, colNum);
+			case TEXT -> new TextItem(text, fontFile, rowNum, colNum, transformation);
 			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);
 			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace);
 			case POINT -> new Point(transformation, material);

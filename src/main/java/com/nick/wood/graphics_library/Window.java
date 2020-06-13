@@ -4,6 +4,7 @@ import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
@@ -166,7 +167,7 @@ public class Window implements AutoCloseable {
 		waterShader.create();
 
 		this.waterFrameBuffer = new WaterFrameBuffer(WIDTH, HEIGHT);
-		this.sceneFrameBuffer = new SceneFrameBuffer(1024);
+		this.sceneFrameBuffer = new SceneFrameBuffer(2048);
 
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);
 

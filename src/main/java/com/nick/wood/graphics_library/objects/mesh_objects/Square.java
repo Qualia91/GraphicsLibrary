@@ -11,6 +11,7 @@ public class Square implements MeshObject {
 	private final Mesh mesh;
 	private final Material material;
 	private Transform transformation;
+	private boolean textureViaFBOFlag = false;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
 	Square(Material material, Transform transformation) {
@@ -43,5 +44,15 @@ public class Square implements MeshObject {
 	@Override
 	public String getStringToCompare() {
 		return "SQUARE" + material.getPath();
+	}
+
+	@Override
+	public void setTextureViaFBO(boolean flag) {
+		this.textureViaFBOFlag = flag;
+	}
+
+	@Override
+	public boolean isTextureViaFBOFlag() {
+		return textureViaFBOFlag;
 	}
 }

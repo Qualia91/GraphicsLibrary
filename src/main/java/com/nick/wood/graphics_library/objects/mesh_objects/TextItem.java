@@ -17,20 +17,24 @@ public class TextItem implements MeshObject {
 	private final int numCols;
 	private final int numRows;
 	private final Material material;
+	private float width = 0f;
+	private float height = 0f;
+	private Transform transformation;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	TextItem(String text, String fontFileName, int numCols, int numRows) {
+	TextItem(String text, String fontFileName, int numCols, int numRows, Transform transformation) {
 		super();
 		this.text = text;
 		this.numCols = numCols;
 		this.numRows = numRows;
 		material = new Material(fontFileName);
 		mesh = buildMesh(numCols, numRows);
+		this.transformation = transformation;
 	}
 
 	public void changeText(String text) {
-		mesh.destroyWithoutDestroyingMaterial();
 		this.text = text;
+		mesh.destroyWithoutDestroyingMaterial();
 		mesh = buildMesh(numCols, numRows);
 	}
 
@@ -46,6 +50,9 @@ public class TextItem implements MeshObject {
 		// set up tile info in font image
 		float tileWidth = 1f / (float)numCols;
 		float tileHeight = 1f / (float)numRows;
+
+		width = numChars * tileWidth;
+		height = tileHeight;
 
 		for(int i=0; i<numChars; i++) {
 			byte currChar = chars[i];
@@ -110,11 +117,20 @@ public class TextItem implements MeshObject {
 
 	@Override
 	public Transform getMeshTransformation() {
-		return Transform.Identity;
+		return transformation;
 	}
 
 	@Override
 	public String getStringToCompare() {
 		return text;
 	}
+
+	public float getWidth() {
+		return width;
+	}
+
+	public float getHeight() {
+		return height;
+	}
+
 }

@@ -191,7 +191,7 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformSceneGraph cameraTransformObj = new TransformSceneGraph(rootGameObject, cameraTransform);
-		Camera camera = new Camera(1.22173f, 1, 100000);
+		Camera camera = new Camera(1.22173f, 10, 100000);
 		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera, CameraType.PRIMARY);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformObj, true, true);
 		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
@@ -756,7 +756,6 @@ class TestBench {
 
 				LWJGLGameControlManager.checkInputs();
 
-				textItem.changeText("Hellow");
 
 			}
 		} catch (Exception exception) {

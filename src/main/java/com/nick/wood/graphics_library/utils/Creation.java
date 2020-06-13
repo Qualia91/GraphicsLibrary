@@ -147,4 +147,48 @@ public class Creation {
 		return transformMesh;
 	}
 
+	static public MeshSceneGraph CreateObjectAndGetSceneObject(Vec3f pos, SceneGraphNode parent, MeshObject meshGroup) {
+
+		Transform transformMesh = new TransformBuilder()
+				.setPosition(pos).build();
+
+		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
+
+		return new MeshSceneGraph(
+				meshTransform,
+				meshGroup
+		);
+	}
+
+	static public MeshSceneGraph CreateObjectAndGetSceneObject(Vec3f pos, QuaternionF rotation, SceneGraphNode parent, MeshObject meshGroup) {
+
+		Transform transformMesh = new TransformBuilder()
+				.setPosition(pos)
+				.setRotation(rotation)
+				.build();
+
+		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
+
+		return new MeshSceneGraph(
+				meshTransform,
+				meshGroup
+		);
+	}
+
+	static public MeshSceneGraph CreateObjectAndGetSceneObject(Vec3f pos, Vec3f scale, QuaternionF rotation, SceneGraphNode parent, MeshObject meshGroup) {
+
+		Transform transformMesh = new TransformBuilder()
+				.setScale(scale)
+				.setPosition(pos)
+				.setRotation(rotation)
+				.build();
+
+		TransformSceneGraph meshTransform = new TransformSceneGraph(parent, transformMesh);
+
+		return new MeshSceneGraph(
+				meshTransform,
+				meshGroup
+		);
+	}
+
 }

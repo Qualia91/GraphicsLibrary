@@ -69,9 +69,9 @@ public class Camera {
 		this.width = screenWidth;
 		this.height = screenHeight;
 		if (projectionMatrix == null) {
-			projectionMatrix = Matrix4f.Projection((float) width/ (float) height, fov, near, far);
+			projectionMatrix = Matrix4f.Projection((float) width / (float) height, fov, near, far);
 		} else {
-			projectionMatrix.updateProjection((float) width / (float) height, fov);
+			projectionMatrix = projectionMatrix.updateProjection((float) width / (float) height, fov);
 		}
 	}
 }

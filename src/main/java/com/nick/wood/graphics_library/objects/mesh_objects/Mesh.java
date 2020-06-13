@@ -225,7 +225,6 @@ public class Mesh {
 		GL15.glDeleteBuffers(nbo);
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(ibo);
-		GL30.glDeleteTextures(tbo);
 		GL30.glDeleteVertexArrays(vao);
 		created = false;
 	}

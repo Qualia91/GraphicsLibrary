@@ -5,6 +5,8 @@ import com.nick.wood.maths.objects.srt.Transform;
 
 public class MeshBuilder {
 
+	// todo add model map here so i dont remake models that are already made
+
 	private MeshType meshType = MeshType.SPHERE;
 	private boolean invertedNormals = false;
 	private String texture = "/textures/white.png";

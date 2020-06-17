@@ -24,4 +24,8 @@ public class MeshSceneGraph implements SceneGraphNode {
 	public void removeMeshObject() {
 		meshObject = null;
 	}
+
+	public void setMeshObject(MeshObject meshObject) {
+		this.meshObject = meshObject;
+	}
 }

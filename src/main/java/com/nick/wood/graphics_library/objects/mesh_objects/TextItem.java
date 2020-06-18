@@ -56,50 +56,49 @@ public class TextItem implements MeshObject {
 
 		for(int i=0; i<numChars; i++) {
 			byte currChar = chars[i];
-			int col = currChar % numCols;
+			int textCoordCol = currChar % numCols;
 			int row = currChar / numCols;
 
 			// Build a character tile composed by two triangles
 
-			// Left Top vertex
+			// Right Top vertex
 			vertex[i * 4] =
 					new Vertex(
-							new Vec3f(ZPOS, tileHeight, (float)i*tileWidth),
-							new Vec2f((float)col / (float)numCols, (float)row / (float)numRows),
-							//new Vec2f(0, 0),
+							new Vec3f(ZPOS, (float)(numChars - i)*tileWidth, tileHeight),
+							new Vec2f((float)(textCoordCol + 1) / (float)numCols, (float)row / (float)numRows),
 							Vec3f.X.neg());
 			indices[i*6] = i*VERTICES_PER_QUAD;
 
-			// Left Bottom vertex
+			// left Top vertex
 			vertex[i * 4 + 1] =
 					new Vertex(
-							new Vec3f(ZPOS,  0.0f,(float)i*tileWidth),
-							new Vec2f((float)col / (float)numCols, (float)(row + 1) / (float)numRows),
-							//new Vec2f(0, 1),
+							new Vec3f(ZPOS, (float)(numChars - i)*tileWidth + tileWidth, tileHeight),
+							new Vec2f((float) textCoordCol / (float)numCols, (float)row / (float)numRows),
 							Vec3f.X.neg());
 			indices[i*6 + 1] = i*VERTICES_PER_QUAD + 1;
 
-			// Right Bottom vertex
+			// right Bottom vertex
 			vertex[i * 4 + 2] =
 					new Vertex(
-							new Vec3f(ZPOS, 0.0f, (float)i*tileWidth + tileWidth),
-							new Vec2f((float)(col + 1) / (float)numCols, (float)(row + 1) / (float)numRows),
-							//new Vec2f(1, 1),
+							new Vec3f(ZPOS,  (float)(numChars - i)*tileWidth, 0.0f),
+							new Vec2f((float) (textCoordCol + 1) / (float)numCols, (float)(row + 1) / (float)numRows),
 							Vec3f.X.neg());
 			indices[i*6 + 2] = i*VERTICES_PER_QUAD + 2;
 
-			// Right Top vertex
+			// right Bottom vertex
+			indices[i*6 + 3] = i*VERTICES_PER_QUAD + 2;
+
+			// left top vertex
+			indices[i*6 + 4] = i*VERTICES_PER_QUAD + 1;
+
+			// left Bottom vertex
 			vertex[i * 4 + 3] =
 					new Vertex(
-							new Vec3f(ZPOS, tileHeight, (float)i*tileWidth + tileWidth),
-							new Vec2f((float)(col + 1) / (float)numCols, (float)row / (float)numRows),
-							//new Vec2f(1, 0),
+							new Vec3f(ZPOS, (float)(numChars - i)*tileWidth + tileWidth, 0.0f),
+							new Vec2f((float) textCoordCol / (float)numCols, (float)(row + 1) / (float)numRows),
 							Vec3f.X.neg());
-			indices[i*6 + 3] = i*VERTICES_PER_QUAD + 3;
+			indices[i*6 + 5] = i*VERTICES_PER_QUAD + 3;
 
-			// Add indices por left top and bottom right vertices
-			indices[i*6 + 4] = i*VERTICES_PER_QUAD;
-			indices[i*6 + 5] = i*VERTICES_PER_QUAD + 2;
 		}
 
 		return new Mesh(vertex, indices, material, false, false);

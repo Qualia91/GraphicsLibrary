@@ -44,6 +44,33 @@ public class SkyBox implements SceneGraphNode {
 
 	}
 
+	public SkyBox(RootObject parent, String skyboxTexture, SkyboxType skyboxType, int distance) {
+		this.skyboxSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.SKYBOX, this);
+
+		this.skyboxTexture = skyboxTexture;
+		this.skyboxType = skyboxType;
+
+		Transform build = new TransformBuilder()
+				.setScale(new Vec3f(distance, distance, distance))
+				.setRotation(QuaternionF.RotationY(Math.PI))
+				.build();
+
+		skybox = switch (skyboxType) {
+			case CUBE -> new MeshBuilder()
+					.setMeshType(MeshType.CUBOID)
+					.setInvertedNormals(false)
+					.setTransform(build)
+					.setTexture(skyboxTexture)
+					.build();
+			default ->  new MeshBuilder()
+					.setMeshType(MeshType.SPHERE)
+					.setInvertedNormals(false)
+					.setTriangleNumber(10)
+					.setTransform(build)
+					.setTexture(skyboxTexture).build();
+		};
+	}
+
 	public String getSkyboxTexture() {
 		return skyboxTexture;
 	}

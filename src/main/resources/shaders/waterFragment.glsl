@@ -48,6 +48,5 @@ void main() {
     // fresnel effect
     float factor = dot(passToCamera, passVertexNormal);
 
-    outColour = mix(refletionColour, refrationColour, pow(factor, 2));
-    //outColour = vec4(passToCamera, 1);
+    outColour = mix(refletionColour, refrationColour, pow(factor, 3));
 }

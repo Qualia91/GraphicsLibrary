@@ -9,7 +9,7 @@ public class WaterSceneObject implements SceneGraphNode {
 	private final SceneGraphNodeData waterSceneGraph;
 	private final MeshObject water;
 
-	public WaterSceneObject(RootObject parent, String waterTexture, String normalMap, int size, int waterHeight, int cellSize) {
+	public WaterSceneObject(SceneGraphNode parent, String waterTexture, String normalMap, int size, int waterHeight, int cellSize) {
 		this.waterSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.WATER, this);
 
 		water = new MeshBuilder()

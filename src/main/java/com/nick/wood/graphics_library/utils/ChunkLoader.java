@@ -29,14 +29,14 @@ public class ChunkLoader {
 
 	private final ArrayList<RootObject> gameObjects;
 	private final int chunkSize = 50;
-	private final int segmentSize = 500;
+	private final int segmentSize = 100;
 	private final ArrayList<ChunkIndex> activeChunkIndices = new ArrayList<>();
 	private final ArrayList<ChunkIndex> loadedChunkIndices = new ArrayList<>();
 	private final ConcurrentHashMap<ChunkIndex, MeshObject> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
 	private final Perlin2Df[] perlin2Ds;
-	private final int cellSpace = 5;
+	private final int cellSpace = 15;
 
-	private final  int visualClippingDistance = 10;
+	private final  int visualClippingDistance = 5;
 	private final  int loadingClippingDistance = visualClippingDistance + 6;
 
 
@@ -193,8 +193,8 @@ public class ChunkLoader {
 				(int) chunkPositionX,
 				(int) chunkPositionY,
 				perlin2Ds,
-				200,
-				amp -> amp
+				10,
+				amp -> amp * amp * amp
 		);
 
 		return new MeshBuilder()

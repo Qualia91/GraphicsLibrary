@@ -192,9 +192,15 @@ class TestBench {
 		gameObjects.add(rootGameObject);
 
 		RootObject skyboxRootObject = new RootObject();
-		SkyBox skyBox = new SkyBox(skyboxRootObject, "/textures/8k_stars.jpg", SkyboxType.SPHERE);
+		SkyBox skyBox = new SkyBox(skyboxRootObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE, 10000);
 		gameObjects.add(skyboxRootObject);
-		WaterSceneObject water = new WaterSceneObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 10, 10);
+
+		Transform waterTransform = new TransformBuilder()
+				.reset()
+				.setPosition(new Vec3f(0, 0, 0))
+				.build();
+		TransformSceneGraph waterTransformObj = new TransformSceneGraph(rootGameObject, waterTransform);
+		WaterSceneObject water = new WaterSceneObject(waterTransformObj, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 10, 100);
 
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
@@ -207,6 +213,8 @@ class TestBench {
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
 
 			ChunkLoader chunkLoader = new ChunkLoader(gameObjects, 5, 2);
+
+			waterTransform.setPosition(new Vec3f(cameraTransform.getPosition().getX() - (size*100/2), cameraTransform.getPosition().getY() - (size*100/2), 0));
 
 			while (!window.shouldClose()) {
 

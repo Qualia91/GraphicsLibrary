@@ -43,7 +43,7 @@ public class Square implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SQUARE" + material.getPath();
+		return "SQUARE" + material.getPath() + textureViaFBOFlag;
 	}
 
 	@Override
@@ -54,5 +54,10 @@ public class Square implements MeshObject {
 	@Override
 	public boolean isTextureViaFBOFlag() {
 		return textureViaFBOFlag;
+	}
+
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.SQUARE;
 	}
 }

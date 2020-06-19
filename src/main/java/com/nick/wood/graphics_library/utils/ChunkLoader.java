@@ -3,12 +3,11 @@ package com.nick.wood.graphics_library.utils;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.MeshSceneGraph;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.SceneGraph;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.SceneGraphNode;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.TransformSceneGraph;
+import com.nick.wood.graphics_library.objects.game_objects.MeshSceneGraph;
+import com.nick.wood.graphics_library.objects.game_objects.RootObject;
+import com.nick.wood.graphics_library.objects.game_objects.SceneGraphNode;
+import com.nick.wood.graphics_library.objects.game_objects.TransformSceneGraph;
 import com.nick.wood.maths.noise.Perlin2Df;
-import com.nick.wood.maths.objects.QuaternionF;
 import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec3f;
@@ -24,11 +23,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChunkLoader {
 
 	private final ExecutorService executorService = Executors.newFixedThreadPool(1);
-	private final SceneGraph sceneGraph;
+	private final RootObject rootObject;
 
 	private AtomicBoolean buildingActive = new AtomicBoolean(false);
 
-	private final HashMap<UUID, SceneGraph> gameObjects;
+	private final ArrayList<RootObject> gameObjects;
 	private final int chunkSize = 50;
 	private final int segmentSize = 500;
 	private final ArrayList<ChunkIndex> activeChunkIndices = new ArrayList<>();
@@ -43,7 +42,7 @@ public class ChunkLoader {
 
 	ArrayList<ChunkIndex> newListOfChunkIndexes = new ArrayList<>();
 
-	public ChunkLoader(HashMap<UUID, SceneGraph> gameObjects, int octaves, int lacunarity) {
+	public ChunkLoader(ArrayList<RootObject> gameObjects, int octaves, int lacunarity) {
 		this.gameObjects = gameObjects;
 		perlin2Ds = new Perlin2Df[octaves];
 		for (int i = 0; i < octaves; i++) {
@@ -52,8 +51,8 @@ public class ChunkLoader {
 			perlin2Ds[i] = new Perlin2Df(10000, currentSegmentSize);
 		}
 
-		this.sceneGraph = new SceneGraph();
-		gameObjects.put(sceneGraph.getSceneGraphNodeData().getUuid(), sceneGraph);
+		this.rootObject = new RootObject();
+		gameObjects.add(rootObject);
 	}
 
 	public void loadChunk(Vec3f currentPlayerPosition) {
@@ -154,7 +153,7 @@ public class ChunkLoader {
 
 	private void removeFromScene(MeshObject meshObject) {
 
-		for (SceneGraphNode child : sceneGraph.getSceneGraphNodeData().getChildren()) {
+		for (SceneGraphNode child : rootObject.getSceneGraphNodeData().getChildren()) {
 
 			TransformSceneGraph transformSceneGraph = (TransformSceneGraph) child;
 
@@ -179,7 +178,7 @@ public class ChunkLoader {
 		Transform transform = new TransformBuilder()
 				.setPosition(new Vec3f(chunkIndex.getX() * chunkSize * cellSpace, chunkIndex.getY() * chunkSize * cellSpace, 0)).build();
 
-		TransformSceneGraph transformSceneGraph = new TransformSceneGraph(sceneGraph, transform);
+		TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootObject, transform);
 
 		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, meshObject);
 

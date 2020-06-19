@@ -136,4 +136,8 @@ public class Material {
 	public void setReflectance(float reflectance) {
 		this.reflectance = reflectance;
 	}
+
+	public String getNormalMapPath() {
+		return normalMapPath;
+	}
 }

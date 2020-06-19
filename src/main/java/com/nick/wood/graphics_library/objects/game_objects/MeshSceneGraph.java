@@ -1,6 +1,8 @@
-package com.nick.wood.graphics_library.objects.scene_graph_objects;
+package com.nick.wood.graphics_library.objects.game_objects;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+
+import java.util.UUID;
 
 public class MeshSceneGraph implements SceneGraphNode {
 
@@ -9,6 +11,11 @@ public class MeshSceneGraph implements SceneGraphNode {
 
 	public MeshSceneGraph(SceneGraphNode parent, MeshObject meshObject) {
 		this.sceneGraphNodeData = new SceneGraphNodeData(parent, RenderObjectType.MESH, this);
+		this.meshObject = meshObject;
+	}
+
+	public MeshSceneGraph(UUID uuid, SceneGraphNode parent, MeshObject meshObject) {
+		this.sceneGraphNodeData = new SceneGraphNodeData(uuid, parent, RenderObjectType.MESH, this);
 		this.meshObject = meshObject;
 	}
 

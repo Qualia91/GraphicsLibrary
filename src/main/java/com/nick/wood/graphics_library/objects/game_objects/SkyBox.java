@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library.objects.scene_graph_objects;
+package com.nick.wood.graphics_library.objects.game_objects;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
@@ -12,10 +12,15 @@ public class SkyBox implements SceneGraphNode {
 
 	private final SceneGraphNodeData skyboxSceneGraph;
 	private final MeshObject skybox;
+	private final String skyboxTexture;
+	private final SkyboxType skyboxType;
 
 
-	public SkyBox(SceneGraph parent, String skyboxTexture, SkyboxType skyboxType) {
+	public SkyBox(RootObject parent, String skyboxTexture, SkyboxType skyboxType) {
 		this.skyboxSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.SKYBOX, this);
+
+		this.skyboxTexture = skyboxTexture;
+		this.skyboxType = skyboxType;
 
 		Transform build = new TransformBuilder()
 				.setScale(new Vec3f(1000, 1000, 1000))
@@ -23,7 +28,12 @@ public class SkyBox implements SceneGraphNode {
 				.build();
 
 		skybox = switch (skyboxType) {
-			case CUBE -> new MeshBuilder().setMeshType(MeshType.CUBOID).setInvertedNormals(false).setTransform(build).setTexture(skyboxTexture).build();
+			case CUBE -> new MeshBuilder()
+					.setMeshType(MeshType.CUBOID)
+					.setInvertedNormals(false)
+					.setTransform(build)
+					.setTexture(skyboxTexture)
+					.build();
 			default ->  new MeshBuilder()
 					.setMeshType(MeshType.SPHERE)
 					.setInvertedNormals(false)
@@ -32,6 +42,14 @@ public class SkyBox implements SceneGraphNode {
 					.setTexture(skyboxTexture).build();
 		};
 
+	}
+
+	public String getSkyboxTexture() {
+		return skyboxTexture;
+	}
+
+	public SkyboxType getSkyboxType() {
+		return skyboxType;
 	}
 
 	public SceneGraphNodeData getSkyboxSceneGraph() {

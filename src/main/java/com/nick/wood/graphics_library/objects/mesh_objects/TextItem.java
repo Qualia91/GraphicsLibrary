@@ -22,7 +22,7 @@ public class TextItem implements MeshObject {
 	private Transform transformation;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	TextItem(String text, String fontFileName, int numCols, int numRows, Transform transformation) {
+	TextItem(String text, String fontFileName, int numRows, int numCols, Transform transformation) {
 		super();
 		this.text = text;
 		this.numCols = numCols;
@@ -105,6 +105,14 @@ public class TextItem implements MeshObject {
 
 	}
 
+	public int getNumCols() {
+		return numCols;
+	}
+
+	public int getNumRows() {
+		return numRows;
+	}
+
 	public String getText() {
 		return text;
 	}
@@ -132,4 +140,8 @@ public class TextItem implements MeshObject {
 		return height;
 	}
 
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.TEXT;
+	}
 }

@@ -147,6 +147,15 @@ public class SphereMesh implements MeshObject {
 		mesh = new Mesh(vertices, indexList, material, invertedNormals, false);
 	}
 
+	public int getTriangleNumber() {
+		return triangleNumber;
+	}
+
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.SPHERE;
+	}
+
 	public Mesh getMesh() {
 		return mesh;
 	}
@@ -162,7 +171,7 @@ public class SphereMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SPHERE" + mesh.getMaterial().getPath() + triangleNumber;
+		return "SPHERE" + mesh.getMaterial().getPath() + triangleNumber + textureViaFBOFlag;
 	}
 
 	@Override

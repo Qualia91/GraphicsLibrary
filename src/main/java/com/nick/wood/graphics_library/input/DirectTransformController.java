@@ -2,12 +2,12 @@ package com.nick.wood.graphics_library.input;
 
 import com.nick.wood.game_control.input.ActionEnum;
 import com.nick.wood.game_control.input.Control;
-import com.nick.wood.graphics_library.Material;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.TransformSceneGraph;
+import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.maths.objects.QuaternionF;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
+import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -24,6 +24,38 @@ public class DirectTransformController implements Control {
 		this.transformSceneGraph = transformSceneGraph;
 		this.enableLook = enableLook;
 		this.enableMove = enableMove;
+	}
+
+	public DirectTransformController(ArrayList<RootObject> gameObjects, boolean enableLook, boolean enableMove) {
+
+		for (RootObject gameObject : gameObjects) {
+			TransformSceneGraph mainCameraTransform = findMainCameraTransform(gameObject, null);
+			if (mainCameraTransform != null) {
+				transformSceneGraph = mainCameraTransform;
+			}
+		}
+		if (transformSceneGraph == null) {
+			transformSceneGraph = new TransformSceneGraph(null, Transform.Identity);
+		}
+		this.enableLook = enableLook;
+		this.enableMove = enableMove;
+	}
+
+	private TransformSceneGraph findMainCameraTransform(SceneGraphNode gameObject, SceneGraphNode parent) {
+		if (gameObject instanceof CameraSceneGraph) {
+			CameraSceneGraph cameraSceneGraph = (CameraSceneGraph) gameObject;
+			if (cameraSceneGraph.getCameraType().equals(CameraType.PRIMARY)) {
+				return (TransformSceneGraph) parent;
+			}
+		} else {
+			for (SceneGraphNode child : gameObject.getSceneGraphNodeData().getChildren()) {
+				TransformSceneGraph mainCameraTransform = findMainCameraTransform(child, gameObject);
+				if (mainCameraTransform != null) {
+					return mainCameraTransform;
+				}
+			}
+		}
+		return null;
 	}
 
 	public void reset() {

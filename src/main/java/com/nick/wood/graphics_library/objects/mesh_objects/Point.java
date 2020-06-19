@@ -35,4 +35,9 @@ public class Point implements MeshObject {
 	public String getStringToCompare() {
 		return "POINT" + mesh.getMaterial().getPath();
 	}
+
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.POINT;
+	}
 }

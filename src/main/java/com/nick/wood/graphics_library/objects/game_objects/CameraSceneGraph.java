@@ -1,6 +1,8 @@
-package com.nick.wood.graphics_library.objects.scene_graph_objects;
+package com.nick.wood.graphics_library.objects.game_objects;
 
 import com.nick.wood.graphics_library.objects.Camera;
+
+import java.util.UUID;
 
 public class CameraSceneGraph implements SceneGraphNode {
 
@@ -8,10 +10,16 @@ public class CameraSceneGraph implements SceneGraphNode {
 	private Camera camera;
 	private CameraType cameraType;
 
-	public CameraSceneGraph(SceneGraphNode parent, Camera camera, CameraType cameraType) {
+	public CameraSceneGraph(SceneGraphNode parent, Camera camera) {
 		this.sceneGraphNodeData = new SceneGraphNodeData(parent, RenderObjectType.CAMERA, this);
 		this.camera = camera;
-		this.cameraType = cameraType;
+		this.cameraType = camera.getCameraType();
+	}
+
+	public CameraSceneGraph(UUID uuid, SceneGraphNode parent, Camera camera) {
+		this.sceneGraphNodeData = new SceneGraphNodeData(uuid, parent, RenderObjectType.CAMERA, this);
+		this.camera = camera;
+		this.cameraType = camera.getCameraType();
 	}
 
 	public Camera getCamera() {

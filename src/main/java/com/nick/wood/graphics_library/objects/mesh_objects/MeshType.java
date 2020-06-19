@@ -8,5 +8,6 @@ public enum MeshType {
 	MODEL,
 	TERRAIN,
 	POINT,
-	WATER
+	WATER,
+	TRIANGLE
 }

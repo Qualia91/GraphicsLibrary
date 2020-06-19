@@ -1,13 +1,17 @@
-package com.nick.wood.graphics_library.objects.scene_graph_objects;
+package com.nick.wood.graphics_library.objects.game_objects;
 
-import java.util.ArrayList;
+import java.util.UUID;
 
-public class SceneGraph implements SceneGraphNode {
+public class RootObject implements SceneGraphNode {
 
 	private final SceneGraphNodeData sceneGraphNodeData;
 
-	public SceneGraph() {
+	public RootObject() {
 		this.sceneGraphNodeData = new SceneGraphNodeData(null, RenderObjectType.ROOT, this);
+	}
+
+	public RootObject(UUID uuid) {
+		this.sceneGraphNodeData = new SceneGraphNodeData(uuid, null, RenderObjectType.ROOT, this);;
 	}
 
 	@Override

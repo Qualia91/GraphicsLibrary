@@ -124,4 +124,12 @@ public class Triangle implements MeshObject {
 		return "TRIANGLE" + mesh.getMaterial().getPath();
 	}
 
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.TRIANGLE;
+	}
+
+	public int getTriangleNumber() {
+		return triangleNumber;
+	}
 }

@@ -4,10 +4,10 @@ import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
+import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
@@ -203,7 +203,7 @@ public class Window implements AutoCloseable {
 
 	}
 
-	public void loop(HashMap<UUID, SceneGraph> gameObjects, HashMap<UUID, SceneGraph> hudObjects, UUID primaryCamera) {
+	public void loop(ArrayList<RootObject> gameObjects, ArrayList<RootObject> hudObjects, UUID primaryCamera) {
 
 		// user inputs
 		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -233,12 +233,12 @@ public class Window implements AutoCloseable {
 		scene.setPrimaryCamera(primaryCamera);
 		hudScene.setPrimaryCamera(primaryCamera);
 
-		Iterator<Map.Entry<UUID, SceneGraph>> mainIterator = gameObjects.entrySet().iterator();
+		Iterator<RootObject> mainIterator = gameObjects.iterator();
 
 		while (mainIterator.hasNext()) {
-			Map.Entry<UUID, SceneGraph> next = mainIterator.next();
-			createRenderLists(scene, next.getValue(), Matrix4f.Identity);
-			if (next.getValue().getSceneGraphNodeData().isDelete()) {
+			RootObject next = mainIterator.next();
+			createRenderLists(scene, next, Matrix4f.Identity);
+			if (next.getSceneGraphNodeData().isDelete()) {
 				mainIterator.remove();
 			}
 		}
@@ -247,12 +247,12 @@ public class Window implements AutoCloseable {
 		// this makes sure hud is ontop of everything in scene
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		Iterator<Map.Entry<UUID, SceneGraph>> hudIterator = hudObjects.entrySet().iterator();
+		Iterator<RootObject> hudIterator = hudObjects.iterator();
 
 		while (hudIterator.hasNext()) {
-			Map.Entry<UUID, SceneGraph> next = hudIterator.next();
-			createRenderLists(hudScene, next.getValue(), Matrix4f.Identity);
-			if (next.getValue().getSceneGraphNodeData().isDelete()) {
+			RootObject next = hudIterator.next();
+			createRenderLists(hudScene, next, Matrix4f.Identity);
+			if (next.getSceneGraphNodeData().isDelete()) {
 				hudIterator.remove();
 			}
 		}
@@ -311,10 +311,26 @@ public class Window implements AutoCloseable {
 						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
 							meshGameObject.getMeshObject().getMesh().create();
 						}
-						if (scene.getMeshes().containsKey(meshGameObject.getMeshObject())) {
-							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
-							scene.getMeshes().get(meshGameObject.getMeshObject()).add(meshInstance);
-						} else {
+						boolean found = false;
+						for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : scene.getMeshes().entrySet()) {
+							if (meshObjectArrayListEntry.getKey().getStringToCompare().equals(meshGameObject.getMeshObject().getStringToCompare())) {
+								InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+								meshObjectArrayListEntry.getValue().add(meshInstance);
+								found = true;
+								break;
+							}
+						}
+						//if (scene.getMeshes().containsKey(meshGameObject.getMeshObject())) {
+						//	InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+						//	scene.getMeshes().get(meshGameObject.getMeshObject()).add(meshInstance);
+						//}
+						//else {
+						//	ArrayList<InstanceObject> meshObjects = new ArrayList<>();
+						//	InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
+						//	meshObjects.add(meshInstance);
+						//	scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
+						//}
+						if (!found) {
 							ArrayList<InstanceObject> meshObjects = new ArrayList<>();
 							InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
 							meshObjects.add(meshInstance);
@@ -386,10 +402,6 @@ public class Window implements AutoCloseable {
 
 		}
 
-	}
-
-	private boolean isAvailableRenderData(SceneGraphNodeData sceneGraphNodeData) {
-		return sceneGraphNodeData.containsMeshes() || sceneGraphNodeData.containsCameras() || sceneGraphNodeData.containsLights();
 	}
 
 	public void setTitle(String title) {

@@ -32,7 +32,11 @@ public class ModelMesh implements MeshObject {
 	}
 
 	public String getStringToCompare() {
-		return filePath + material.getPath();
+		return filePath + material.getPath() + textureViaFBOFlag;
+	}
+
+	public String getFilePath() {
+		return filePath;
 	}
 
 	@Override
@@ -67,5 +71,10 @@ public class ModelMesh implements MeshObject {
 	@Override
 	public boolean isTextureViaFBOFlag() {
 		return textureViaFBOFlag;
+	}
+
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.MODEL;
 	}
 }

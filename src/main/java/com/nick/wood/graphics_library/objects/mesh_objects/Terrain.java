@@ -15,20 +15,25 @@ public class Terrain implements MeshObject {
 	private final Mesh mesh;
 	private final double cellSpace;
 	private final int width;
+	private final MeshType meshType;
+	private final int height;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, Material material, double cellSpace) {
+	Terrain(float[][] terrainHeightMap, Material material, double cellSpace, MeshType meshType) {
 		super();
+		this.meshType = meshType;
 		this.terrainHeightMap = terrainHeightMap;
 		this.cellSpace = cellSpace;
 		this.material = material;
 		this.width = terrainHeightMap.length;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
+		this.height = 0;
 	}
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(int size, int height, Material material, double cellSpace) {
+	Terrain(int size, int height, Material material, double cellSpace, MeshType meshType) {
 		super();
+		this.meshType = meshType;
 		this.terrainHeightMap = new float[size][size];
 		for (float[] floats : this.terrainHeightMap) {
 			Arrays.fill(floats, height);
@@ -36,6 +41,7 @@ public class Terrain implements MeshObject {
 		this.cellSpace = cellSpace;
 		this.material = material;
 		this.width = size;
+		this.height = height;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
 	}
 
@@ -173,4 +179,24 @@ public class Terrain implements MeshObject {
 		return "TERRAIN" + Arrays.deepHashCode(terrainHeightMap) + cellSpace;
 	}
 
+	@Override
+	public MeshType getMeshType() {
+		return meshType;
+	}
+
+	public float[][] getTerrainHeightMap() {
+		return terrainHeightMap;
+	}
+
+	public double getCellSpace() {
+		return cellSpace;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
 }

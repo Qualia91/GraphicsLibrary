@@ -114,4 +114,9 @@ public class CubeMesh implements MeshObject {
 		return "CUBE" + mesh.getMaterial().getPath();
 	}
 
+	@Override
+	public MeshType getMeshType() {
+		return MeshType.CUBOID;
+	}
+
 }

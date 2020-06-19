@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.graphics_library.objects.scene_graph_objects.CameraType;
+import com.nick.wood.graphics_library.objects.game_objects.CameraType;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 public class Camera {

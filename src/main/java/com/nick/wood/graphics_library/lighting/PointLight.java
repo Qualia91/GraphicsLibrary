@@ -5,16 +5,16 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 public class PointLight implements Light {
 
 	private Vec3f colour;
-	private double intensity;
+	private float intensity;
 	private Attenuation attenuation;
 
-	public PointLight(Vec3f colour, double intensity, Attenuation attenuation) {
+	public PointLight(Vec3f colour, float intensity, Attenuation attenuation) {
 		this.colour = colour;
 		this.intensity = intensity;
 		this.attenuation = attenuation;
 	}
 
-	public PointLight(Vec3f colour, double intensity) {
+	public PointLight(Vec3f colour, float intensity) {
 		this(colour, intensity, new Attenuation(1f, 0.5f, 0.25f));
 	}
 
@@ -22,7 +22,7 @@ public class PointLight implements Light {
 		return colour;
 	}
 
-	public double getIntensity() {
+	public float getIntensity() {
 		return intensity;
 	}
 

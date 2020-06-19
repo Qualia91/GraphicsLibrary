@@ -13,7 +13,6 @@ public class MeshBuilder {
 	private String normalTexture = null;
 	private Transform transformation = Transform.Identity;
 	private int triangleNumber = 5;
-	private Material material;
 	private String text = "DEFAULT_STRING";
 	private String fontFile = "/font/gothic.png";
 	private int rowNum = 16;
@@ -30,12 +29,10 @@ public class MeshBuilder {
 
 	public MeshObject build() {
 
-		if (material == null) {
-			material = new Material(texture);
+		Material material = new Material(texture);
 
-			if (normalTexture != null) {
-				material.setNormalMap(normalTexture);
-			}
+		if (normalTexture != null) {
+			material.setNormalMap(normalTexture);
 		}
 
 		MeshObject meshObject = switch (meshType) {
@@ -44,9 +41,10 @@ public class MeshBuilder {
 			case MODEL -> new ModelMesh(modelFile, material, invertedNormals, transformation);
 			case SQUARE -> new Square(material, transformation);
 			case TEXT -> new TextItem(text, fontFile, rowNum, colNum, transformation);
-			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace);
-			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace);
+			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace, meshType);
+			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType);
 			case POINT -> new Point(transformation, material);
+			case TRIANGLE -> new Triangle(transformation, triangleNumber, invertedNormals);
 		};
 
 		meshObject.setTextureViaFBO(flag);
@@ -104,10 +102,6 @@ public class MeshBuilder {
 	};
 	public MeshBuilder setTriangleNumber(int triangleNumber) {
 		this.triangleNumber = triangleNumber;
-		return this;
-	};
-	public MeshBuilder setMaterial(Material material) {
-		this.material = material;
 		return this;
 	};
 	public MeshBuilder setTerrainHeightMap(float[][] terrainHeightMap) {

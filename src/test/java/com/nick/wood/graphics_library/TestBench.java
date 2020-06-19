@@ -3,28 +3,23 @@ package com.nick.wood.graphics_library;
 import com.nick.wood.graphics_library.input.DirectTransformController;
 import com.nick.wood.graphics_library.input.LWJGLGameControlManager;
 import com.nick.wood.graphics_library.lighting.DirectionalLight;
-import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.scene_graph_objects.*;
+import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
 import com.nick.wood.graphics_library.utils.*;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
 import com.nick.wood.maths.objects.QuaternionF;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec2i;
 import com.nick.wood.maths.objects.vector.Vec3f;
-import com.nick.wood.maths.objects.vector.Vec4f;
 import org.junit.jupiter.api.Test;
 
+import java.util.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 class TestBench {
 
@@ -37,9 +32,9 @@ class TestBench {
 	@Test
 	public void empty() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		Camera camera = new Camera(1.22173f, 1, 100000);
 
@@ -48,9 +43,9 @@ class TestBench {
 
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
 
-		gameObjects.put(UUID.randomUUID(), rootGameObject);
+		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
@@ -60,7 +55,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraTransformGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraTransformGameObject.getSceneGraphNodeData().getUuid());
 
 			}
 
@@ -73,9 +68,9 @@ class TestBench {
 	@Test
 	public void stress() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		TransformBuilder transformBuilder = new TransformBuilder();
 
@@ -129,10 +124,10 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformObj = new TransformSceneGraph(rootGameObject, cameraTransform);
 		Camera camera = new Camera(1.22173f, 1, 100000);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera);
 		DirectTransformController directCameraController = new DirectTransformController(cameraTransformObj, true, true);
 
-		gameObjects.put(UUID.randomUUID(), rootGameObject);
+		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
@@ -146,7 +141,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -167,9 +162,9 @@ class TestBench {
 	@Test
 	void infiniteHeightMapTerrain() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		int size = 1000;
 
@@ -192,13 +187,13 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformObj = new TransformSceneGraph(rootGameObject, cameraTransform);
 		Camera camera = new Camera(1.22173f, 10, 100000);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformObj, camera);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformObj, true, true);
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		gameObjects.add(rootGameObject);
 
-		SceneGraph skyboxSceneGraph = new SceneGraph();
-		SkyBox skyBox = new SkyBox(skyboxSceneGraph, "/textures/8k_stars.jpg", SkyboxType.SPHERE);
-		gameObjects.put(skyboxSceneGraph.getSceneGraphNodeData().getUuid(), skyboxSceneGraph);
+		RootObject skyboxRootObject = new RootObject();
+		SkyBox skyBox = new SkyBox(skyboxRootObject, "/textures/8k_stars.jpg", SkyboxType.SPHERE);
+		gameObjects.add(skyboxRootObject);
 		WaterSceneObject water = new WaterSceneObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 10, 10);
 
 
@@ -219,7 +214,7 @@ class TestBench {
 
 				chunkLoader.loadChunk(cameraTransform.getPosition());
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 
 			}
@@ -233,9 +228,9 @@ class TestBench {
 	@Test
 	void terrain() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		int size = 500;
 
@@ -285,8 +280,8 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
@@ -299,7 +294,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -312,9 +307,9 @@ class TestBench {
 	@Test
 	void terrain3D() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		int cubeSize = 2;
 
@@ -411,8 +406,8 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
 
 		float width = (size * cubeSize);
 		int space = 50;
@@ -447,7 +442,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -463,9 +458,9 @@ class TestBench {
 	@Test
 	void infiniteTerrain3D() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		int cubeSize = 1;
 
@@ -522,8 +517,8 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(rootGameObject, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
 
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
@@ -534,11 +529,11 @@ class TestBench {
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
 
-			HashMap<UUID, SceneGraph> objectObjectHashMap = new HashMap<>();
+			ArrayList<RootObject> objectObjectArrayList = new ArrayList<>();
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, objectObjectHashMap, cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, objectObjectArrayList, cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -555,7 +550,7 @@ class TestBench {
 
 	}
 
-	private void cullCubes(SceneGraph rootGameObject, Vec3f pos) {
+	private void cullCubes(RootObject rootGameObject, Vec3f pos) {
 
 		ArrayList<String> removeList = new ArrayList<>();
 
@@ -598,7 +593,7 @@ class TestBench {
 	                       Perlin3D perlin3D,
 	                       Perlin2Df perlin2D,
 	                       int cubeSize,
-	                       HashMap<UUID, SceneGraph> sceneGraphHashMap,
+	                       ArrayList<RootObject> sceneGraphArrayList,
 	                       int hillHeight,
 	                       MeshObject cubeFire,
 	                       MeshObject cubeSand,
@@ -636,12 +631,12 @@ class TestBench {
 
 								if (point < weight) {
 
-									SceneGraph sceneGraph = new SceneGraph();
+									RootObject rootObject = new RootObject();
 
 									Transform transform = transformBuilder
 											.setPosition(new Vec3f(i * cubeSize, j * cubeSize, k * cubeSize)).build();
 
-									TransformSceneGraph transformSceneGraph = new TransformSceneGraph(sceneGraph, transform);
+									TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootObject, transform);
 
 									if (k < 2) {
 										MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeFire);
@@ -651,7 +646,7 @@ class TestBench {
 										MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, cubeGrass);
 									}
 									cubeMap.put(index, transformSceneGraph);
-									sceneGraphHashMap.put(sceneGraph.getSceneGraphNodeData().getUuid(), sceneGraph);
+									sceneGraphArrayList.add(rootObject);
 								}
 							}
 						}
@@ -664,9 +659,9 @@ class TestBench {
 	@Test
 	public void normal() {
 
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		TransformBuilder transformBuilder = new TransformBuilder();
 
@@ -738,8 +733,8 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 		windowInitialisationParametersBuilder.setLockCursor(true);
@@ -752,7 +747,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -806,9 +801,9 @@ class TestBench {
 
 	@Test
 	public void particleSystem() {
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		TransformBuilder transformBuilder = new TransformBuilder();
 
@@ -858,12 +853,12 @@ class TestBench {
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(wholeSceneTransform, true, true);
 
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
 		DirectTransformController directCameraController = new DirectTransformController(cameraTransformGameObject, true, true);
 
 
 
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
@@ -875,7 +870,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -887,9 +882,9 @@ class TestBench {
 
 	@Test
 	public void mase() {
-		HashMap<UUID, SceneGraph> gameObjects = new HashMap<>();
+		ArrayList<RootObject> gameObjects = new ArrayList<>();
 
-		SceneGraph rootGameObject = new SceneGraph();
+		RootObject rootGameObject = new RootObject();
 
 		TransformBuilder transformBuilder = new TransformBuilder();
 
@@ -929,8 +924,8 @@ class TestBench {
 				.build();
 		TransformSceneGraph cameraTransformGameObject = new TransformSceneGraph(wholeSceneTransform, cameraTransform);
 		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
-		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera, CameraType.PRIMARY);
-		gameObjects.put(cameraGameObject.getSceneGraphNodeData().getUuid(), rootGameObject);
+		CameraSceneGraph cameraGameObject = new CameraSceneGraph(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
 
 		int width = 100;
 		int height = 100;
@@ -1021,7 +1016,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new HashMap<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
+				window.loop(gameObjects, new ArrayList<>(), cameraGameObject.getSceneGraphNodeData().getUuid());
 
 				LWJGLGameControlManager.checkInputs();
 

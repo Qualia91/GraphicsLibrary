@@ -26,38 +26,6 @@ public class DirectTransformController implements Control {
 		this.enableMove = enableMove;
 	}
 
-	public DirectTransformController(ArrayList<RootObject> gameObjects, boolean enableLook, boolean enableMove) {
-
-		for (RootObject gameObject : gameObjects) {
-			TransformSceneGraph mainCameraTransform = findMainCameraTransform(gameObject, null);
-			if (mainCameraTransform != null) {
-				transformSceneGraph = mainCameraTransform;
-			}
-		}
-		if (transformSceneGraph == null) {
-			transformSceneGraph = new TransformSceneGraph(null, Transform.Identity);
-		}
-		this.enableLook = enableLook;
-		this.enableMove = enableMove;
-	}
-
-	private TransformSceneGraph findMainCameraTransform(SceneGraphNode gameObject, SceneGraphNode parent) {
-		if (gameObject instanceof CameraSceneGraph) {
-			CameraSceneGraph cameraSceneGraph = (CameraSceneGraph) gameObject;
-			if (cameraSceneGraph.getCameraType().equals(CameraType.PRIMARY)) {
-				return (TransformSceneGraph) parent;
-			}
-		} else {
-			for (SceneGraphNode child : gameObject.getSceneGraphNodeData().getChildren()) {
-				TransformSceneGraph mainCameraTransform = findMainCameraTransform(child, gameObject);
-				if (mainCameraTransform != null) {
-					return mainCameraTransform;
-				}
-			}
-		}
-		return null;
-	}
-
 	public void reset() {
 	}
 

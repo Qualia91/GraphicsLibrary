@@ -4,13 +4,13 @@ import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 
-public class WaterSceneObject implements SceneGraphNode {
+public class WaterObject implements GameObject {
 
-	private final SceneGraphNodeData waterSceneGraph;
+	private final GameObjectData waterSceneGraph;
 	private final MeshObject water;
 
-	public WaterSceneObject(SceneGraphNode parent, String waterTexture, String normalMap, int size, int waterHeight, int cellSize) {
-		this.waterSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.WATER, this);
+	public WaterObject(GameObject parent, String waterTexture, String normalMap, int size, int waterHeight, int cellSize) {
+		this.waterSceneGraph = new GameObjectData(parent, ObjectType.WATER, this);
 
 		water = new MeshBuilder()
 				.setMeshType(MeshType.WATER)
@@ -28,7 +28,7 @@ public class WaterSceneObject implements SceneGraphNode {
 	}
 
 	@Override
-	public SceneGraphNodeData getSceneGraphNodeData() {
+	public GameObjectData getGameObjectData() {
 		return waterSceneGraph;
 	}
 }

@@ -8,47 +8,22 @@ import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
-public class SkyBox implements SceneGraphNode {
+import java.util.UUID;
 
-	private final SceneGraphNodeData skyboxSceneGraph;
+public class SkyBoxObject implements GameObject {
+
+	private final GameObjectData skyboxSceneGraph;
 	private final MeshObject skybox;
 	private final String skyboxTexture;
 	private final SkyboxType skyboxType;
+	private final float distance;
 
-
-	public SkyBox(RootObject parent, String skyboxTexture, SkyboxType skyboxType) {
-		this.skyboxSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.SKYBOX, this);
-
-		this.skyboxTexture = skyboxTexture;
-		this.skyboxType = skyboxType;
-
-		Transform build = new TransformBuilder()
-				.setScale(new Vec3f(1000, 1000, 1000))
-				.setRotation(QuaternionF.RotationY(Math.PI))
-				.build();
-
-		skybox = switch (skyboxType) {
-			case CUBE -> new MeshBuilder()
-					.setMeshType(MeshType.CUBOID)
-					.setInvertedNormals(false)
-					.setTransform(build)
-					.setTexture(skyboxTexture)
-					.build();
-			default ->  new MeshBuilder()
-					.setMeshType(MeshType.SPHERE)
-					.setInvertedNormals(false)
-					.setTriangleNumber(10)
-					.setTransform(build)
-					.setTexture(skyboxTexture).build();
-		};
-
-	}
-
-	public SkyBox(RootObject parent, String skyboxTexture, SkyboxType skyboxType, int distance) {
-		this.skyboxSceneGraph = new SceneGraphNodeData(parent, RenderObjectType.SKYBOX, this);
+	public SkyBoxObject(GameObject parent, String skyboxTexture, SkyboxType skyboxType, int distance) {
+		this.skyboxSceneGraph = new GameObjectData(parent, ObjectType.SKYBOX, this);
 
 		this.skyboxTexture = skyboxTexture;
 		this.skyboxType = skyboxType;
+		this.distance = distance;
 
 		Transform build = new TransformBuilder()
 				.setScale(new Vec3f(distance, distance, distance))
@@ -71,6 +46,38 @@ public class SkyBox implements SceneGraphNode {
 		};
 	}
 
+	public SkyBoxObject(UUID uuid, GameObject parent, String skyboxTexture, SkyboxType skyboxType, float distance) {
+		this.skyboxSceneGraph = new GameObjectData(uuid, parent, ObjectType.SKYBOX, this);
+
+		this.skyboxTexture = skyboxTexture;
+		this.skyboxType = skyboxType;
+		this.distance = distance;
+
+		Transform build = new TransformBuilder()
+				.setScale(new Vec3f(distance, distance, distance))
+				.setRotation(QuaternionF.RotationY(Math.PI))
+				.build();
+
+		skybox = switch (skyboxType) {
+			case CUBE -> new MeshBuilder()
+					.setMeshType(MeshType.CUBOID)
+					.setInvertedNormals(false)
+					.setTransform(build)
+					.setTexture(skyboxTexture)
+					.build();
+			default ->  new MeshBuilder()
+					.setMeshType(MeshType.SPHERE)
+					.setInvertedNormals(false)
+					.setTriangleNumber(10)
+					.setTransform(build)
+					.setTexture(skyboxTexture).build();
+		};
+	}
+
+	public float getDistance() {
+		return distance;
+	}
+
 	public String getSkyboxTexture() {
 		return skyboxTexture;
 	}
@@ -79,7 +86,7 @@ public class SkyBox implements SceneGraphNode {
 		return skyboxType;
 	}
 
-	public SceneGraphNodeData getSkyboxSceneGraph() {
+	public GameObjectData getSkyboxSceneGraph() {
 		return skyboxSceneGraph;
 	}
 
@@ -88,7 +95,7 @@ public class SkyBox implements SceneGraphNode {
 	}
 
 	@Override
-	public SceneGraphNodeData getSceneGraphNodeData() {
+	public GameObjectData getGameObjectData() {
 		return skyboxSceneGraph;
 	}
 }

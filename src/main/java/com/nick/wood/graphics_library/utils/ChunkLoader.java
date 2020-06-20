@@ -1,20 +1,17 @@
 package com.nick.wood.graphics_library.utils;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
-import com.nick.wood.graphics_library.objects.game_objects.MeshSceneGraph;
+import com.nick.wood.graphics_library.objects.game_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.game_objects.RootObject;
-import com.nick.wood.graphics_library.objects.game_objects.SceneGraphNode;
-import com.nick.wood.graphics_library.objects.game_objects.TransformSceneGraph;
+import com.nick.wood.graphics_library.objects.game_objects.GameObject;
+import com.nick.wood.graphics_library.objects.game_objects.TransformObject;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.srt.TransformBuilder;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,12 +24,12 @@ public class ChunkLoader {
 
 	private AtomicBoolean buildingActive = new AtomicBoolean(false);
 
-	private final ArrayList<RootObject> gameObjects;
+	private final ArrayList<GameObject> gameObjects;
 	private final int chunkSize = 50;
 	private final int segmentSize = 100;
 	private final ArrayList<ChunkIndex> activeChunkIndices = new ArrayList<>();
 	private final ArrayList<ChunkIndex> loadedChunkIndices = new ArrayList<>();
-	private final ConcurrentHashMap<ChunkIndex, MeshObject> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<ChunkIndex, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
 	private final Perlin2Df[] perlin2Ds;
 	private final int cellSpace = 15;
 
@@ -42,7 +39,7 @@ public class ChunkLoader {
 
 	ArrayList<ChunkIndex> newListOfChunkIndexes = new ArrayList<>();
 
-	public ChunkLoader(ArrayList<RootObject> gameObjects, int octaves, int lacunarity) {
+	public ChunkLoader(ArrayList<GameObject> gameObjects, int octaves, int lacunarity) {
 		this.gameObjects = gameObjects;
 		perlin2Ds = new Perlin2Df[octaves];
 		for (int i = 0; i < octaves; i++) {
@@ -83,7 +80,7 @@ public class ChunkLoader {
 							if (!loadedChunkIndices.contains(chunkIndex)) {
 								// add chunk to new list
 								// and load it
-								MeshObject meshObject = createChunk(x * chunkSize, y * chunkSize);
+								com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject = createChunk(x * chunkSize, y * chunkSize);
 								chunkIndexSceneGraphHashMap.put(chunkIndex, meshObject);
 								loadedChunkIndices.add(chunkIndex);
 
@@ -126,7 +123,7 @@ public class ChunkLoader {
 					if (!activeChunkIndices.contains(chunkIndex)) {
 						// add chunk to new list
 						// then display it
-						MeshObject meshObject = chunkIndexSceneGraphHashMap.get(chunkIndex);
+						com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject = chunkIndexSceneGraphHashMap.get(chunkIndex);
 
 						addToScene(meshObject, chunkIndex);
 
@@ -140,7 +137,7 @@ public class ChunkLoader {
 		// no go through and unload the chunks that shouldn't be active
 		activeChunkIndices.removeIf(activeChunk -> {
 			if (Math.abs(activeChunk.getX() - xIndex) > visualClippingDistance + 5 || Math.abs(activeChunk.getY() - yIndex) > visualClippingDistance + 5) {
-				MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
+				com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
 				removeFromScene(meshObject);
 
 				return true;
@@ -151,19 +148,19 @@ public class ChunkLoader {
 
 	}
 
-	private void removeFromScene(MeshObject meshObject) {
+	private void removeFromScene(com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject) {
 
-		for (SceneGraphNode child : rootObject.getSceneGraphNodeData().getChildren()) {
+		for (GameObject child : rootObject.getGameObjectData().getChildren()) {
 
-			TransformSceneGraph transformSceneGraph = (TransformSceneGraph) child;
+			TransformObject transformObject = (TransformObject) child;
 
-			for (SceneGraphNode sceneGraphNode : transformSceneGraph.getSceneGraphNodeData().getChildren()) {
+			for (GameObject gameObject : transformObject.getGameObjectData().getChildren()) {
 
-				MeshSceneGraph meshSceneGraph = (MeshSceneGraph) sceneGraphNode;
+				MeshObject meshGameObject = (MeshObject) gameObject;
 
-				if (meshSceneGraph.getMeshObject().equals(meshObject)) {
+				if (meshGameObject.getMeshObject().equals(meshObject)) {
 
-					child.getSceneGraphNodeData().delete();
+					child.getGameObjectData().delete();
 
 				}
 
@@ -173,18 +170,18 @@ public class ChunkLoader {
 
 	}
 
-	private void addToScene(MeshObject meshObject, ChunkIndex chunkIndex) {
+	private void addToScene(com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject, ChunkIndex chunkIndex) {
 
 		Transform transform = new TransformBuilder()
 				.setPosition(new Vec3f(chunkIndex.getX() * chunkSize * cellSpace, chunkIndex.getY() * chunkSize * cellSpace, 0)).build();
 
-		TransformSceneGraph transformSceneGraph = new TransformSceneGraph(rootObject, transform);
+		TransformObject transformObject = new TransformObject(rootObject, transform);
 
-		MeshSceneGraph meshSceneGraph = new MeshSceneGraph(transformSceneGraph, meshObject);
+		MeshObject meshGameObject = new MeshObject(transformObject, meshObject);
 
 	}
 
-	private MeshObject createChunk(float chunkPositionX, float chunkPositionY) {
+	private com.nick.wood.graphics_library.objects.mesh_objects.MeshObject createChunk(float chunkPositionX, float chunkPositionY) {
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
 		float[][] grid = proceduralGeneration.generateHeightMapChunk(

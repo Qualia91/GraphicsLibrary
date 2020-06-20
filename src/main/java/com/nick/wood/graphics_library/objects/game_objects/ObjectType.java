@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.game_objects;
 
-public enum RenderObjectType {
+public enum ObjectType {
 	ROOT,
 	CAMERA,
 	LIGHT,
@@ -9,4 +9,5 @@ public enum RenderObjectType {
 	PLAYER,
 	SKYBOX,
 	WATER,
+	EXTERNAL
 }

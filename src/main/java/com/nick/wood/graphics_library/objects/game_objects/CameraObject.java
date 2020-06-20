@@ -4,20 +4,20 @@ import com.nick.wood.graphics_library.objects.Camera;
 
 import java.util.UUID;
 
-public class CameraSceneGraph implements SceneGraphNode {
+public class CameraObject implements GameObject {
 
-	private final SceneGraphNodeData sceneGraphNodeData;
+	private final GameObjectData gameObjectData;
 	private Camera camera;
 	private CameraType cameraType;
 
-	public CameraSceneGraph(SceneGraphNode parent, Camera camera) {
-		this.sceneGraphNodeData = new SceneGraphNodeData(parent, RenderObjectType.CAMERA, this);
+	public CameraObject(GameObject parent, Camera camera) {
+		this.gameObjectData = new GameObjectData(parent, ObjectType.CAMERA, this);
 		this.camera = camera;
 		this.cameraType = camera.getCameraType();
 	}
 
-	public CameraSceneGraph(UUID uuid, SceneGraphNode parent, Camera camera) {
-		this.sceneGraphNodeData = new SceneGraphNodeData(uuid, parent, RenderObjectType.CAMERA, this);
+	public CameraObject(UUID uuid, GameObject parent, Camera camera) {
+		this.gameObjectData = new GameObjectData(uuid, parent, ObjectType.CAMERA, this);
 		this.camera = camera;
 		this.cameraType = camera.getCameraType();
 	}
@@ -35,8 +35,8 @@ public class CameraSceneGraph implements SceneGraphNode {
 	}
 
 	@Override
-	public SceneGraphNodeData getSceneGraphNodeData() {
-		return sceneGraphNodeData;
+	public GameObjectData getGameObjectData() {
+		return gameObjectData;
 	}
 
 }

@@ -7,18 +7,18 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 
 import java.util.UUID;
 
-public class TransformSceneGraph implements SceneGraphNode {
+public class TransformObject implements GameObject {
 
-	private final SceneGraphNodeData sceneGraphNodeData;
+	private final GameObjectData gameObjectData;
 	private final Transform transform;
 
-	public TransformSceneGraph(SceneGraphNode parent, Transform transform) {
-		this.sceneGraphNodeData = new SceneGraphNodeData(parent, RenderObjectType.TRANSFORM, this);
+	public TransformObject(GameObject parent, Transform transform) {
+		this.gameObjectData = new GameObjectData(parent, ObjectType.TRANSFORM, this);
 		this.transform = transform;
 	}
 
-	public TransformSceneGraph(UUID uuid, SceneGraphNode parent, Transform transform) {
-		this.sceneGraphNodeData = new SceneGraphNodeData(uuid, parent, RenderObjectType.TRANSFORM, this);
+	public TransformObject(UUID uuid, GameObject parent, Transform transform) {
+		this.gameObjectData = new GameObjectData(uuid, parent, ObjectType.TRANSFORM, this);
 		this.transform = transform;
 	}
 
@@ -43,7 +43,7 @@ public class TransformSceneGraph implements SceneGraphNode {
 	}
 
 	@Override
-	public SceneGraphNodeData getSceneGraphNodeData() {
-		return sceneGraphNodeData;
+	public GameObjectData getGameObjectData() {
+		return gameObjectData;
 	}
 }

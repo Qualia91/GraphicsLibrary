@@ -2,36 +2,36 @@ package com.nick.wood.graphics_library.objects.game_objects;
 
 import java.util.UUID;
 
-public class RootObject implements SceneGraphNode {
+public class RootObject implements GameObject {
 
-	private final SceneGraphNodeData sceneGraphNodeData;
+	private final GameObjectData gameObjectData;
 
 	public RootObject() {
-		this.sceneGraphNodeData = new SceneGraphNodeData(null, RenderObjectType.ROOT, this);
+		this.gameObjectData = new GameObjectData(null, ObjectType.ROOT, this);
 	}
 
 	public RootObject(UUID uuid) {
-		this.sceneGraphNodeData = new SceneGraphNodeData(uuid, null, RenderObjectType.ROOT, this);;
+		this.gameObjectData = new GameObjectData(uuid, null, ObjectType.ROOT, this);;
 	}
 
 	@Override
-	public SceneGraphNodeData getSceneGraphNodeData() {
-		return sceneGraphNodeData;
+	public GameObjectData getGameObjectData() {
+		return gameObjectData;
 	}
 
 	public void dispose() {
-		dispose(sceneGraphNodeData);
+		dispose(gameObjectData);
 	}
 
-	private void dispose(SceneGraphNodeData sceneGraphNodeData) {
-		for (SceneGraphNode child : sceneGraphNodeData.getChildren()) {
-			if (child instanceof MeshSceneGraph) {
-				MeshSceneGraph meshSceneGraph = (MeshSceneGraph) child;
-				if (meshSceneGraph.getMeshObject().getMesh().isCreated()) {
-					meshSceneGraph.getMeshObject().getMesh().destroy();
+	private void dispose(GameObjectData gameObjectData) {
+		for (GameObject child : gameObjectData.getChildren()) {
+			if (child instanceof MeshObject) {
+				MeshObject meshObject = (MeshObject) child;
+				if (meshObject.getMeshObject().getMesh().isCreated()) {
+					meshObject.getMeshObject().getMesh().destroy();
 				}
 			}
-			dispose(child.getSceneGraphNodeData());
+			dispose(child.getGameObjectData());
 		}
 	}
 }

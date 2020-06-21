@@ -99,6 +99,66 @@ public class Renderer {
 
 	}
 
+	public void renderPickingScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap) {
+		shader.bind();
+
+		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
+		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
+		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
+
+		int modelTypeId = 0;
+		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+
+			if (!indexToUUIDMap.containsKey(modelTypeId)) {
+				indexToUUIDMap.put(modelTypeId, new HashMap<>());
+			}
+
+			shader.setUniform("inInstanceColourID", modelTypeId);
+			renderPickingInstance(meshObjectArrayListEntry, indexToUUIDMap.get(modelTypeId));
+			modelTypeId++;
+		}
+
+		shader.unbind();
+	}
+
+	private void renderPickingInstance(Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
+
+		meshObjectArrayListEntry.getKey().getMesh().initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
+
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+		int start = 3;
+		for (int i = 0; i < 4; i++) {
+			glEnableVertexAttribArray(start);
+			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+			glVertexAttribDivisor(start, 1);
+			start++;
+		}
+
+		int index = 0;
+
+		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
+			integerUUIDHashMap.put(index, instanceObject.getUuid());
+			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+			index++;
+		}
+		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
+		MemoryUtil.memFree(modelViewBuffer);
+
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
+
+		// clean up
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		meshObjectArrayListEntry.getKey().getMesh().endRender();
+
+	}
+
 	public void renderWater(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                        HashMap<Light, InstanceObject> lights, Shader shader,
@@ -375,4 +435,5 @@ public class Renderer {
 		shader.setUniform("fog.colour", fog.getColour());
 		shader.setUniform("fog.density", fog.getDensity());
 	}
+
 }

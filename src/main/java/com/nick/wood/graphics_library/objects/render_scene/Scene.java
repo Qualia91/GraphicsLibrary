@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library.objects.render_scene;
 
 import com.nick.wood.graphics_library.Renderer;
 import com.nick.wood.graphics_library.Shader;
+import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.lighting.Fog;
@@ -28,16 +29,19 @@ public class Scene {
 	private Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
 	private Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
 	private Shader shader;
+	private Shader skyboxShader;
+	private Shader waterShader;
+	private Shader pickingShader;
 	private final HashMap<Light, InstanceObject> lights;
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> meshes;
+	private final HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap = new HashMap<>();
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
 	private UUID primaryCamera;
-	private Shader skyboxShader;
 	private MeshObject skybox;
-	private Shader waterShader;
 	private WaterFrameBuffer waterFrameBuffer;
 	private SceneFrameBuffer sceneFrameBuffer;
+	private PickingFrameBuffer pickingFrameBuffer;
 
 	private float waveSpeed = 0.0005f;
 	private float moveFactor = 0;
@@ -54,6 +58,7 @@ public class Scene {
 			0, 0, 1, 0,
 			0, 0, 0, 1
 	);
+	private Matrix4f cameraTransform = Matrix4f.Identity;
 
 	public Scene() {
 		this.lights = new HashMap<>();
@@ -142,6 +147,20 @@ public class Scene {
 				}
 			}
 		}
+		if (pickingShader != null && pickingFrameBuffer != null) {
+			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
+					// see if projection matrix needs updating
+					if (updateProjectionMatrices) {
+						cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
+						updateProjectionMatrices= false;
+					}
+					pickingFrameBuffer.bindFrameBuffer();
+					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry);
+					pickingFrameBuffer.unbindCurrentFrameBuffer();
+				}
+			}
+		}
 
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
 			if (meshObjectArrayListEntry.getKey().isTextureViaFBOFlag()) {
@@ -152,6 +171,8 @@ public class Scene {
 		if (primaryCamera != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
 				if (cameraInstanceObjectEntry.getValue().getUuid().equals(primaryCamera)) {
+
+					this.cameraTransform = cameraInstanceObjectEntry.getValue().getTransformation();
 
 					// see if projection matrix needs updating
 					if (updateProjectionMatrices) {
@@ -206,6 +227,10 @@ public class Scene {
 			value.clear();
 		}
 
+	}
+
+	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry) {
+		renderer.renderPickingScene(meshes, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
 	}
 
 	private void renderSceneToBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Vec4f clippingPlane) {
@@ -297,5 +322,29 @@ public class Scene {
 		screenWidth = width;
 		screenHeight = height;
 		updateProjectionMatrices = true;
+	}
+
+	public Matrix4f getCameraTransform() {
+		return cameraTransform;
+	}
+
+	public void attachPickingShader(Shader pickingShader) {
+		this.pickingShader = pickingShader;
+	}
+
+	public void setPickingFrameBufferObject(PickingFrameBuffer pickingFrameBuffer) {
+		this.pickingFrameBuffer = pickingFrameBuffer;
+	}
+
+	public PickingFrameBuffer getPickingFrameBuffer() {
+		return pickingFrameBuffer;
+	}
+
+	public Shader getPickingShader() {
+		return pickingShader;
+	}
+
+	public HashMap<Integer, HashMap<Integer, UUID>> getIndexToUUIDMap() {
+		return indexToUUIDMap;
 	}
 }

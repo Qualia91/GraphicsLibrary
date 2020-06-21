@@ -25,10 +25,10 @@ public class RootObject implements GameObject {
 
 	private void dispose(GameObjectData gameObjectData) {
 		for (GameObject child : gameObjectData.getChildren()) {
-			if (child instanceof MeshObject) {
-				MeshObject meshObject = (MeshObject) child;
-				if (meshObject.getMeshObject().getMesh().isCreated()) {
-					meshObject.getMeshObject().getMesh().destroy();
+			if (child instanceof MeshGameObject) {
+				MeshGameObject meshGameObject = (MeshGameObject) child;
+				if (meshGameObject.getMeshObject().getMesh().isCreated()) {
+					meshGameObject.getMeshObject().getMesh().destroy();
 				}
 			}
 			dispose(child.getGameObjectData());

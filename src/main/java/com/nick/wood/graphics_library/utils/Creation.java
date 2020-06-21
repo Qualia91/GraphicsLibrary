@@ -4,7 +4,7 @@ import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 import com.nick.wood.graphics_library.objects.game_objects.LightObject;
-import com.nick.wood.graphics_library.objects.game_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.game_objects.MeshGameObject;
 import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.graphics_library.objects.game_objects.TransformObject;
 import com.nick.wood.maths.objects.QuaternionF;
@@ -27,7 +27,7 @@ public class Creation {
 
 		TransformObject transformGameObject = new TransformObject(parent, lightGameObjectTransform);
 		LightObject lightObject = new LightObject(transformGameObject, light);
-		MeshObject meshObject = new MeshObject(
+		MeshGameObject meshGameObject = new MeshGameObject(
 				transformGameObject,
 				meshGroup
 		);
@@ -53,7 +53,7 @@ public class Creation {
 			meshGroup) {
 		TransformObject transformGameObject = new TransformObject(parent, lightGameObjectTransform);
 		LightObject lightObject = new LightObject(transformGameObject, light);
-		MeshObject meshObject = new MeshObject(
+		MeshGameObject meshGameObject = new MeshGameObject(
 				transformGameObject,
 				meshGroup
 		);
@@ -78,7 +78,7 @@ public class Creation {
 				.setScale(Vec3f.ONE.scale(0.1f).add(Vec3f.X.scale(10)))
 				.build();
 		TransformObject meshTransformX = new TransformObject(wholeSceneTransform, transformMeshX);
-		MeshObject meshObjectX = new MeshObject(
+		MeshGameObject meshGameObjectX = new MeshGameObject(
 				meshTransformX,
 				meshGroupX
 		);
@@ -94,7 +94,7 @@ public class Creation {
 				.build();
 
 		TransformObject meshTransformY = new TransformObject(wholeSceneTransform, transformMeshY);
-		MeshObject meshObjectY = new MeshObject(
+		MeshGameObject meshGameObjectY = new MeshGameObject(
 				meshTransformY,
 				meshGroupY
 		);
@@ -110,7 +110,7 @@ public class Creation {
 				.build();
 
 		TransformObject meshTransformZ = new TransformObject(wholeSceneTransform, transformMeshZ);
-		MeshObject meshObjectZ = new MeshObject(
+		MeshGameObject meshGameObjectZ = new MeshGameObject(
 				meshTransformZ,
 				meshGroupZ
 		);
@@ -122,7 +122,7 @@ public class Creation {
 				.setPosition(pos).build();
 
 		TransformObject meshTransform = new TransformObject(parent, transformMesh);
-		MeshObject meshObject = new MeshObject(
+		MeshGameObject meshGameObject = new MeshGameObject(
 				meshTransform,
 				meshGroup
 		);
@@ -138,7 +138,7 @@ public class Creation {
 				.build();
 
 		TransformObject meshTransform = new TransformObject(parent, transformMesh);
-		MeshObject meshObject = new MeshObject(
+		MeshGameObject meshGameObject = new MeshGameObject(
 				meshTransform,
 				meshGroup
 		);
@@ -146,20 +146,20 @@ public class Creation {
 		return transformMesh;
 	}
 
-	static public MeshObject CreateObjectAndGetSceneObject(Vec3f pos, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup) {
+	static public MeshGameObject CreateObjectAndGetSceneObject(Vec3f pos, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup) {
 
 		Transform transformMesh = new TransformBuilder()
 				.setPosition(pos).build();
 
 		TransformObject meshTransform = new TransformObject(parent, transformMesh);
 
-		return new MeshObject(
+		return new MeshGameObject(
 				meshTransform,
 				meshGroup
 		);
 	}
 
-	static public MeshObject CreateObjectAndGetSceneObject(Vec3f pos, QuaternionF rotation, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup) {
+	static public MeshGameObject CreateObjectAndGetSceneObject(Vec3f pos, QuaternionF rotation, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup) {
 
 		Transform transformMesh = new TransformBuilder()
 				.setPosition(pos)
@@ -168,13 +168,13 @@ public class Creation {
 
 		TransformObject meshTransform = new TransformObject(parent, transformMesh);
 
-		return new MeshObject(
+		return new MeshGameObject(
 				meshTransform,
 				meshGroup
 		);
 	}
 
-	static public MeshObject CreateObjectAndGetSceneObject(Vec3f pos, Vec3f scale, QuaternionF rotation, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup) {
+	static public MeshGameObject CreateObjectAndGetSceneObject(Vec3f pos, Vec3f scale, QuaternionF rotation, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup) {
 
 		Transform transformMesh = new TransformBuilder()
 				.setScale(scale)
@@ -184,7 +184,7 @@ public class Creation {
 
 		TransformObject meshTransform = new TransformObject(parent, transformMesh);
 
-		return new MeshObject(
+		return new MeshGameObject(
 				meshTransform,
 				meshGroup
 		);

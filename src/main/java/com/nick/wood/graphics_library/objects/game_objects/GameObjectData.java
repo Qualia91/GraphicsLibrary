@@ -56,7 +56,6 @@ public class GameObjectData {
 
 	public void setParent(GameObject parent) {
 		this.parent = parent;
-		this.parent.getGameObjectData().getChildren().add(gameObject);
 	}
 
 	public void delete() {

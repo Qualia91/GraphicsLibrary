@@ -2,7 +2,7 @@ package com.nick.wood.graphics_library.utils;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
-import com.nick.wood.graphics_library.objects.game_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.game_objects.MeshGameObject;
 import com.nick.wood.graphics_library.objects.game_objects.RootObject;
 import com.nick.wood.graphics_library.objects.game_objects.GameObject;
 import com.nick.wood.graphics_library.objects.game_objects.TransformObject;
@@ -156,7 +156,7 @@ public class ChunkLoader {
 
 			for (GameObject gameObject : transformObject.getGameObjectData().getChildren()) {
 
-				MeshObject meshGameObject = (MeshObject) gameObject;
+				MeshGameObject meshGameObject = (MeshGameObject) gameObject;
 
 				if (meshGameObject.getMeshObject().equals(meshObject)) {
 
@@ -177,7 +177,7 @@ public class ChunkLoader {
 
 		TransformObject transformObject = new TransformObject(rootObject, transform);
 
-		MeshObject meshGameObject = new MeshObject(transformObject, meshObject);
+		MeshGameObject meshGameObject = new MeshGameObject(transformObject, meshObject);
 
 	}
 

@@ -1,23 +1,25 @@
 package com.nick.wood.graphics_library.objects.game_objects;
 
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+
 import java.util.UUID;
 
-public class MeshObject implements GameObject {
+public class MeshGameObject implements GameObject {
 
 	private final GameObjectData gameObjectData;
-	private com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject;
+	private MeshObject meshObject;
 
-	public MeshObject(GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject) {
+	public MeshGameObject(GameObject parent, MeshObject meshObject) {
 		this.gameObjectData = new GameObjectData(parent, ObjectType.MESH, this);
 		this.meshObject = meshObject;
 	}
 
-	public MeshObject(UUID uuid, GameObject parent, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject) {
+	public MeshGameObject(UUID uuid, GameObject parent, MeshObject meshObject) {
 		this.gameObjectData = new GameObjectData(uuid, parent, ObjectType.MESH, this);
 		this.meshObject = meshObject;
 	}
 
-	public com.nick.wood.graphics_library.objects.mesh_objects.MeshObject getMeshObject() {
+	public MeshObject getMeshObject() {
 		return meshObject;
 	}
 
@@ -30,7 +32,7 @@ public class MeshObject implements GameObject {
 		meshObject = null;
 	}
 
-	public void setMeshObject(com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject) {
+	public void setMeshObject(MeshObject meshObject) {
 		this.meshObject = meshObject;
 	}
 }

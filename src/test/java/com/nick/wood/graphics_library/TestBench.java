@@ -7,7 +7,7 @@ import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.game_objects.*;
-import com.nick.wood.graphics_library.objects.game_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.game_objects.MeshGameObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
 import com.nick.wood.graphics_library.utils.*;
 import com.nick.wood.maths.noise.Perlin2Df;
@@ -266,7 +266,7 @@ class TestBench {
 				.setCellSpace(2.0)
 				.build();
 
-		MeshObject meshObject = new MeshObject(rootGameObject, terrain);
+		MeshGameObject meshGameObject = new MeshGameObject(rootGameObject, terrain);
 
 		WaterObject water = new WaterObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 0, 2);
 
@@ -376,12 +376,12 @@ class TestBench {
 						TransformObject transformObject = new TransformObject(rootGameObject, transform);
 
 						if (k < 2) {
-							MeshObject meshObject = new MeshObject(transformObject, cubeFire);
+							MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeFire);
 						}
 						if (k < size - 2) {
-							MeshObject meshObject = new MeshObject(transformObject, cubeSand);
+							MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeSand);
 						} else {
-							MeshObject meshObject = new MeshObject(transformObject, cubeGrass);
+							MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeGrass);
 						}
 
 					}
@@ -397,9 +397,9 @@ class TestBench {
 					TransformObject transformObject = new TransformObject(rootGameObject, transform);
 
 					if (k > 15) {
-						MeshObject meshObject = new MeshObject(transformObject, cubeSnow);
+						MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeSnow);
 					} else {
-						MeshObject meshObject = new MeshObject(transformObject, cubeGrass);
+						MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeGrass);
 					}
 
 				}
@@ -575,15 +575,7 @@ class TestBench {
 				removeList.add(stringBuffer.toString());
 
 				rootGameObject.getGameObjectData().removeGameObjectNode(integerTransformSceneGraphEntry.getValue());
-				for (GameObject child : integerTransformSceneGraphEntry.getValue().getGameObjectData().getChildren()) {
-					if (child instanceof MeshObject) {
-						MeshObject meshObject = (MeshObject) child;
-						meshObject.removeMeshObject();
-					}
-					child.getGameObjectData().setParent(null);
-				}
-				integerTransformSceneGraphEntry.getValue().getGameObjectData().getChildren().clear();
-				integerTransformSceneGraphEntry.getValue().getGameObjectData().setParent(null);
+
 			} else {
 				// check if box is behind camera
 			}
@@ -648,11 +640,11 @@ class TestBench {
 									TransformObject transformObject = new TransformObject(rootObject, transform);
 
 									if (k < 2) {
-										MeshObject meshObject = new MeshObject(transformObject, cubeFire);
+										MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeFire);
 									} else if (k < 100) {
-										MeshObject meshObject = new MeshObject(transformObject, cubeSand);
+										MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeSand);
 									} else {
-										MeshObject meshObject = new MeshObject(transformObject, cubeGrass);
+										MeshGameObject meshGameObject = new MeshGameObject(transformObject, cubeGrass);
 									}
 									cubeMap.put(index, transformObject);
 									sceneGraphArrayList.add(rootObject);
@@ -691,7 +683,7 @@ class TestBench {
 				.setMeshType(MeshType.TEXT)
 				.build();
 
-		MeshObject textMeshObject = new MeshObject(textTransformObject, textItem);
+		MeshGameObject textMeshGameObject = new MeshGameObject(textTransformObject, textItem);
 
 		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroupLight = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
@@ -709,7 +701,7 @@ class TestBench {
 				.build();
 
 
-		MeshObject meshObject = new MeshObject(wholeSceneTransform, mesh);
+		MeshGameObject meshGameObject = new MeshGameObject(wholeSceneTransform, mesh);
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -832,7 +824,7 @@ class TestBench {
 				.setMeshType(MeshType.POINT)
 				.build();
 
-		MeshObject textMeshObject = new MeshObject(wholeSceneTransform, point);
+		MeshGameObject textMeshGameObject = new MeshGameObject(wholeSceneTransform, point);
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -905,7 +897,7 @@ class TestBench {
 				.setMeshType(MeshType.POINT)
 				.build();
 
-		MeshObject textMeshObject = new MeshObject(wholeSceneTransform, point);
+		MeshGameObject textMeshGameObject = new MeshGameObject(wholeSceneTransform, point);
 
 		PointLight pointLight = new PointLight(
 				new Vec3f(0.0f, 1.0f, 0.0f),
@@ -955,7 +947,7 @@ class TestBench {
 
 				TransformObject transformSceneGraphcell = new TransformObject(wholeSceneTransform, cellTransformcell);
 
-				MeshObject meshSceneGraphcell = new MeshObject(transformSceneGraphcell, cuboid);
+				MeshGameObject meshSceneGraphcell = new MeshGameObject(transformSceneGraphcell, cuboid);
 
 			}
 
@@ -976,7 +968,7 @@ class TestBench {
 
 				TransformObject transformSceneGraphcell = new TransformObject(wholeSceneTransform, cellTransformcell);
 
-				MeshObject meshSceneGraphcell = new MeshObject(transformSceneGraphcell, cuboid);
+				MeshGameObject meshSceneGraphcell = new MeshGameObject(transformSceneGraphcell, cuboid);
 
 			}
 
@@ -987,7 +979,7 @@ class TestBench {
 
 				TransformObject transformSceneGraphcell = new TransformObject(wholeSceneTransform, cellTransformcell);
 
-				MeshObject meshSceneGraphcell = new MeshObject(transformSceneGraphcell, cuboid);
+				MeshGameObject meshSceneGraphcell = new MeshGameObject(transformSceneGraphcell, cuboid);
 
 			}
 
@@ -998,7 +990,7 @@ class TestBench {
 
 				TransformObject transformSceneGraphcell = new TransformObject(wholeSceneTransform, cellTransformcell);
 
-				MeshObject meshSceneGraphcell = new MeshObject(transformSceneGraphcell, cuboid);
+				MeshGameObject meshSceneGraphcell = new MeshGameObject(transformSceneGraphcell, cuboid);
 
 			}
 
@@ -1009,7 +1001,7 @@ class TestBench {
 
 				TransformObject transformSceneGraphcell = new TransformObject(wholeSceneTransform, cellTransformcell);
 
-				MeshObject meshSceneGraphcell = new MeshObject(transformSceneGraphcell, cuboid);
+				MeshGameObject meshSceneGraphcell = new MeshGameObject(transformSceneGraphcell, cuboid);
 
 			}
 
@@ -1033,6 +1025,125 @@ class TestBench {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
+	}
+
+	@Test
+	public void picking() {
+
+		ArrayList<GameObject> gameObjects = new ArrayList<>();
+
+		RootObject rootGameObject = new RootObject();
+
+		TransformBuilder transformBuilder = new TransformBuilder();
+
+		Transform transform = transformBuilder
+				.setPosition(Vec3f.ZERO).build();
+
+		TransformObject wholeSceneTransform = new TransformObject(rootGameObject, transform);
+
+		Transform textTransform = transformBuilder
+				.setPosition(new Vec3f(0, 10, 0))
+				.setScale(Vec3f.ONE.scale(100)).build();
+
+		transformBuilder.setPosition(Vec3f.ZERO);
+
+		TransformObject textTransformObject = new TransformObject(rootGameObject, textTransform);
+
+		TextItem textItem = (TextItem) new MeshBuilder()
+				.setMeshType(MeshType.TEXT)
+				.build();
+
+		MeshGameObject textMeshGameObject = new MeshGameObject(textTransformObject, textItem);
+
+		MeshObject meshGroupLight = new MeshBuilder()
+				.setMeshType(MeshType.MODEL)
+				.setInvertedNormals(false)
+				.setTexture("/textures/mars.jpg")
+				.setTransform(transformBuilder
+						.setScale(Vec3f.ONE).build())
+				.build();
+
+		MeshObject mesh = new MeshBuilder()
+				.setMeshType(MeshType.CUBOID)
+				.setTexture("/textures/brickwall.jpg")
+				.setNormalTexture("/textures/brickwall_normal.jpg")
+				.setTransform(transformBuilder.build())
+				.build();
+
+		MeshObject dragonMesh = new MeshBuilder()
+				.setMeshType(MeshType.MODEL)
+				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
+				.setTexture("/textures/white.png")
+				.setTransform(transformBuilder
+						.reset()
+						.setPosition(Vec3f.ZERO)
+						.setRotation(QuaternionF.RotationX(90)).build())
+				.build();
+
+		MeshGameObject meshGameObject = new MeshGameObject(wholeSceneTransform, mesh);
+
+
+		PointLight pointLight = new PointLight(
+				new Vec3f(0.0f, 1.0f, 0.0f),
+				10f);
+		DirectionalLight directionalLight = new DirectionalLight(
+				new Vec3f(1.0f, 1.0f, 1.0f),
+				new Vec3f(0.0f, 0.0f, -1.0f),
+				1f);
+		SpotLight spotLight = new SpotLight(
+				new PointLight(
+						new Vec3f(1.0f, 0.0f, 0.0f),
+						100f),
+				Vec3f.Y,
+				0.1f
+		);
+
+		Creation.CreateAxis(wholeSceneTransform);
+		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(0.0f, 0.0f, -5), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, 10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+
+		Camera camera = new Camera(1.22173f, 1, 100000);
+		Transform cameraTransform = transformBuilder
+				.setPosition(new Vec3f(-10, 0, 0))
+				.setScale(Vec3f.ONE)
+				.setRotation(cameraRotation)
+				.build();
+		TransformObject cameraTransformGameObject = new TransformObject(wholeSceneTransform, cameraTransform);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, false, true);
+		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
+
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+		windowInitialisationParametersBuilder.setLockCursor(false);
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
+
+			LWJGLGameControlManager lwjglGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
+
+			// create class to take mouse positions in when mouse clicked and make ray
+			Picking picking = new Picking(window.getGraphicsLibraryInput());
+
+			while (!window.shouldClose()) {
+
+				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+
+				lwjglGameControlManager.checkInputs();
+
+				picking.iterate(window.getScene(), window.getWIDTH(), window.getHEIGHT()).ifPresent(uuid -> {
+					MeshGameObject selectedMeshGameObject = (MeshGameObject) GameObjectUtils.FindGameObjectByID(gameObjects, uuid);
+					selectedMeshGameObject.getMeshObject().getMesh().destroy();
+					selectedMeshGameObject.setMeshObject(dragonMesh);
+				});
+
+
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
 	}
 
 }

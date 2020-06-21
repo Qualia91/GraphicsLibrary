@@ -53,7 +53,6 @@ public class GraphicsLibraryInput implements Input {
 		glfwJoystickCallback = new GLFWJoystickCallback() {
 			@Override
 			public void invoke(int jid, int event) {
-				System.out.println("Joystick event");
 				if (event == GLFW.GLFW_CONNECTED)
 				{
 					activeJoysticks[jid] = true;

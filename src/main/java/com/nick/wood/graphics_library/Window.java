@@ -1,5 +1,6 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
@@ -46,6 +47,7 @@ public class Window implements AutoCloseable {
 	private Shader hudShader;
 	private Shader skyboxShader;
 	private Shader waterShader;
+	private Shader pickingShader;
 	private Renderer renderer;
 
 	private boolean windowSizeChanged = false;
@@ -53,6 +55,7 @@ public class Window implements AutoCloseable {
 
 	private WaterFrameBuffer waterFrameBuffer;
 	private SceneFrameBuffer sceneFrameBuffer;
+	private PickingFrameBuffer pickingFrameBuffer;
 
 	public Window() {
 		this.scene = new Scene();
@@ -82,6 +85,7 @@ public class Window implements AutoCloseable {
 		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
 		skyboxShader = new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl");
 		waterShader = new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl");
+		pickingShader = new Shader("/shaders/simpleVertex.glsl", "/shaders/simpleFragment.glsl");
 
 		renderer = new Renderer(this);
 
@@ -164,17 +168,21 @@ public class Window implements AutoCloseable {
 		skyboxShader.create();
 		hudShader.create();
 		waterShader.create();
+		pickingShader.create();
 
 		this.waterFrameBuffer = new WaterFrameBuffer(WIDTH, HEIGHT);
 		this.sceneFrameBuffer = new SceneFrameBuffer(2048);
+		this.pickingFrameBuffer = new PickingFrameBuffer(WIDTH, HEIGHT);
 
 		GL11.glViewport(0, 0, WIDTH, HEIGHT);
 
 		this.scene.attachShader(shader);
 		this.scene.attachSkyboxShader(skyboxShader);
 		this.scene.attachWaterShader(waterShader);
+		this.scene.attachPickingShader(pickingShader);
 		this.scene.setWaterFrameBufferObject(waterFrameBuffer);
 		this.scene.setSceneFrameBufferObject(sceneFrameBuffer);
+		this.scene.setPickingFrameBufferObject(pickingFrameBuffer);
 		this.hudScene.attachShader(hudShader);
 
 		hudScene.setAmbientLight(new Vec3f(0.8f, 0.8f, 0.8f));
@@ -221,7 +229,7 @@ public class Window implements AutoCloseable {
 		}
 
 		// Set the clear color
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
@@ -306,37 +314,27 @@ public class Window implements AutoCloseable {
 						scene.removeMesh(child.getGameObjectData().getUuid());
 						iterator.remove();
 					} else {
-						MeshObject meshObject = (MeshObject) child;
-						if (!meshObject.getMeshObject().getMesh().isCreated()) {
-							meshObject.getMeshObject().getMesh().create();
+						MeshGameObject meshGameObject = (MeshGameObject) child;
+						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
+							meshGameObject.getMeshObject().getMesh().create();
 						}
 						boolean found = false;
 						for (Map.Entry<com.nick.wood.graphics_library.objects.mesh_objects.MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : scene.getMeshes().entrySet()) {
-							if (meshObjectArrayListEntry.getKey().getStringToCompare().equals(meshObject.getMeshObject().getStringToCompare())) {
+							if (meshObjectArrayListEntry.getKey().getStringToCompare().equals(meshGameObject.getMeshObject().getStringToCompare())) {
 								InstanceObject meshInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
 								meshObjectArrayListEntry.getValue().add(meshInstance);
 								found = true;
 								break;
 							}
 						}
-						//if (scene.getMeshes().containsKey(meshGameObject.getMeshObject())) {
-						//	InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
-						//	scene.getMeshes().get(meshGameObject.getMeshObject()).add(meshInstance);
-						//}
-						//else {
-						//	ArrayList<InstanceObject> meshObjects = new ArrayList<>();
-						//	InstanceObject meshInstance = new InstanceObject(child.getSceneGraphNodeData().getUuid(), transformationSoFar);
-						//	meshObjects.add(meshInstance);
-						//	scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
-						//}
 						if (!found) {
 							ArrayList<InstanceObject> meshObjects = new ArrayList<>();
 							InstanceObject meshInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
 							meshObjects.add(meshInstance);
-							scene.getMeshes().put(meshObject.getMeshObject(), meshObjects);
+							scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
 
 						}
-						createRenderLists(scene, meshObject, transformationSoFar);
+						createRenderLists(scene, meshGameObject, transformationSoFar);
 					}
 					break;
 				case WATER:
@@ -463,5 +461,13 @@ public class Window implements AutoCloseable {
 
 	public void setAmbientHudLight(Vec3f ambientLight) {
 		hudScene.setAmbientLight(ambientLight);
+	}
+
+	public int getWIDTH() {
+		return WIDTH;
+	}
+
+	public int getHEIGHT() {
+		return HEIGHT;
 	}
 }

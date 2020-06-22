@@ -27,10 +27,12 @@ public class Texture {
 
 	private int width;
 	private int height;
-	private int id;
+	private int id = -1;
 
 	public Texture(int width, int height, int pixelFormat) {
-		this.id = glGenTextures();
+		if (id == -1) {
+			this.id = glGenTextures();
+		}
 		this.width = width;
 		this.height = height;
 		glBindTexture(GL_TEXTURE_2D, this.id);
@@ -61,7 +63,9 @@ public class Texture {
 			this.height = h.get();
 
 			// Create a new OpenGL texture
-			this.id = glGenTextures();
+			if (id == -1) {
+				this.id = glGenTextures();
+			}
 
 			// Bind the texture
 			glBindTexture(GL_TEXTURE_2D, this.id);

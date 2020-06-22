@@ -16,7 +16,9 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
+import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
@@ -152,7 +154,7 @@ public class Window implements AutoCloseable {
 		GL.createCapabilities();
 
 		// debug
-		//Callback callback = GLUtil.setupDebugMessageCallback();
+		Callback callback = GLUtil.setupDebugMessageCallback();
 
 
 		// cull back faces
@@ -229,7 +231,7 @@ public class Window implements AutoCloseable {
 		}
 
 		// Set the clear color
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
@@ -273,6 +275,7 @@ public class Window implements AutoCloseable {
 
 		hudScene.render(renderer, WIDTH, HEIGHT);
 		glfwSwapBuffers(windowHandler); // swap the color buffers
+
 
 	}
 

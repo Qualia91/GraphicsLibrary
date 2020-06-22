@@ -21,7 +21,7 @@ public class Mesh {
 	private Vertex[] vertices;
 	private int[] indices;
 	private Material material;
-	private int vao, pbo, ibo, tbo, nbo, tabo, btabo;
+	private int vao = -1, pbo, ibo, tbo, nbo, tabo, btabo;
 
 	Mesh(Vertex[] vertices, int[] indices, Material material, boolean invertedNormals, boolean hasNormalMapping) {
 		this.vertices = vertices;
@@ -31,9 +31,13 @@ public class Mesh {
 		this.hasNormalMapping = hasNormalMapping;
 	}
 
+	public void updateMesh(Vertex[] vertices, int[] indices) {
+		this.vertices = vertices;
+		this.indices = indices;
+		createWithoutMaterial();
+	}
 
 	public void createWithoutMaterial() {
-		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
 
 
@@ -48,7 +52,6 @@ public class Mesh {
 		}
 		FloatBuffer positionBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
 		positionBuffer.put(posData).flip();
-		pbo = GL15.glGenBuffers();
 		// bind to buffer
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, pbo);
 		// put data in
@@ -70,7 +73,6 @@ public class Mesh {
 		}
 		FloatBuffer textBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
 		textBuffer.put(texData).flip();
-		tbo = GL15.glGenBuffers();
 		// bind to buffer
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, tbo);
 		// put data in
@@ -94,7 +96,6 @@ public class Mesh {
 		}
 		FloatBuffer normBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
 		normBuffer.put(normData).flip();
-		nbo = GL15.glGenBuffers();
 		// bind to buffer
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, nbo);
 		// put data in
@@ -109,7 +110,6 @@ public class Mesh {
 		// IBO
 		IntBuffer buffer = MemoryUtil.memAllocInt(indices.length);
 		buffer.put(indices).flip();
-		ibo = GL15.glGenBuffers();
 		// bind to buffer
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
 		// put data in
@@ -132,7 +132,6 @@ public class Mesh {
 			}
 			FloatBuffer tangentBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
 			tangentBuffer.put(tangentData).flip();
-			tabo = GL15.glGenBuffers();
 			// bind to buffer
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, tabo);
 			// put data in
@@ -152,7 +151,6 @@ public class Mesh {
 			}
 			FloatBuffer bitangentBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
 			bitangentBuffer.put(bitangentData).flip();
-			btabo = GL15.glGenBuffers();
 			// bind to buffer
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, btabo);
 			// put data in
@@ -165,12 +163,24 @@ public class Mesh {
 
 		}
 
-		created = true;
 	}
 
 	public void create() {
 		material.create();
+
+		if (vao == -1) {
+			vao = GL30.glGenVertexArrays();
+			pbo = GL15.glGenBuffers();
+			tbo = GL15.glGenBuffers();
+			nbo = GL15.glGenBuffers();
+			ibo = GL15.glGenBuffers();
+			tabo = GL15.glGenBuffers();
+			btabo = GL15.glGenBuffers();
+		}
+
 		createWithoutMaterial();
+
+		created = true;
 	}
 
 	public void initRender() {

@@ -34,7 +34,6 @@ public class TextItem implements MeshObject {
 
 	public void changeText(String text) {
 		this.text = text;
-		mesh.destroyWithoutDestroyingMaterial();
 		mesh = buildMesh(numCols, numRows);
 	}
 
@@ -101,7 +100,12 @@ public class TextItem implements MeshObject {
 
 		}
 
-		return new Mesh(vertex, indices, material, false, false);
+		if (mesh != null) {
+			mesh.updateMesh(vertex, indices);
+			return mesh;
+		} else {
+			return new Mesh(vertex, indices, material, false, false);
+		}
 
 	}
 

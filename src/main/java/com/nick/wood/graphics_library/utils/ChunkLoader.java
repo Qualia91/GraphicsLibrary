@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.utils;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 import com.nick.wood.graphics_library.objects.game_objects.MeshGameObject;
 import com.nick.wood.graphics_library.objects.game_objects.RootObject;
@@ -80,7 +81,7 @@ public class ChunkLoader {
 							if (!loadedChunkIndices.contains(chunkIndex)) {
 								// add chunk to new list
 								// and load it
-								com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject = createChunk(x * chunkSize, y * chunkSize);
+								MeshObject meshObject = createChunk(x * chunkSize, y * chunkSize);
 								chunkIndexSceneGraphHashMap.put(chunkIndex, meshObject);
 								loadedChunkIndices.add(chunkIndex);
 
@@ -123,7 +124,7 @@ public class ChunkLoader {
 					if (!activeChunkIndices.contains(chunkIndex)) {
 						// add chunk to new list
 						// then display it
-						com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject = chunkIndexSceneGraphHashMap.get(chunkIndex);
+						MeshObject meshObject = chunkIndexSceneGraphHashMap.get(chunkIndex);
 
 						addToScene(meshObject, chunkIndex);
 
@@ -137,7 +138,7 @@ public class ChunkLoader {
 		// no go through and unload the chunks that shouldn't be active
 		activeChunkIndices.removeIf(activeChunk -> {
 			if (Math.abs(activeChunk.getX() - xIndex) > visualClippingDistance + 5 || Math.abs(activeChunk.getY() - yIndex) > visualClippingDistance + 5) {
-				com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
+				MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
 				removeFromScene(meshObject);
 
 				return true;
@@ -148,7 +149,7 @@ public class ChunkLoader {
 
 	}
 
-	private void removeFromScene(com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject) {
+	private void removeFromScene(MeshObject meshObject) {
 
 		for (GameObject child : rootObject.getGameObjectData().getChildren()) {
 
@@ -170,7 +171,7 @@ public class ChunkLoader {
 
 	}
 
-	private void addToScene(com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshObject, ChunkIndex chunkIndex) {
+	private void addToScene(MeshObject meshObject, ChunkIndex chunkIndex) {
 
 		Transform transform = new TransformBuilder()
 				.setPosition(new Vec3f(chunkIndex.getX() * chunkSize * cellSpace, chunkIndex.getY() * chunkSize * cellSpace, 0)).build();
@@ -181,7 +182,7 @@ public class ChunkLoader {
 
 	}
 
-	private com.nick.wood.graphics_library.objects.mesh_objects.MeshObject createChunk(float chunkPositionX, float chunkPositionY) {
+	private MeshObject createChunk(float chunkPositionX, float chunkPositionY) {
 
 		ProceduralGeneration proceduralGeneration = new ProceduralGeneration();
 		float[][] grid = proceduralGeneration.generateHeightMapChunk(

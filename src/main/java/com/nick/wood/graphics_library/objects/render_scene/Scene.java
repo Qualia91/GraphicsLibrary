@@ -200,7 +200,7 @@ public class Scene {
 						GL11.glEnable(GLES20.GL_CULL_FACE);
 						GL11.glCullFace(GLES20.GL_BACK);
 					}
-					if (waterShader != null) {
+					if (waterShader != null && waterFrameBuffer != null) {
 						renderer.renderWater(waterMeshes,
 								cameraInstanceObjectEntry,
 								lights,

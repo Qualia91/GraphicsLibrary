@@ -25,7 +25,7 @@ public class Picking {
 		this.graphicsLibraryInput = graphicsLibraryInput;
 	}
 
-	public Optional<UUID> iterate(Scene scene, int width, int height) {
+	public Optional<UUID> iterate(Scene scene, int height) {
 		if (graphicsLibraryInput.getButtons()[0]) {
 
 			int x = (int) graphicsLibraryInput.getMouseX();

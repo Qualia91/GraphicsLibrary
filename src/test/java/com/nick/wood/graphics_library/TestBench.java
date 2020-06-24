@@ -1127,7 +1127,7 @@ class TestBench {
 			LWJGLGameControlManager lwjglGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
 
 			// create class to take mouse positions in when mouse clicked and make ray
-			//Picking picking = new Picking(window.getGraphicsLibraryInput());
+			Picking picking = new Picking(window.getGraphicsLibraryInput());
 
 			while (!window.shouldClose()) {
 
@@ -1135,11 +1135,11 @@ class TestBench {
 
 				lwjglGameControlManager.checkInputs();
 
-				//picking.iterate(window.getScene(), window.getWIDTH(), window.getHEIGHT()).ifPresent(uuid -> {
-				//	MeshGameObject selectedMeshGameObject = (MeshGameObject) GameObjectUtils.FindGameObjectByID(gameObjects, uuid);
-				//	selectedMeshGameObject.getMeshObject().getMesh().destroy();
-				//	selectedMeshGameObject.setMeshObject(dragonMesh);
-				//});
+				picking.iterate(window.getScene(), window.getHeight()).ifPresent(uuid -> {
+					MeshGameObject selectedMeshGameObject = (MeshGameObject) GameObjectUtils.FindGameObjectByID(gameObjects, uuid);
+					selectedMeshGameObject.getMeshObject().getMesh().destroy();
+					selectedMeshGameObject.setMeshObject(dragonMesh);
+				});
 
 
 			}

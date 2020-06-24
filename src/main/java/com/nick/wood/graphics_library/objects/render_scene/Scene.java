@@ -350,4 +350,8 @@ public class Scene {
 	public HashMap<Integer, HashMap<Integer, UUID>> getIndexToUUIDMap() {
 		return indexToUUIDMap;
 	}
+
+	public int getHeight() {
+		return screenHeight;
+	}
 }

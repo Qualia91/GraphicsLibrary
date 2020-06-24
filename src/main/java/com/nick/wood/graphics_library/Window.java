@@ -443,4 +443,8 @@ public class Window implements AutoCloseable {
 	public void setAmbientHudLight(Vec3f ambientLight) {
 		hudScene.setAmbientLight(ambientLight);
 	}
+
+	public int getHeight() {
+		return scene.getHeight();
+	}
 }

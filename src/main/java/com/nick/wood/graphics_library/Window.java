@@ -42,7 +42,6 @@ public class Window implements AutoCloseable {
 
 	private int WIDTH;
 	private int HEIGHT;
-	private float fov;
 	private String title;
 
 	private Shader shader;
@@ -425,10 +424,6 @@ public class Window implements AutoCloseable {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		scene.updateScreen(this.WIDTH, this.HEIGHT);
-	}
-
-	public void setFov(float fov) {
-		this.fov = fov;
 	}
 
 	public String getTitle() {

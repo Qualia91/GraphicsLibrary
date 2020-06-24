@@ -20,7 +20,7 @@ public class MeshBuilder {
 	private int waterSquareWidth = 100;
 	private int waterHeight = 0;
 	private String modelFile = "D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj";
-	private float[][] terrainHeightMap = new float[][] {
+	private float[][] terrainHeightMap = new float[][]{
 			{0, 0},
 			{0, 0},
 	};
@@ -35,17 +35,50 @@ public class MeshBuilder {
 			material.setNormalMap(normalTexture);
 		}
 
-		MeshObject meshObject = switch (meshType) {
-			case SPHERE -> new SphereMesh(triangleNumber, material, invertedNormals, transformation);
-			case CUBOID -> new CubeMesh(material, invertedNormals, transformation);
-			case MODEL -> new ModelMesh(modelFile, material, invertedNormals, transformation);
-			case SQUARE -> new Square(material, transformation);
-			case TEXT -> new TextItem(text, fontFile, rowNum, colNum, transformation);
-			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace, meshType);
-			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType);
-			case POINT -> new Point(transformation, material);
-			case TRIANGLE -> new Triangle(transformation, triangleNumber, invertedNormals);
+		MeshObject meshObject = null;
+		switch (meshType) {
+			case SPHERE:
+				meshObject = new SphereMesh(triangleNumber, material, invertedNormals, transformation);
+				break;
+			case CUBOID:
+				meshObject = new CubeMesh(material, invertedNormals, transformation);
+				break;
+			case MODEL:
+				meshObject = new ModelMesh(modelFile, material, invertedNormals, transformation);
+				break;
+			case SQUARE:
+				meshObject = new Square(material, transformation);
+				break;
+			case TEXT:
+				meshObject = new TextItem(text, fontFile, rowNum, colNum, transformation);
+				break;
+			case TERRAIN:
+				meshObject = new Terrain(terrainHeightMap, material, cellSpace, meshType);
+				break;
+			case WATER:
+				meshObject = new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType);
+				break;
+			case POINT:
+				meshObject = new Point(transformation, material);
+				break;
+			case TRIANGLE:
+				meshObject = new Triangle(transformation, triangleNumber, invertedNormals);
+				break;
 		};
+
+		/** for java 14
+		 * MeshObject meshObject = switch (meshType) {
+		 * 			case SPHERE -> new SphereMesh(triangleNumber, material, invertedNormals, transformation);
+		 * 			case CUBOID -> new CubeMesh(material, invertedNormals, transformation);
+		 * 			case MODEL -> new ModelMesh(modelFile, material, invertedNormals, transformation);
+		 * 			case SQUARE -> new Square(material, transformation);
+		 * 			case TEXT -> new TextItem(text, fontFile, rowNum, colNum, transformation);
+		 * 			case TERRAIN -> new Terrain(terrainHeightMap, material, cellSpace, meshType);
+		 * 			case WATER -> new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType);
+		 * 			case POINT -> new Point(transformation, material);
+		 * 			case TRIANGLE -> new Triangle(transformation, triangleNumber, invertedNormals);
+		 *                };
+		 */
 
 		meshObject.setTextureViaFBO(flag);
 
@@ -56,58 +89,92 @@ public class MeshBuilder {
 		this.waterSquareWidth = waterSquareWidth;
 		return this;
 	}
+
 	public MeshBuilder setWaterHeight(int waterHeight) {
 		this.waterHeight = waterHeight;
 		return this;
 	}
+
 	public MeshBuilder setModelFile(String modelFile) {
 		this.modelFile = modelFile;
 		return this;
 	}
+
 	public MeshBuilder setText(String text) {
 		this.text = text;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setFontFile(String fontFile) {
 		this.fontFile = fontFile;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setRowNumber(int rowNum) {
 		this.rowNum = rowNum;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setColNumber(int colNum) {
 		this.colNum = colNum;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setMeshType(MeshType meshType) {
 		this.meshType = meshType;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setInvertedNormals(boolean invertedNormals) {
 		this.invertedNormals = invertedNormals;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setTexture(String texture) {
 		this.texture = texture;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setNormalTexture(String normalTexture) {
 		this.normalTexture = normalTexture;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setTransform(Transform transformation) {
 		this.transformation = transformation;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setTriangleNumber(int triangleNumber) {
 		this.triangleNumber = triangleNumber;
 		return this;
-	};
+	}
+
+	;
+
 	public MeshBuilder setTerrainHeightMap(float[][] terrainHeightMap) {
 		this.terrainHeightMap = terrainHeightMap;
 		return this;
 	}
+
 	public MeshBuilder setCellSpace(double cellSpace) {
 		this.cellSpace = cellSpace;
 		return this;

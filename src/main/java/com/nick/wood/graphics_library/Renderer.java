@@ -79,7 +79,14 @@ public class Renderer {
 
 		Matrix4f transform = Matrix4f.Transform(cameraInstanceObjectEntry.getValue().getTransformation().getTranslation(), meshObject.getMeshTransformation().getRotation().toMatrix(), meshObject.getMeshTransformation().getScale());
 
-		modelViewBuffer.put(0, transform.transpose().getValues());
+		for (int i = 0; i < transform.transpose().getValues().length; i++) {
+			modelViewBuffer.put(i, transform.transpose().getValues()[i]);
+		}
+
+		/** for java 14
+		 * modelViewBuffer.put(0, transform.transpose().getValues());
+		 */
+
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
@@ -140,7 +147,15 @@ public class Renderer {
 		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
 			integerUUIDHashMap.put(index, instanceObject.getUuid());
-			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+
+			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
+				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
+			}
+
+			/** for java 14
+			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+			 */
+
 			index++;
 		}
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
@@ -260,7 +275,13 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
-			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
+				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
+			}
+
+			/** for java 14
+			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+			 */
 			index++;
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
@@ -384,7 +405,15 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
-			modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+
+			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
+				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
+			}
+
+			/** for java 14
+			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
+			 */
+
 			index++;
 		}
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);

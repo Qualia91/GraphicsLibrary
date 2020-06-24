@@ -30,20 +30,39 @@ public class SkyBoxObject implements GameObject {
 				.setRotation(QuaternionF.RotationY(Math.PI))
 				.build();
 
-		skybox = switch (skyboxType) {
-			case CUBE -> new MeshBuilder()
+		switch (skyboxType) {
+			case CUBE: skybox = new MeshBuilder()
 					.setMeshType(MeshType.CUBOID)
 					.setInvertedNormals(false)
 					.setTransform(build)
 					.setTexture(skyboxTexture)
 					.build();
-			default ->  new MeshBuilder()
+			break;
+			default: skybox = new MeshBuilder()
 					.setMeshType(MeshType.SPHERE)
 					.setInvertedNormals(false)
 					.setTriangleNumber(10)
 					.setTransform(build)
 					.setTexture(skyboxTexture).build();
+				break;
 		};
+
+		/** for java 14
+		 * skybox = switch (skyboxType) {
+		 * 			case CUBE -> new MeshBuilder()
+		 * 					.setMeshType(MeshType.CUBOID)
+		 * 					.setInvertedNormals(false)
+		 * 					.setTransform(build)
+		 * 					.setTexture(skyboxTexture)
+		 * 					.build();
+		 * 			default ->  new MeshBuilder()
+		 * 					.setMeshType(MeshType.SPHERE)
+		 * 					.setInvertedNormals(false)
+		 * 					.setTriangleNumber(10)
+		 * 					.setTransform(build)
+		 * 					.setTexture(skyboxTexture).build();
+		 *                };
+		 */
 	}
 
 	public SkyBoxObject(UUID uuid, GameObject parent, String skyboxTexture, SkyboxType skyboxType, float distance) {
@@ -58,20 +77,40 @@ public class SkyBoxObject implements GameObject {
 				.setRotation(QuaternionF.RotationY(Math.PI))
 				.build();
 
-		skybox = switch (skyboxType) {
-			case CUBE -> new MeshBuilder()
+		switch (skyboxType) {
+			case CUBE: skybox = new MeshBuilder()
 					.setMeshType(MeshType.CUBOID)
 					.setInvertedNormals(false)
 					.setTransform(build)
 					.setTexture(skyboxTexture)
 					.build();
-			default ->  new MeshBuilder()
+				break;
+			default: skybox = new MeshBuilder()
 					.setMeshType(MeshType.SPHERE)
 					.setInvertedNormals(false)
 					.setTriangleNumber(10)
 					.setTransform(build)
 					.setTexture(skyboxTexture).build();
+				break;
 		};
+
+		/** for java 14
+		 * skybox = switch (skyboxType) {
+		 * 			case CUBE -> new MeshBuilder()
+		 * 					.setMeshType(MeshType.CUBOID)
+		 * 					.setInvertedNormals(false)
+		 * 					.setTransform(build)
+		 * 					.setTexture(skyboxTexture)
+		 * 					.build();
+		 * 			default ->  new MeshBuilder()
+		 * 					.setMeshType(MeshType.SPHERE)
+		 * 					.setInvertedNormals(false)
+		 * 					.setTriangleNumber(10)
+		 * 					.setTransform(build)
+		 * 					.setTexture(skyboxTexture).build();
+		 * 				}
+		 */
+
 	}
 
 	public float getDistance() {

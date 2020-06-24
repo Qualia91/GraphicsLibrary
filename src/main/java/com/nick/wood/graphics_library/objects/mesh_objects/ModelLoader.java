@@ -8,13 +8,19 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.assimp.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 
 public class ModelLoader {
 
 	public Mesh loadModel(String filePath, Material material, boolean invertedNormals) throws IOException {
+
+		if (!new File(filePath).exists()) {
+			filePath = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
+		}
 
 		// load 3d model data
 		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);

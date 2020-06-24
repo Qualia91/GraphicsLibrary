@@ -3,6 +3,8 @@ package com.nick.wood.graphics_library.objects.mesh_objects;
 import com.nick.wood.graphics_library.Material;
 import com.nick.wood.maths.objects.srt.Transform;
 
+import java.io.File;
+
 public class MeshBuilder {
 
 	// todo add model map here so i dont remake models that are already made
@@ -14,18 +16,22 @@ public class MeshBuilder {
 	private Transform transformation = Transform.Identity;
 	private int triangleNumber = 5;
 	private String text = "DEFAULT_STRING";
-	private String fontFile = "/font/gothic.png";
+	private String fontFile = "/fonts/gothic.png";
 	private int rowNum = 16;
 	private int colNum = 16;
 	private int waterSquareWidth = 100;
 	private int waterHeight = 0;
-	private String modelFile = "D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\sphere.obj";
+	private String modelFile = "";
 	private float[][] terrainHeightMap = new float[][]{
 			{0, 0},
 			{0, 0},
 	};
 	private double cellSpace = 1;
 	private boolean flag = false;
+
+	public MeshBuilder() {
+		modelFile = new File(MeshBuilder.class.getResource("/models/sphere.obj").getFile()).getAbsolutePath();
+	}
 
 	public MeshObject build() {
 

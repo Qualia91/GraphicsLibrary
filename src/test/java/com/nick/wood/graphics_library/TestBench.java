@@ -8,7 +8,10 @@ import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.graphics_library.objects.game_objects.MeshGameObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.*;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
+import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.graphics_library.utils.*;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
@@ -77,9 +80,9 @@ class TestBench {
 
 		Transform transform = transformBuilder.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroup = new MeshBuilder()
+		MeshObject meshGroup = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
+				.setModelFile("\\models\\dragon.obj")
 				.setTexture("/textures/white.png")
 				.setTransform(transformBuilder
 						.setPosition(Vec3f.ZERO)
@@ -95,7 +98,7 @@ class TestBench {
 
 		Creation.CreateAxis(wholeSceneTransform);
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroupLight = new MeshBuilder()
+		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
 				.build();
 
@@ -169,7 +172,7 @@ class TestBench {
 
 		int size = 1000;
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroupLight = new MeshBuilder()
+		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
 				.build();
 
@@ -259,7 +262,7 @@ class TestBench {
 
 		SkyBoxObject skyBoxObject = new SkyBoxObject(rootGameObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE, 1000);
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject terrain = new MeshBuilder()
+		MeshObject terrain = new MeshBuilder()
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
 				.setTexture("/textures/mars.jpg")
@@ -270,7 +273,7 @@ class TestBench {
 
 		WaterObject water = new WaterObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 0, 2);
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroupLight = new MeshBuilder()
+		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
 				.build();
 
@@ -324,34 +327,34 @@ class TestBench {
 
 		TransformBuilder transformBuilder = new TransformBuilder();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeSand = new MeshBuilder()
+		MeshObject cubeSand = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
+				.setModelFile("\\models\\cube.obj")
 				.setTexture("/textures/brickwall.jpg")
-				.setNormalTexture("/textures/brickwall_normal.jpg")
+				.setNormalTexture("/normalMaps/brickwall_normal.jpg")
 				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeGrass = new MeshBuilder()
+		MeshObject cubeGrass = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
+				.setModelFile("\\models\\cube.obj")
 				.setTexture("/textures/grass.png")
-				.setNormalTexture("/textures/sandNormalMap.jpg")
+				.setNormalTexture("/normalMaps/sandNormalMap.jpg")
 				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeSnow = new MeshBuilder()
+		MeshObject cubeSnow = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
+				.setModelFile("\\models\\cube.obj")
 				.setTexture("/textures/white.png")
 				.setTransform(transformBuilder.setScale(new Vec3f(cubeSize, cubeSize, cubeSize)).build())
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeFire = new MeshBuilder()
+		MeshObject cubeFire = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\cube.obj")
+				.setModelFile("\\models\\cube.obj")
 				.setTexture("/textures/8k_venus_surface.jpg")
-				.setNormalTexture("/textures/sandNormalMap.jpg")
+				.setNormalTexture("/normalMaps/sandNormalMap.jpg")
 				//.setTransform(Matrix4f.Scale(new Vec3f(cubeSize, cubeSize, cubeSize)))
 				.build();
 
@@ -475,26 +478,26 @@ class TestBench {
 
 		TransformBuilder transformBuilder = new TransformBuilder();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeSand = new MeshBuilder()
+		MeshObject cubeSand = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/sand_blocky.jpg")
 				.setTransform(transformBuilder
 						.setScale(new Vec3f(cubeSize, cubeSize, cubeSize)).build())
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeGrass = new MeshBuilder()
+		MeshObject cubeGrass = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/grass.png")
 				.setTransform(transformBuilder.build())
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeSnow = new MeshBuilder()
+		MeshObject cubeSnow = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/white.png")
 				.setTransform(transformBuilder.build())
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeFire = new MeshBuilder()
+		MeshObject cubeFire = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/8k_venus_surface.jpg")
 				.setTransform(transformBuilder.build())
@@ -596,10 +599,10 @@ class TestBench {
 	                       int cubeSize,
 	                       ArrayList<GameObject> sceneGraphArrayList,
 	                       int hillHeight,
-	                       com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeFire,
-	                       com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeSand,
-	                       com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeGrass,
-	                       com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cubeSnow) {
+	                       MeshObject cubeFire,
+	                       MeshObject cubeSand,
+	                       MeshObject cubeGrass,
+	                       MeshObject cubeSnow) {
 
 
 		Vec3f bottomCornerToLoad = center.add(cullCube.scale(-0.5f));
@@ -685,7 +688,7 @@ class TestBench {
 
 		MeshGameObject textMeshGameObject = new MeshGameObject(textTransformObject, textItem);
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject meshGroupLight = new MeshBuilder()
+		MeshObject meshGroupLight = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
 				.setInvertedNormals(false)
 				.setTexture("/textures/mars.jpg")
@@ -693,10 +696,10 @@ class TestBench {
 						.setScale(Vec3f.ONE).build())
 				.build();
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject mesh = new MeshBuilder()
+		MeshObject mesh = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/brickwall.jpg")
-				.setNormalTexture("/textures/brickwall_normal.jpg")
+				.setNormalTexture("/normalMaps/brickwall_normal.jpg")
 				.setTransform(transformBuilder.build())
 				.build();
 
@@ -820,7 +823,7 @@ class TestBench {
 
 		TransformObject hudTransformGameObject = new TransformObject(rootGameObject, hudTransform);
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject point = new MeshBuilder()
+		MeshObject point = new MeshBuilder()
 				.setMeshType(MeshType.POINT)
 				.build();
 
@@ -893,7 +896,7 @@ class TestBench {
 
 		TransformObject wholeSceneTransform = new TransformObject(rootGameObject, transform);
 
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject point = new MeshBuilder()
+		MeshObject point = new MeshBuilder()
 				.setMeshType(MeshType.POINT)
 				.build();
 
@@ -935,7 +938,7 @@ class TestBench {
 		ArrayList<Cell> visited = recursiveBackTracker.getVisited();
 
 		// build mase
-		com.nick.wood.graphics_library.objects.mesh_objects.MeshObject cuboid = new MeshBuilder().setMeshType(MeshType.CUBOID).setNormalTexture("/textures/sandNormalMap.jpg").build();
+		MeshObject cuboid = new MeshBuilder().setMeshType(MeshType.CUBOID).setNormalTexture("/normalMaps/sandNormalMap.jpg").build();
 
 		// render diagonals
 		for (int i = -1; i < width * 2 + 1; i += 2) {
@@ -1066,13 +1069,13 @@ class TestBench {
 		MeshObject mesh = new MeshBuilder()
 				.setMeshType(MeshType.CUBOID)
 				.setTexture("/textures/brickwall.jpg")
-				.setNormalTexture("/textures/brickwall_normal.jpg")
+				.setNormalTexture("/normalMaps/brickwall_normal.jpg")
 				.setTransform(transformBuilder.build())
 				.build();
 
 		MeshObject dragonMesh = new MeshBuilder()
 				.setMeshType(MeshType.MODEL)
-				.setModelFile("D:\\Software\\Programming\\projects\\Java\\GraphicsLibrary\\src\\main\\resources\\models\\dragon.obj")
+				.setModelFile("\\models\\dragon.obj")
 				.setTexture("/textures/white.png")
 				.setTransform(transformBuilder
 						.reset()

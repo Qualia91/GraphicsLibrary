@@ -82,12 +82,6 @@ public class Window implements AutoCloseable {
 
 	public void init(WindowInitialisationParameters windowInitialisationParameters) {
 
-		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		skyboxShader = new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl");
-		waterShader = new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl");
-		pickingShader = new Shader("/shaders/simpleVertex.glsl", "/shaders/simpleFragment.glsl");
-
 		renderer = new Renderer(this);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -153,7 +147,9 @@ public class Window implements AutoCloseable {
 		GL.createCapabilities();
 
 		// debug
-		//Callback callback = GLUtil.setupDebugMessageCallback();
+		if (windowInitialisationParameters.isDebug()) {
+			Callback callback = GLUtil.setupDebugMessageCallback();
+		}
 
 
 		// cull back faces
@@ -165,26 +161,32 @@ public class Window implements AutoCloseable {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
+		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
+		skyboxShader = new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl");
+		waterShader = new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl");
 		shader.create();
 		skyboxShader.create();
 		hudShader.create();
 		waterShader.create();
-		pickingShader.create();
 
 		this.waterFrameBuffer = new WaterFrameBuffer(WIDTH, HEIGHT);
 		this.sceneFrameBuffer = new SceneFrameBuffer(2048);
-		this.pickingFrameBuffer = new PickingFrameBuffer(WIDTH, HEIGHT);
-
-		GL11.glViewport(0, 0, WIDTH, HEIGHT);
 
 		this.scene.attachShader(shader);
 		this.scene.attachSkyboxShader(skyboxShader);
 		this.scene.attachWaterShader(waterShader);
-		this.scene.attachPickingShader(pickingShader);
 		this.scene.setWaterFrameBufferObject(waterFrameBuffer);
 		this.scene.setSceneFrameBufferObject(sceneFrameBuffer);
-		this.scene.setPickingFrameBufferObject(pickingFrameBuffer);
 		this.hudScene.attachShader(hudShader);
+
+		if (windowInitialisationParameters.isPicking()) {
+			pickingShader = new Shader("/shaders/simpleVertex.glsl", "/shaders/simpleFragment.glsl");
+			pickingShader.create();
+			this.pickingFrameBuffer = new PickingFrameBuffer(WIDTH, HEIGHT);
+			this.scene.attachPickingShader(pickingShader);
+			this.scene.setPickingFrameBufferObject(pickingFrameBuffer);
+		}
 
 		hudScene.setAmbientLight(new Vec3f(0.8f, 0.8f, 0.8f));
 
@@ -408,26 +410,10 @@ public class Window implements AutoCloseable {
 		this.titleChanged = true;
 	}
 
-	public long getWindowHandler() {
-		return windowHandler;
-	}
-
-	public Shader getShader() {
-		return shader;
-	}
-
-	public Shader getHudShader() {
-		return hudShader;
-	}
-
 	public void setScreenDimensions(int WIDTH, int HEIGHT) {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		scene.updateScreen(this.WIDTH, this.HEIGHT);
-	}
-
-	public String getTitle() {
-		return title;
 	}
 
 	@Override
@@ -456,13 +442,5 @@ public class Window implements AutoCloseable {
 
 	public void setAmbientHudLight(Vec3f ambientLight) {
 		hudScene.setAmbientLight(ambientLight);
-	}
-
-	public int getWIDTH() {
-		return WIDTH;
-	}
-
-	public int getHEIGHT() {
-		return HEIGHT;
 	}
 }

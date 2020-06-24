@@ -199,7 +199,7 @@ public class ChunkLoader {
 				.setMeshType(MeshType.TERRAIN)
 				.setTerrainHeightMap(grid)
 				.setTexture("/textures/grass.png")
-				.setNormalTexture("/textures/rock_normals.png")
+				.setNormalTexture("/normalMaps/rock_normals.png")
 				.setCellSpace(cellSpace)
 				.build();
 	}

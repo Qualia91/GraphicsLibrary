@@ -8,6 +8,8 @@ import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 import static org.lwjgl.system.MemoryStack.stackPush;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -30,9 +32,7 @@ public class Texture {
 	private int id = -1;
 
 	public Texture(int width, int height, int pixelFormat) {
-		if (id == -1) {
-			this.id = glGenTextures();
-		}
+		this.id = glGenTextures();
 		this.width = width;
 		this.height = height;
 		glBindTexture(GL_TEXTURE_2D, this.id);
@@ -48,6 +48,11 @@ public class Texture {
 
 		String imagePath = path.split("[.]")[1];
 		InputStream resourceAsStream = Texture.class.getResourceAsStream(path);
+
+		if (resourceAsStream == null) {
+			// try to find it in the user input folder via environment variable
+			resourceAsStream = new FileInputStream(System.getenv("GRAPHICS_LIB_DATA") + "\\" + path);
+		}
 
 		ByteBuffer imageData = ioResourceToByteBuffer(imagePath, 1024, resourceAsStream);
 

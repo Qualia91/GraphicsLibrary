@@ -153,10 +153,17 @@ public class Scene {
 						sceneFrameBuffer.bindFrameBuffer();
 						renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null);
 						sceneFrameBuffer.unbindCurrentFrameBuffer();
+
+						GL11.glViewport(0, 0, screenWidth, screenHeight);
 					}
 					break;
 				}
 			}
+			for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+				if (meshObjectArrayListEntry.getKey().isTextureViaFBOFlag()) {
+					meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(sceneFrameBuffer.getTexture());
+				}
+			};
 		}
 		if (pickingShader != null && pickingFrameBuffer != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
@@ -167,12 +174,6 @@ public class Scene {
 				}
 			}
 		}
-
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			if (meshObjectArrayListEntry.getKey().isTextureViaFBOFlag()) {
-				meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(sceneFrameBuffer.getTexture());
-			}
-		};
 
 		if (primaryCamera != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {

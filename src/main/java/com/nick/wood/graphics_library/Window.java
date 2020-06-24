@@ -154,7 +154,7 @@ public class Window implements AutoCloseable {
 		GL.createCapabilities();
 
 		// debug
-		Callback callback = GLUtil.setupDebugMessageCallback();
+		//Callback callback = GLUtil.setupDebugMessageCallback();
 
 
 		// cull back faces
@@ -252,7 +252,7 @@ public class Window implements AutoCloseable {
 			}
 		}
 
-		scene.render(renderer, WIDTH, HEIGHT);
+		scene.render(renderer);
 		// this makes sure hud is ontop of everything in scene
 		glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -273,7 +273,7 @@ public class Window implements AutoCloseable {
 			}
 		}
 
-		hudScene.render(renderer, WIDTH, HEIGHT);
+		hudScene.render(renderer);
 		glfwSwapBuffers(windowHandler); // swap the color buffers
 
 
@@ -421,13 +421,10 @@ public class Window implements AutoCloseable {
 		return hudShader;
 	}
 
-	public void setWIDTH(int WIDTH) {
+	public void setScreenDimensions(int WIDTH, int HEIGHT) {
 		this.WIDTH = WIDTH;
-		scene.updateScreen(WIDTH, HEIGHT);
-	}
-
-	public void setHEIGHT(int HEIGHT) {
 		this.HEIGHT = HEIGHT;
+		scene.updateScreen(this.WIDTH, this.HEIGHT);
 	}
 
 	public void setFov(float fov) {

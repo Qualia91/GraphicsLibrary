@@ -7,7 +7,7 @@ public class WindowInitialisationParametersBuilder {
 	// defaults
 	private boolean resizable = true;
 	private boolean decorated = true;
-	private boolean lockCursor = false;
+	private boolean lockCursor = true;
 	private boolean fullScreen = false;
 	private int windowWidth = 1200;
 	private int windowHeight = 800;

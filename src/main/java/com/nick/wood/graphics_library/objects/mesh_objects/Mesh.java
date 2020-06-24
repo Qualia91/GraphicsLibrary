@@ -174,8 +174,10 @@ public class Mesh {
 			tbo = GL15.glGenBuffers();
 			nbo = GL15.glGenBuffers();
 			ibo = GL15.glGenBuffers();
-			tabo = GL15.glGenBuffers();
-			btabo = GL15.glGenBuffers();
+			if (hasNormalMapping) {
+				tabo = GL15.glGenBuffers();
+				btabo = GL15.glGenBuffers();
+			}
 		}
 
 		createWithoutMaterial();

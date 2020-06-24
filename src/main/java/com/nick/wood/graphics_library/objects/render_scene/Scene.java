@@ -126,7 +126,19 @@ public class Scene {
 		return cameras;
 	}
 
-	public void render(Renderer renderer, int width, int height) {
+	public void render(Renderer renderer) {
+
+		// update camera projection matrices if need be
+		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
+				// see if projection matrix needs updating
+				if (updateProjectionMatrices) {
+					cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
+					updateProjectionMatrices = false;
+					break;
+				}
+			}
+		}
 
 		// Todo need sim time here
 		moveFactor += waveSpeed; // * simTimeSinceLast;
@@ -141,7 +153,6 @@ public class Scene {
 						sceneFrameBuffer.bindFrameBuffer();
 						renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null);
 						sceneFrameBuffer.unbindCurrentFrameBuffer();
-						GL11.glViewport(0, 0, width, height);
 					}
 					break;
 				}
@@ -150,12 +161,7 @@ public class Scene {
 		if (pickingShader != null && pickingFrameBuffer != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
 				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
-					// see if projection matrix needs updating
-					if (updateProjectionMatrices) {
-						cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
-						updateProjectionMatrices= false;
-					}
-					pickingFrameBuffer.bindFrameBuffer();
+					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
 					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry);
 					pickingFrameBuffer.unbindCurrentFrameBuffer();
 				}
@@ -174,12 +180,6 @@ public class Scene {
 
 					this.cameraTransform = cameraInstanceObjectEntry.getValue().getTransformation();
 
-					// see if projection matrix needs updating
-					if (updateProjectionMatrices) {
-						cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
-						updateProjectionMatrices= false;
-					}
-
 					if (waterFrameBuffer != null && waterShader != null && !waterMeshes.isEmpty()) {
 
 						// move camera down by 2 * height to get reflection
@@ -191,7 +191,7 @@ public class Scene {
 						renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane);
 						waterFrameBuffer.bindRefractionFrameBuffer();
 						renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane);
-						waterFrameBuffer.unbindCurrentFrameBuffer(width, height);
+						waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 
 					}
 					if (skyboxShader != null && skybox != null) {

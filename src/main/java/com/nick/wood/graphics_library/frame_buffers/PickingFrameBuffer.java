@@ -12,19 +12,14 @@ import static org.lwjgl.opengl.GL30.GL_DRAW_FRAMEBUFFER;
 
 public class PickingFrameBuffer {
 
-	final int WIDTH;
-	final int HEIGHT;
-
 	private int frameBuffer;
 	private int texture;
 	private int depthBuffer;
 
 	public PickingFrameBuffer(int WIDTH, int HEIGHT) {
-		this.WIDTH = WIDTH;
-		this.HEIGHT = HEIGHT;
 		frameBuffer = createFrameBuffer();
-		texture = createTextureAttachment();
-		depthBuffer = createDepthBufferAttachment();
+		texture = createTextureAttachment(WIDTH, HEIGHT);
+		depthBuffer = createDepthBufferAttachment(WIDTH, HEIGHT);
 
 		// create draw buffers (just colour this one)
 		GL11.glDrawBuffer(GL30.GL_COLOR_ATTACHMENT0);
@@ -50,9 +45,9 @@ public class PickingFrameBuffer {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 	}
 
-	public void bindFrameBuffer() {
+	public void bindFrameBuffer(int width, int height) {
 		GL30.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBuffer);
-		GL11.glViewport(0, 0, WIDTH, HEIGHT);
+		GL11.glViewport(0, 0, width, height);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	}
 
@@ -64,7 +59,7 @@ public class PickingFrameBuffer {
 		return frameBuffer;
 	}
 
-	private int createTextureAttachment() {
+	private int createTextureAttachment(int WIDTH, int HEIGHT) {
 		// generate
 		int texture = GL11.glGenTextures();
 		// bind to 2d texture target
@@ -86,7 +81,7 @@ public class PickingFrameBuffer {
 		return texture;
 	}
 
-	private int createDepthBufferAttachment() {
+	private int createDepthBufferAttachment(int WIDTH, int HEIGHT) {
 		// create
 		int depthBuffer = GL30.glGenTextures();
 		// bind

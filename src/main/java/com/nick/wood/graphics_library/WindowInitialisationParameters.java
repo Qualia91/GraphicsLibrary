@@ -1,8 +1,6 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
-import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -52,8 +50,7 @@ public class WindowInitialisationParameters {
 		// this locks cursor to center so can always look about
 		org.lwjgl.glfw.GLFW.glfwSetInputMode(windowHandler, GLFW_CURSOR, lockCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 
-		window.setWIDTH(windowWidth);
-		window.setHEIGHT(windowHeight);
+		window.setScreenDimensions(windowWidth, windowHeight);
 		window.setTitle(title);
 
 		window.setAmbientLight(sceneAmbientLight);

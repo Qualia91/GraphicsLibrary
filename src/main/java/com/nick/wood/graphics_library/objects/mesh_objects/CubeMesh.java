@@ -8,6 +8,7 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class CubeMesh implements MeshObject {
 
+	private final int fboTextureIndex;
 	private Transform transformation;
 	private final Mesh mesh;
 
@@ -37,8 +38,9 @@ public class CubeMesh implements MeshObject {
 			23, 21, 22
 	};
 
-	CubeMesh(Material material, boolean invertedNormals, Transform transform) {
+	CubeMesh(Material material, boolean invertedNormals, Transform transform, int fboTextureIndex) {
 		this.transformation = transform;
+		this.fboTextureIndex = fboTextureIndex;
 		int normalSign = 1;
 		if (invertedNormals) {
 			normalSign = -1;
@@ -112,6 +114,11 @@ public class CubeMesh implements MeshObject {
 	@Override
 	public String getStringToCompare() {
 		return "CUBE" + mesh.getMaterial().getPath();
+	}
+
+	@Override
+	public int getFboTextureIndex() {
+		return fboTextureIndex;
 	}
 
 	@Override

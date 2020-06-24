@@ -11,9 +11,11 @@ public class Point implements MeshObject {
 	private final Transform transformation;
 	private final Mesh mesh;
 	private final Material material;
+	private final int fboTextureIndex;
 
-	public Point(Transform transformation, Material material) {
+	public Point(Transform transformation, Material material, int fboTextureIndex) {
 		this.transformation = transformation;
+		this.fboTextureIndex = fboTextureIndex;
 		mesh = new Mesh(
 				new Vertex[] {new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.ONE)}, new int[]{0},
 				material,
@@ -34,6 +36,11 @@ public class Point implements MeshObject {
 	@Override
 	public String getStringToCompare() {
 		return "POINT" + mesh.getMaterial().getPath();
+	}
+
+	@Override
+	public int getFboTextureIndex() {
+		return fboTextureIndex;
 	}
 
 	@Override

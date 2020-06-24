@@ -155,15 +155,18 @@ public class Scene {
 						sceneFrameBuffer.unbindCurrentFrameBuffer();
 
 						GL11.glViewport(0, 0, screenWidth, screenHeight);
+
+						// now render the fbo textured objects that have the same index as this camera
+						for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+							if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
+								meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(sceneFrameBuffer.getTexture());
+							}
+						};
 					}
 					break;
 				}
 			}
-			for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-				if (meshObjectArrayListEntry.getKey().isTextureViaFBOFlag()) {
-					meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(sceneFrameBuffer.getTexture());
-				}
-			};
+
 		}
 		if (pickingShader != null && pickingFrameBuffer != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {

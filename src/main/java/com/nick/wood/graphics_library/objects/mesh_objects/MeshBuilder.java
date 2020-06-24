@@ -21,13 +21,13 @@ public class MeshBuilder {
 	private int colNum = 16;
 	private int waterSquareWidth = 100;
 	private int waterHeight = 0;
-	private String modelFile = "";
+	private String modelFile;
 	private float[][] terrainHeightMap = new float[][]{
 			{0, 0},
 			{0, 0},
 	};
 	private double cellSpace = 1;
-	private boolean flag = false;
+	private int fboTextureIndex = -1;
 
 	public MeshBuilder() {
 		modelFile = new File(MeshBuilder.class.getResource("/models/sphere.obj").getFile()).getAbsolutePath();
@@ -44,31 +44,31 @@ public class MeshBuilder {
 		MeshObject meshObject = null;
 		switch (meshType) {
 			case SPHERE:
-				meshObject = new SphereMesh(triangleNumber, material, invertedNormals, transformation);
+				meshObject = new SphereMesh(triangleNumber, material, invertedNormals, transformation, fboTextureIndex);
 				break;
 			case CUBOID:
-				meshObject = new CubeMesh(material, invertedNormals, transformation);
+				meshObject = new CubeMesh(material, invertedNormals, transformation, fboTextureIndex);
 				break;
 			case MODEL:
-				meshObject = new ModelMesh(modelFile, material, invertedNormals, transformation);
+				meshObject = new ModelMesh(modelFile, material, invertedNormals, transformation, fboTextureIndex);
 				break;
 			case SQUARE:
-				meshObject = new Square(material, transformation);
+				meshObject = new Square(material, transformation, fboTextureIndex);
 				break;
 			case TEXT:
-				meshObject = new TextItem(text, fontFile, rowNum, colNum, transformation);
+				meshObject = new TextItem(text, fontFile, rowNum, colNum, transformation, fboTextureIndex);
 				break;
 			case TERRAIN:
-				meshObject = new Terrain(terrainHeightMap, material, cellSpace, meshType);
+				meshObject = new Terrain(terrainHeightMap, material, cellSpace, meshType, fboTextureIndex);
 				break;
 			case WATER:
-				meshObject = new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType);
+				meshObject = new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboTextureIndex);
 				break;
 			case POINT:
-				meshObject = new Point(transformation, material);
+				meshObject = new Point(transformation, material, fboTextureIndex);
 				break;
 			case TRIANGLE:
-				meshObject = new Triangle(transformation, triangleNumber, invertedNormals);
+				meshObject = new Triangle(transformation, triangleNumber, invertedNormals, fboTextureIndex);
 				break;
 		};
 
@@ -85,8 +85,6 @@ public class MeshBuilder {
 		 * 			case TRIANGLE -> new Triangle(transformation, triangleNumber, invertedNormals);
 		 *                };
 		 */
-
-		meshObject.setTextureViaFBO(flag);
 
 		return meshObject;
 	}
@@ -186,8 +184,8 @@ public class MeshBuilder {
 		return this;
 	}
 
-	public MeshBuilder setTextureViaFbo(boolean flag) {
-		this.flag = flag;
+	public MeshBuilder setTextureFboIndex(int fboTextureIndex) {
+		this.fboTextureIndex = fboTextureIndex;
 		return this;
 	}
 }

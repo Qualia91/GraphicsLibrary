@@ -7,13 +7,15 @@ import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class Triangle implements MeshObject {
-	
+
+	private final int fboTextureIndex;
 	private Transform transformation;
 	private final Mesh mesh;
 	private final int triangleNumber;
 
-	public Triangle(Transform transform, int triangleNumber, boolean invertedNormals) {
+	public Triangle(Transform transform, int triangleNumber, boolean invertedNormals, int fboTextureIndex) {
 
+		this.fboTextureIndex = fboTextureIndex;
 		this.transformation = transform;
 		this.triangleNumber = triangleNumber;
 
@@ -120,6 +122,11 @@ public class Triangle implements MeshObject {
 	@Override
 	public String getStringToCompare() {
 		return "TRIANGLE" + mesh.getMaterial().getPath();
+	}
+
+	@Override
+	public int getFboTextureIndex() {
+		return fboTextureIndex;
 	}
 
 	@Override

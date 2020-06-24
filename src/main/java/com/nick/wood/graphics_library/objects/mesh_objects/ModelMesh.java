@@ -12,11 +12,13 @@ public class ModelMesh implements MeshObject {
 	private final String filePath;
 	private final Material material;
 	private final Transform transform;
+	private final int fboTextureIndex;
 	private Mesh mesh;
 	private boolean textureViaFBOFlag;
 
-	ModelMesh(String filePath, Material material, boolean invertedNormals, Transform transform) {
+	ModelMesh(String filePath, Material material, boolean invertedNormals, Transform transform, int fboTextureIndex) {
 
+		this.fboTextureIndex = fboTextureIndex;
 		this.transform = transform;
 		this.filePath = filePath;
 		this.material = material;
@@ -33,6 +35,11 @@ public class ModelMesh implements MeshObject {
 
 	public String getStringToCompare() {
 		return filePath + material.getPath() + textureViaFBOFlag;
+	}
+
+	@Override
+	public int getFboTextureIndex() {
+		return fboTextureIndex;
 	}
 
 	public String getFilePath() {
@@ -61,16 +68,6 @@ public class ModelMesh implements MeshObject {
 	@Override
 	public Transform getMeshTransformation() {
 		return transform;
-	}
-
-	@Override
-	public void setTextureViaFBO(boolean flag) {
-		this.textureViaFBOFlag = flag;
-	}
-
-	@Override
-	public boolean isTextureViaFBOFlag() {
-		return textureViaFBOFlag;
 	}
 
 	@Override

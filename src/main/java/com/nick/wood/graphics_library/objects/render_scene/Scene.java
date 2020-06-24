@@ -46,9 +46,8 @@ public class Scene {
 	private float waveSpeed = 0.0005f;
 	private float moveFactor = 0;
 
-	private final Vec4f reflectionClippingPlane = new Vec4f(0, 0, 1, 0);
-	private final Vec4f refractionClippingPlane = new Vec4f(0, 0, -1, 0);
-	private final Vec4f noClippingPlane = new Vec4f(0, 0, 0, 0);
+	private final Vec4f reflectionClippingPlane = new Vec4f(0, 0, 1, -1f);
+	private final Vec4f refractionClippingPlane = new Vec4f(0, 0, -1, 1f);
 
 	private final Matrix4f waterCameraReflection;
 

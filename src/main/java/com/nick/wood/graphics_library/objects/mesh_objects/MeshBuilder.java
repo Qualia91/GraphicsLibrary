@@ -15,7 +15,7 @@ public class MeshBuilder {
 	private String normalTexture = null;
 	private Transform transformation = Transform.Identity;
 	private int triangleNumber = 5;
-	private String text = "DEFAULT_STRING";
+	private String text = "0";
 	private String fontFile = "/fonts/gothic.png";
 	private int rowNum = 16;
 	private int colNum = 16;
@@ -69,6 +69,9 @@ public class MeshBuilder {
 				break;
 			case TRIANGLE:
 				meshObject = new Triangle(transformation, triangleNumber, invertedNormals, fboTextureIndex);
+				break;
+			case CIRCLE:
+				meshObject = new CircleMesh(transformation, material, triangleNumber, fboTextureIndex);
 				break;
 		};
 

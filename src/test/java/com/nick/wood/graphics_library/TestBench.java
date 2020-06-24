@@ -204,7 +204,7 @@ class TestBench {
 				.setPosition(new Vec3f(0, 0, 0))
 				.build();
 		TransformObject waterTransformObj = new TransformObject(rootGameObject, waterTransform);
-		WaterObject water = new WaterObject(waterTransformObj, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 10, 100);
+		WaterObject water = new WaterObject(waterTransformObj, "/textures/waterDuDvMap.jpg", "/normalMaps/waterNormalMap.jpg", size, 10, 100);
 
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
@@ -271,7 +271,7 @@ class TestBench {
 
 		MeshGameObject meshGameObject = new MeshGameObject(rootGameObject, terrain);
 
-		WaterObject water = new WaterObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/textures/waterNormalMap.jpg", size, 0, 2);
+		WaterObject water = new WaterObject(rootGameObject, "/textures/waterDuDvMap.jpg", "/normalMaps/waterNormalMap.jpg", size, 0, 2);
 
 		MeshObject meshGroupLight = new MeshBuilder()
 				.setInvertedNormals(true)
@@ -1140,6 +1140,97 @@ class TestBench {
 				//	selectedMeshGameObject.getMeshObject().getMesh().destroy();
 				//	selectedMeshGameObject.setMeshObject(dragonMesh);
 				//});
+
+
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+	}
+
+	@Test
+	public void lines() {
+
+		ArrayList<GameObject> gameObjects = new ArrayList<>();
+
+		RootObject rootGameObject = new RootObject();
+
+		TransformBuilder transformBuilder = new TransformBuilder();
+
+		Transform transform = transformBuilder
+				.setPosition(Vec3f.ZERO).build();
+
+		TransformObject wholeSceneTransform = new TransformObject(rootGameObject, transform);
+
+		Transform textTransform = transformBuilder
+				.setPosition(new Vec3f(0, 10, 0))
+				.setScale(Vec3f.ONE.scale(100)).build();
+
+		transformBuilder.reset();
+
+		MeshObject circle = new MeshBuilder()
+				.setMeshType(MeshType.CIRCLE)
+				.setTriangleNumber(100)
+				.setTexture("/textures/testImage.jpg")
+				.setTransform(transformBuilder
+						.setScale(10).build())
+				.build();
+
+		MeshGameObject meshGameObject = new MeshGameObject(rootGameObject, circle);
+
+		MeshObject meshGroupLight = new MeshBuilder()
+				.setMeshType(MeshType.MODEL)
+				.setInvertedNormals(false)
+				.setTransform(transformBuilder
+						.setScale(Vec3f.ONE).build())
+				.build();
+
+		PointLight pointLight = new PointLight(
+				new Vec3f(0.0f, 1.0f, 0.0f),
+				10f);
+		DirectionalLight directionalLight = new DirectionalLight(
+				new Vec3f(1.0f, 1.0f, 1.0f),
+				new Vec3f(1.0f, 0.0f, 0.0f),
+				1f);
+		SpotLight spotLight = new SpotLight(
+				new PointLight(
+						new Vec3f(1.0f, 0.0f, 0.0f),
+						100f),
+				Vec3f.Y,
+				0.1f
+		);
+
+		Creation.CreateAxis(wholeSceneTransform);
+		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
+
+		Camera camera = new Camera(1.22173f, 1, 100000);
+		Transform cameraTransform = transformBuilder
+				.setPosition(new Vec3f(-10, 0, 0))
+				.setScale(Vec3f.ONE)
+				.setRotation(cameraRotation)
+				.build();
+		TransformObject cameraTransformGameObject = new TransformObject(wholeSceneTransform, cameraTransform);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
+		gameObjects.add(rootGameObject);
+
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+		windowInitialisationParametersBuilder.setLockCursor(true);
+
+		try (Window window = new Window()) {
+
+			window.init(windowInitialisationParametersBuilder.build());
+
+			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
+
+			while (!window.shouldClose()) {
+
+				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+
+				LWJGLGameControlManager.checkInputs();
 
 
 			}

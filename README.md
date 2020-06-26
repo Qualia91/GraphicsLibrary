@@ -1,5 +1,5 @@
 # **Graphics Library**
-## Graphics library using lwjgl3 and Java 14
+## Graphics library using lwjgl-3 and Java 11
 
 Graphics library written from the ground up as a way of learning game engine development.
 

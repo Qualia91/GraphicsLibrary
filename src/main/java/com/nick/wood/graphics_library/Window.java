@@ -1,13 +1,8 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
-import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
-import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
-import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
+import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
-import com.nick.wood.graphics_library.objects.game_objects.*;
-import com.nick.wood.maths.objects.matrix.Matrix4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -168,7 +163,7 @@ public class Window implements AutoCloseable {
 
 	}
 
-	public void loop(HashMap<String, ArrayList<GameObject>> gameObjectToSceneLateMap) {
+	public void loop(HashMap<String, RenderGraph> renderGraphs) {
 
 		// user inputs
 		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -199,155 +194,17 @@ public class Window implements AutoCloseable {
 
 		for (Scene sceneLayer : sceneLayers) {
 
-			ArrayList<GameObject> gameObjects = gameObjectToSceneLateMap.get(sceneLayer.getName());
+			RenderGraph renderGraph = renderGraphs.get(sceneLayer.getName());
 
-			if (gameObjects != null) {
-
-				Iterator<GameObject> mainIterator = gameObjects.iterator();
-
-				while (mainIterator.hasNext()) {
-					GameObject next = mainIterator.next();
-					createRenderLists(sceneLayer, next, Matrix4f.Identity);
-					if (next.getGameObjectData().isDelete()) {
-						mainIterator.remove();
-					}
-				}
-
-				sceneLayer.render(renderer);
-				// this makes sure hud is ontop of everything in scene
+			if (renderGraph != null) {
+				sceneLayer.render(renderer, renderGraph);
+				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT);
-
 			}
 
 		}
 
 		glfwSwapBuffers(windowHandler); // swap the color buffers
-
-
-	}
-
-	private void createRenderLists(Scene scene, GameObject gameObject, Matrix4f transformationSoFar) {
-
-		Iterator<GameObject> iterator = gameObject.getGameObjectData().getChildren().iterator();
-
-		while (iterator.hasNext()) {
-
-			GameObject child = iterator.next();
-
-			switch (child.getGameObjectData().getType()) {
-
-				case TRANSFORM:
-					if (child.getGameObjectData().isDelete()) {
-						iterator.remove();
-					} else {
-						TransformObject transformGameObject = (TransformObject) child;
-						createRenderLists(scene, transformGameObject, transformGameObject.getTransformForRender().multiply(transformationSoFar));
-					}
-					break;
-				case LIGHT:
-					if (child.getGameObjectData().isDelete()) {
-						scene.removeLight(child.getGameObjectData().getUuid());
-						iterator.remove();
-					} else {
-						LightObject lightObject = (LightObject) child;
-						if (scene.getLights().containsKey(lightObject.getLight())) {
-							scene.getLights().get(lightObject.getLight()).setTransformation(transformationSoFar);
-						} else {
-							InstanceObject lightInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
-							scene.getLights().put(lightObject.getLight(), lightInstance);
-						}
-						createRenderLists(scene, lightObject, transformationSoFar);
-					}
-					break;
-				case MESH:
-					if (child.getGameObjectData().isDelete()) {
-						scene.removeMesh(child.getGameObjectData().getUuid());
-						iterator.remove();
-					} else {
-						MeshGameObject meshGameObject = (MeshGameObject) child;
-						if (!meshGameObject.getMeshObject().getMesh().isCreated()) {
-							meshGameObject.getMeshObject().getMesh().create();
-						}
-						boolean found = false;
-						for (Map.Entry<com.nick.wood.graphics_library.objects.mesh_objects.MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : scene.getMeshes().entrySet()) {
-							if (meshObjectArrayListEntry.getKey().getStringToCompare().equals(meshGameObject.getMeshObject().getStringToCompare())) {
-								InstanceObject meshInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
-								meshObjectArrayListEntry.getValue().add(meshInstance);
-								found = true;
-								break;
-							}
-						}
-						if (!found) {
-							ArrayList<InstanceObject> meshObjects = new ArrayList<>();
-							InstanceObject meshInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
-							meshObjects.add(meshInstance);
-							scene.getMeshes().put(meshGameObject.getMeshObject(), meshObjects);
-
-						}
-						createRenderLists(scene, meshGameObject, transformationSoFar);
-					}
-					break;
-				case WATER:
-					if (child.getGameObjectData().isDelete()) {
-						scene.removeWater(child.getGameObjectData().getUuid());
-						iterator.remove();
-					} else {
-						WaterObject meshGameObject = (WaterObject) child;
-						if (!meshGameObject.getWater().getMesh().isCreated()) {
-							meshGameObject.getWater().getMesh().create();
-						}
-						if (scene.getWaterMeshes().containsKey(meshGameObject.getWater())) {
-							InstanceObject meshInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
-							scene.getWaterMeshes().get(meshGameObject.getWater()).add(meshInstance);
-						} else {
-							ArrayList<InstanceObject> meshObjects = new ArrayList<>();
-							InstanceObject meshInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
-							meshObjects.add(meshInstance);
-							scene.getWaterMeshes().put(meshGameObject.getWater(), meshObjects);
-
-						}
-						createRenderLists(scene, meshGameObject, transformationSoFar);
-					}
-					break;
-				case SKYBOX:
-					if (child.getGameObjectData().isDelete()) {
-						scene.removeSkybox();
-						iterator.remove();
-					} else {
-						SkyBoxObject skyBoxObject = (SkyBoxObject) child;
-						if (!skyBoxObject.getSkybox().getMesh().isCreated()) {
-							skyBoxObject.getSkybox().getMesh().create();
-						}
-						scene.setSkybox(skyBoxObject.getSkybox());
-						createRenderLists(scene, skyBoxObject, transformationSoFar);
-					}
-					break;
-				case CAMERA:
-					if (child.getGameObjectData().isDelete()) {
-						scene.removeCamera(child.getGameObjectData().getUuid());
-						iterator.remove();
-					} else {
-						CameraObject cameraObject = (CameraObject) child;
-						if (scene.getCameras().containsKey(cameraObject.getCamera())) {
-							scene.getCameras().get(cameraObject.getCamera()).setTransformation(transformationSoFar);
-						} else {
-							InstanceObject cameraInstance = new InstanceObject(child.getGameObjectData().getUuid(), transformationSoFar);
-							scene.getCameras().put(cameraObject.getCamera(), cameraInstance);
-						}
-						createRenderLists(scene, cameraObject, transformationSoFar);
-					}
-					break;
-				default:
-					if (child.getGameObjectData().isDelete()) {
-						iterator.remove();
-					} else {
-						createRenderLists(scene, child, transformationSoFar);
-					}
-					break;
-
-			}
-
-		}
 
 	}
 

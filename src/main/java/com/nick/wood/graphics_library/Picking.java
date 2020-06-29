@@ -2,8 +2,9 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.game_objects.CameraType;
+import com.nick.wood.graphics_library.objects.CameraType;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
+import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -25,14 +26,14 @@ public class Picking {
 		this.graphicsLibraryInput = graphicsLibraryInput;
 	}
 
-	public Optional<UUID> iterate(Scene scene, int height) {
+	public Optional<UUID> iterate(Scene scene, RenderGraph renderGraph, int height) {
 		if (graphicsLibraryInput.getButtons()[0]) {
 
 			int x = (int) graphicsLibraryInput.getMouseX();
 			int y = (int) graphicsLibraryInput.getMouseY();
 
 			if (scene.getPickingFrameBuffer() != null && scene.getPickingShader() != null) {
-				for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : scene.getCameras().entrySet()) {
+				for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 					if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 						glBindFramebuffer(GL_READ_FRAMEBUFFER, scene.getPickingFrameBuffer().getFrameBuffer());
 						glReadBuffer(GL_COLOR_ATTACHMENT0);

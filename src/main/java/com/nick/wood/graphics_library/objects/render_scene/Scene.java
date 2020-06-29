@@ -7,14 +7,14 @@ import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.CameraType;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.game_objects.CameraType;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengles.GLES20;
 
 import java.util.*;
 
@@ -36,13 +36,7 @@ public class Scene {
 	private Shader waterShader;
 	private Shader pickingShader;
 
-	private final HashMap<Light, InstanceObject> lights;
-	private final HashMap<MeshObject, ArrayList<InstanceObject>> meshes;
 	private final HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap = new HashMap<>();
-	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
-	private final HashMap<Camera, InstanceObject> cameras;
-
-	private MeshObject skybox;
 
 	private WaterFrameBuffer waterFrameBuffer;
 	private PickingFrameBuffer pickingFrameBuffer;
@@ -83,10 +77,6 @@ public class Scene {
 		this.ambientLight = ambientLight;
 		this.skyboxAmbientLight = skyboxAmbientLight;
 
-		this.lights = new HashMap<>();
-		this.meshes = new HashMap<>();
-		this.waterMeshes = new HashMap<>();
-		this.cameras = new HashMap<>();
 		this.waterCameraReflection = createReflectionMatrix(reflectionClippingPlane);
 
 		this.pickingActive = pickingActive;
@@ -121,26 +111,10 @@ public class Scene {
 				0, 0, 0, 1);
 	}
 
-	public HashMap<MeshObject, ArrayList<InstanceObject>> getMeshes() {
-		return meshes;
-	}
-
-	public HashMap<MeshObject, ArrayList<InstanceObject>> getWaterMeshes() {
-		return waterMeshes;
-	}
-
-	public HashMap<Light, InstanceObject> getLights() {
-		return lights;
-	}
-
-	public HashMap<Camera, InstanceObject> getCameras() {
-		return cameras;
-	}
-
-	public void render(Renderer renderer) {
+	public void render(Renderer renderer, RenderGraph renderGraph) {
 
 		// update camera projection matrices if need be
-		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 				// see if projection matrix needs updating
 				if (updateProjectionMatrices) {
@@ -157,18 +131,18 @@ public class Scene {
 		moveFactor %= 1;
 
 		// render scene fbos
-		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
 				if (mainShader != null) {
 
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().bindFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null);
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getLights());
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().unbindCurrentFrameBuffer();
 
 					GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 					// now render the fbo textured objects that have the same index as this camera
-					for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+					for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
 						if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
 							meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
 						}
@@ -179,39 +153,38 @@ public class Scene {
 
 		}
 		if (pickingShader != null && pickingFrameBuffer != null) {
-			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
-					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry);
+					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry, renderGraph.getMeshes());
 					pickingFrameBuffer.unbindCurrentFrameBuffer();
 				}
 			}
 		}
 
-		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 
-				if (waterFrameBuffer != null && waterShader != null && !waterMeshes.isEmpty()) {
+				if (waterFrameBuffer != null && waterShader != null && !renderGraph.getWaterMeshes().isEmpty()) {
 
-					// move camera down by 2 * height to get reflection
 					Matrix4f newCameraMatrix = backFaceCullFlip.multiply(cameraInstanceObjectEntry.getValue().getTransformation()).multiply(waterCameraReflection);
 					Map.Entry<Camera, InstanceObject> reflectedCamera =
 							new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
 									new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
 					waterFrameBuffer.bindReflectionFrameBuffer();
-					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane);
+					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getLights());
 					waterFrameBuffer.bindRefractionFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane);
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getLights());
 					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 
 				}
-				if (skyboxShader != null && skybox != null) {
-					renderer.renderSkybox(skybox, cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
+				if (skyboxShader != null && renderGraph.getSkybox() != null) {
+					renderer.renderSkybox(renderGraph.getSkybox(), cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
 				}
 				if (waterShader != null && waterFrameBuffer != null) {
-					renderer.renderWater(waterMeshes,
+					renderer.renderWater(renderGraph.getWaterMeshes(),
 							cameraInstanceObjectEntry,
-							lights,
+							renderGraph.getLights(),
 							waterShader,
 							fog,
 							waterFrameBuffer.getReflectionTexture(),
@@ -221,66 +194,30 @@ public class Scene {
 				}
 				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-					renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, null);
+					renderer.renderScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
 				}
 				break;
 			}
 		}
 
-		for (ArrayList<InstanceObject> value : meshes.values()) {
-			value.clear();
-		}
-		for (ArrayList<InstanceObject> value : waterMeshes.values()) {
-			value.clear();
-		}
-
 	}
 
-	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry) {
+	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<MeshObject, ArrayList<InstanceObject>> meshes) {
 		renderer.renderPickingScene(meshes, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
 	}
 
-	private void renderSceneToBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Vec4f clippingPlane) {
+	private void renderSceneToBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Vec4f clippingPlane, MeshObject skybox, HashMap<MeshObject, ArrayList<InstanceObject>> meshes, HashMap<Light, InstanceObject> lights) {
 		// enable clip planes
 		// this clips everything under the water
 		GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 		if (skyboxShader != null && skybox != null) {
 			// have to put back on skybox so the reflected camera that reverses triangle loop will render it
-			GL11.glDisable(GLES20.GL_CULL_FACE);
+			GL11.glDisable(GL20.GL_CULL_FACE);
 			renderer.renderSkybox(skybox, cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
-			GL11.glEnable(GLES20.GL_CULL_FACE);
-			GL11.glCullFace(GLES20.GL_BACK);
+			GL11.glEnable(GL20.GL_CULL_FACE);
+			GL11.glCullFace(GL20.GL_BACK);
 		}
 		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
-	}
-
-	public void removeLight(UUID uuid) {
-		lights.entrySet().removeIf(next -> next.getValue().getUuid().equals(uuid));
-	}
-
-	public void removeCamera(UUID uuid) {
-		cameras.entrySet().removeIf(next -> next.getValue().getUuid().equals(uuid));
-	}
-
-	public void removeMesh(UUID uuid) {
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : meshes.entrySet()) {
-			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-
-		}
-	}
-
-	public void removeWater(UUID uuid) {
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : waterMeshes.entrySet()) {
-			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-		}
-	}
-
-	public void setSkybox(MeshObject skybox) {
-		this.skybox = skybox;
-	}
-
-	public void removeSkybox() {
-		this.skybox = null;
 	}
 
 	public void updateScreen(int width, int height) {

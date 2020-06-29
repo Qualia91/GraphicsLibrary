@@ -1,6 +1,8 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import org.lwjgl.Version;
@@ -26,6 +28,11 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window implements AutoCloseable {
+
+	// this map will contain all of the meshes created and be accessible via the stringtocompair variable
+	// ion mesh. This will enable objects that have been unloaded then reloaded to use the old created ones
+	// and it wont have to create new ones.
+	private final HashMap<String, Mesh> createdMeshMap = new HashMap<>();
 
 	private final GraphicsLibraryInput graphicsLibraryInput;
 	private final ArrayList<Scene> sceneLayers;
@@ -197,6 +204,21 @@ public class Window implements AutoCloseable {
 			RenderGraph renderGraph = renderGraphs.get(sceneLayer.getName());
 
 			if (renderGraph != null) {
+
+				// destroy all the meshes that need to be destroyed
+				for (Mesh mesh : renderGraph.getMeshesToDestroy()) {
+					mesh.destroy();
+				}
+
+				// build all the meshes that are yet to be build
+				for (Mesh mesh : renderGraph.getMeshesToBuild()) {
+					mesh.create();
+				}
+
+				// clear the list
+				renderGraph.getMeshesToBuild().clear();
+				renderGraph.getMeshesToDestroy().clear();
+
 				sceneLayer.render(renderer, renderGraph);
 				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT);

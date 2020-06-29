@@ -23,12 +23,12 @@ public class TextItem implements MeshObject {
 	private Transform transformation;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	TextItem(String text, String fontFileName, int numRows, int numCols, Transform transformation, int fboTextureIndex) {
+	TextItem(String text, Material material, int numRows, int numCols, Transform transformation, int fboTextureIndex) {
 		this.fboTextureIndex = fboTextureIndex;
 		this.text = text;
 		this.numCols = numCols;
 		this.numRows = numRows;
-		material = new Material(fontFileName);
+		this.material = material;
 		mesh = buildMesh(numCols, numRows);
 		this.transformation = transformation;
 	}

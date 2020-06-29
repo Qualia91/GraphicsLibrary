@@ -17,7 +17,7 @@ public class Mesh {
 
 	private final boolean invertedNormals;
 	private boolean created = false;
-	private boolean hasNormalMapping = false;
+	private boolean hasNormalMapping;
 	private Vertex[] vertices;
 	private int[] indices;
 	private Material material;

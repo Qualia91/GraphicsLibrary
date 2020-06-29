@@ -16,7 +16,7 @@ public class MeshBuilder {
 	private Transform transformation = Transform.Identity;
 	private int triangleNumber = 5;
 	private String text = "0";
-	private String fontFile = "/fonts/gothic.png";
+	private String fontFile = "/fonts/verandaGreenBold.png";
 	private int rowNum = 16;
 	private int colNum = 16;
 	private int waterSquareWidth = 100;
@@ -41,6 +41,8 @@ public class MeshBuilder {
 			material.setNormalMap(normalTexture);
 		}
 
+		Material fontMaterial = new Material(fontFile);
+
 		MeshObject meshObject = null;
 		switch (meshType) {
 			case SPHERE:
@@ -56,7 +58,7 @@ public class MeshBuilder {
 				meshObject = new Square(material, transformation, fboTextureIndex);
 				break;
 			case TEXT:
-				meshObject = new TextItem(text, fontFile, rowNum, colNum, transformation, fboTextureIndex);
+				meshObject = new TextItem(text, fontMaterial, rowNum, colNum, transformation, fboTextureIndex);
 				break;
 			case TERRAIN:
 				meshObject = new Terrain(terrainHeightMap, material, cellSpace, meshType, fboTextureIndex);
@@ -68,7 +70,7 @@ public class MeshBuilder {
 				meshObject = new Point(transformation, material, fboTextureIndex);
 				break;
 			case TRIANGLE:
-				meshObject = new Triangle(transformation, triangleNumber, invertedNormals, fboTextureIndex);
+				meshObject = new Triangle(transformation, material, triangleNumber, invertedNormals, fboTextureIndex);
 				break;
 			case CIRCLE:
 				meshObject = new CircleMesh(transformation, material, triangleNumber, fboTextureIndex);

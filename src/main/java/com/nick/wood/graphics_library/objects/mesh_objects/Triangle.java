@@ -13,7 +13,7 @@ public class Triangle implements MeshObject {
 	private final Mesh mesh;
 	private final int triangleNumber;
 
-	public Triangle(Transform transform, int triangleNumber, boolean invertedNormals, int fboTextureIndex) {
+	public Triangle(Transform transform, Material material, int triangleNumber, boolean invertedNormals, int fboTextureIndex) {
 
 		this.fboTextureIndex = fboTextureIndex;
 		this.transformation = transform;
@@ -107,7 +107,7 @@ public class Triangle implements MeshObject {
 
 		}
 
-		mesh = new Mesh(vertices, indexList, new Material("/textures/texture.png"), invertedNormals, false);
+		mesh = new Mesh(vertices, indexList, material, invertedNormals, false);
 	}
 
 	public Mesh getMesh() {

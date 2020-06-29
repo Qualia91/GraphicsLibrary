@@ -162,7 +162,7 @@ public class Texture {
 	}
 
 	public void destroy() {
-		glDeleteTextures(id);
 		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(id);
 	}
 }

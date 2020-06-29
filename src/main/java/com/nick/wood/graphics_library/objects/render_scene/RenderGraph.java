@@ -2,12 +2,10 @@ package com.nick.wood.graphics_library.objects.render_scene;
 
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class RenderGraph {
 
@@ -16,6 +14,8 @@ public class RenderGraph {
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
 	private MeshObject skybox;
+	private final ArrayList<Mesh> meshesToBuild = new ArrayList<>();
+	private final ArrayList<Mesh> meshesToDestroy = new ArrayList<>();
 
 	public RenderGraph() {
 		this.lights = new HashMap<>();
@@ -63,24 +63,47 @@ public class RenderGraph {
 	}
 
 	public void removeMesh(UUID uuid) {
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : meshes.entrySet()) {
+		Iterator<Map.Entry<MeshObject, ArrayList<InstanceObject>>> iterator = meshes.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<MeshObject, ArrayList<InstanceObject>> next = iterator.next();
 			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-
+			if (next.getValue().isEmpty()) {
+				meshesToDestroy.add(next.getKey().getMesh());
+				iterator.remove();
+			}
 		}
 	}
 
 	public void removeWater(UUID uuid) {
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : waterMeshes.entrySet()) {
 			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
+			if (next.getValue().isEmpty()) {
+				meshesToDestroy.add(next.getKey().getMesh());
+			}
 		}
 	}
 
 	public void setSkybox(MeshObject skybox) {
-		this.skybox = skybox;
+		if (!skybox.equals(this.skybox)) {
+			// if we are replacing the skybox, destroy the last one
+			if (this.skybox != null) {
+				meshesToDestroy.add(skybox.getMesh());
+			}
+			meshesToBuild.add(skybox.getMesh());
+			this.skybox = skybox;
+		}
 	}
 
 	public void removeSkybox() {
+		meshesToDestroy.add(skybox.getMesh());
 		this.skybox = null;
 	}
 
+	public ArrayList<Mesh> getMeshesToBuild() {
+		return meshesToBuild;
+	}
+
+	public ArrayList<Mesh> getMeshesToDestroy() {
+		return meshesToDestroy;
+	}
 }

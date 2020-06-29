@@ -27,11 +27,7 @@ public class Material {
 	}
 
 	public Material(String path) {
-		this.path = path;
-		this.diffuseColour = Vec3f.ONE;
-		this.specularColour = Vec3f.ONE;
-		this.shininess = 1;
-		this.reflectance = 1;
+		this(path, Vec3f.ONE, Vec3f.ONE, 1, 1);
 	}
 
 	public void create() {
@@ -54,10 +50,12 @@ public class Material {
 		if (texture != null) {
 			texture.destroy();
 			GL13.glDeleteTextures(texture.getId());
+			texture = null;
 		}
 		if (normalMap != null) {
 			normalMap.destroy();
 			GL13.glDeleteTextures(normalMap.getId());
+			normalMap = null;
 		}
 	}
 

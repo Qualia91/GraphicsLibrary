@@ -101,7 +101,7 @@ class TestBench {
 
 		gameObjects.add(rootGameObject);
 
-		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder().setDebug(true);
 
 		Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
 		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);

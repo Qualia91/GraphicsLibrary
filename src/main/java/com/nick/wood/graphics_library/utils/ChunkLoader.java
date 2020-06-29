@@ -25,23 +25,21 @@ public class ChunkLoader {
 
 	private AtomicBoolean buildingActive = new AtomicBoolean(false);
 
-	private final ArrayList<GameObject> gameObjects;
 	private final int chunkSize = 50;
 	private final int segmentSize = 100;
 	private final ArrayList<ChunkIndex> activeChunkIndices = new ArrayList<>();
 	private final ArrayList<ChunkIndex> loadedChunkIndices = new ArrayList<>();
-	private final ConcurrentHashMap<ChunkIndex, com.nick.wood.graphics_library.objects.mesh_objects.MeshObject> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<ChunkIndex, MeshObject> chunkIndexSceneGraphHashMap = new ConcurrentHashMap<>();
 	private final Perlin2Df[] perlin2Ds;
 	private final int cellSpace = 15;
 
-	private final  int visualClippingDistance = 5;
-	private final  int loadingClippingDistance = visualClippingDistance + 6;
+	private final int visualClippingDistance = 5;
+	private final int loadingClippingDistance = visualClippingDistance + 6;
 
 
 	ArrayList<ChunkIndex> newListOfChunkIndexes = new ArrayList<>();
 
 	public ChunkLoader(ArrayList<GameObject> gameObjects, int octaves, int lacunarity) {
-		this.gameObjects = gameObjects;
 		perlin2Ds = new Perlin2Df[octaves];
 		for (int i = 0; i < octaves; i++) {
 			double frequency = Math.pow(lacunarity, i);
@@ -55,58 +53,53 @@ public class ChunkLoader {
 
 	public void loadChunk(Vec3f currentPlayerPosition) {
 
-		if (!buildingActive.get()) {
 
-			executorService.submit(() -> {
+		try {
 
-				try {
+			buildingActive.set(true);
 
-					buildingActive.set(true);
+			newListOfChunkIndexes.clear();
 
-					newListOfChunkIndexes.clear();
-
-					// work out what index the player would be in
-					int xIndex = (int) (currentPlayerPosition.getX() / (double) (chunkSize * cellSpace));
-					int yIndex = (int) (currentPlayerPosition.getY() / (double) (chunkSize * cellSpace));
+			// work out what index the player would be in
+			int xIndex = (int) (currentPlayerPosition.getX() / (double) (chunkSize * cellSpace));
+			int yIndex = (int) (currentPlayerPosition.getY() / (double) (chunkSize * cellSpace));
 
 
-					// load all 16 chunks around it
-					for (int x = xIndex - loadingClippingDistance; x <= xIndex + loadingClippingDistance; x++) {
-						for (int y = yIndex - loadingClippingDistance; y <= yIndex + loadingClippingDistance; y++) {
+			// load all 16 chunks around it
+			for (int x = xIndex - loadingClippingDistance; x <= xIndex + loadingClippingDistance; x++) {
+				for (int y = yIndex - loadingClippingDistance; y <= yIndex + loadingClippingDistance; y++) {
 
-							ChunkIndex chunkIndex = new ChunkIndex(x, y);
-							newListOfChunkIndexes.add(chunkIndex);
+					ChunkIndex chunkIndex = new ChunkIndex(x, y);
+					newListOfChunkIndexes.add(chunkIndex);
 
-							// see if the chunk hasn't already been loaded
-							if (!loadedChunkIndices.contains(chunkIndex)) {
-								// add chunk to new list
-								// and load it
-								MeshObject meshObject = createChunk(x * chunkSize, y * chunkSize);
-								chunkIndexSceneGraphHashMap.put(chunkIndex, meshObject);
-								loadedChunkIndices.add(chunkIndex);
+					// see if the chunk hasn't already been loaded
+					if (!loadedChunkIndices.contains(chunkIndex)) {
+						// add chunk to new list
+						// and load it
+						MeshObject meshObject = createChunk(x * chunkSize, y * chunkSize);
+						chunkIndexSceneGraphHashMap.put(chunkIndex, meshObject);
+						loadedChunkIndices.add(chunkIndex);
 
-							}
-						}
 					}
-
-					// no go through and unload the chunks that shouldnt be loaded
-					loadedChunkIndices.removeIf(loadedChunk -> {
-						if (!newListOfChunkIndexes.contains(loadedChunk)) {
-							chunkIndexSceneGraphHashMap.remove(loadedChunk);
-							return true;
-						}
-						return false;
-					});
-
-					buildingActive.set(false);
-
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
+			}
 
+			// no go through and unload the chunks that shouldnt be loaded
+			loadedChunkIndices.removeIf(loadedChunk -> {
+				if (!newListOfChunkIndexes.contains(loadedChunk)) {
+					destroyChunk(chunkIndexSceneGraphHashMap.get(loadedChunk));
+					chunkIndexSceneGraphHashMap.remove(loadedChunk);
+					return true;
+				}
+				return false;
 			});
 
+			buildingActive.set(false);
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 		// work out what index the player would be in
 		int xIndex = (int) (currentPlayerPosition.getX() / (double) (chunkSize * cellSpace));
 		int yIndex = (int) (currentPlayerPosition.getY() / (double) (chunkSize * cellSpace));
@@ -140,7 +133,6 @@ public class ChunkLoader {
 			if (Math.abs(activeChunk.getX() - xIndex) > visualClippingDistance + 5 || Math.abs(activeChunk.getY() - yIndex) > visualClippingDistance + 5) {
 				MeshObject meshObject = chunkIndexSceneGraphHashMap.get(activeChunk);
 				removeFromScene(meshObject);
-
 				return true;
 			}
 			return false;
@@ -202,5 +194,10 @@ public class ChunkLoader {
 				.setNormalTexture("/normalMaps/rock_normals.png")
 				.setCellSpace(cellSpace)
 				.build();
+	}
+
+
+	private void destroyChunk(MeshObject meshObject) {
+		meshObject.getMesh().destroy();
 	}
 }

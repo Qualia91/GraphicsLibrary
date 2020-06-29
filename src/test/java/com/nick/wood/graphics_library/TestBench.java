@@ -3,6 +3,7 @@ package com.nick.wood.graphics_library;
 import com.nick.wood.graphics_library.input.DirectTransformController;
 import com.nick.wood.graphics_library.input.LWJGLGameControlManager;
 import com.nick.wood.graphics_library.lighting.DirectionalLight;
+import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.PointLight;
 import com.nick.wood.graphics_library.lighting.SpotLight;
 import com.nick.wood.graphics_library.objects.Camera;
@@ -12,6 +13,7 @@ import com.nick.wood.graphics_library.objects.mesh_objects.MeshBuilder;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
+import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.utils.*;
 import com.nick.wood.maths.noise.Perlin2Df;
 import com.nick.wood.maths.noise.Perlin3D;
@@ -25,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.ArrayList;
 
+import static com.nick.wood.graphics_library.lighting.Fog.NOFOG;
+
 class TestBench {
 
 	// this is to get world in sensible coordinate system to start with
@@ -32,42 +36,6 @@ class TestBench {
 	private final QuaternionF quaternionY = QuaternionF.RotationY((float) Math.toRadians(180));
 	private final QuaternionF quaternionZ = QuaternionF.RotationZ((float) Math.toRadians(90));
 	private final QuaternionF cameraRotation = quaternionZ.multiply(quaternionY).multiply(quaternionX);
-
-	@Test
-	public void empty() {
-
-		ArrayList<GameObject> gameObjects = new ArrayList<>();
-
-		RootObject rootGameObject = new RootObject();
-
-		Camera camera = new Camera(1.22173f, 1, 100000);
-
-		Transform cameraTransform = new TransformBuilder()
-				.setPosition(Vec3f.X.scale(-10)).build();
-
-		TransformObject cameraTransformGameObject = new TransformObject(rootGameObject, cameraTransform);
-
-		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
-
-		gameObjects.add(rootGameObject);
-
-		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
-
-		try (Window window = new Window()) {
-
-			window.init(windowInitialisationParametersBuilder.build());
-
-			while (!window.shouldClose()) {
-
-				window.loop(gameObjects, new ArrayList<>());
-
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
 
 	@Test
 	public void stress() {
@@ -129,13 +97,51 @@ class TestBench {
 		TransformObject cameraTransformObj = new TransformObject(rootGameObject, cameraTransform);
 		Camera camera = new Camera(1.22173f, 1, 100000);
 		CameraObject cameraObject = new CameraObject(cameraTransformObj, camera);
-		DirectTransformController directCameraController = new DirectTransformController(cameraTransformObj, true, true);
+		DirectTransformController directCameraController = new DirectTransformController(cameraTransformObj, true, true, 0.01f, 1);
 
 		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -145,7 +151,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -192,7 +198,7 @@ class TestBench {
 		TransformObject cameraTransformObj = new TransformObject(rootGameObject, cameraTransform);
 		Camera camera = new Camera(1.22173f, 10, 100000);
 		CameraObject cameraObject = new CameraObject(cameraTransformObj, camera);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformObj, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformObj, true, true, 0.01f, 10);
 		gameObjects.add(rootGameObject);
 
 		RootObject skyboxRootObject = new RootObject();
@@ -210,7 +216,45 @@ class TestBench {
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 		windowInitialisationParametersBuilder.setLockCursor(true);
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl"),
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				null,
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -226,7 +270,7 @@ class TestBench {
 
 				chunkLoader.loadChunk(cameraTransform.getPosition());
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 
 			}
@@ -260,7 +304,7 @@ class TestBench {
 				(amp) -> amp * amp
 		);
 
-		SkyBoxObject skyBoxObject = new SkyBoxObject(rootGameObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE, 1000);
+		SkyBoxObject skyBoxObject = new SkyBoxObject(rootGameObject, "/textures/2k_neptune.jpg", SkyboxType.SPHERE, 1_000_000);
 
 		MeshObject terrain = new MeshBuilder()
 				.setMeshType(MeshType.TERRAIN)
@@ -284,20 +328,58 @@ class TestBench {
 
 		LightObject lightObject = new LightObject(rootGameObject, sun);
 
-		Camera camera = new Camera(1.22173f, 1, 100000);
+		Camera camera = new Camera(1.22173f, 10, 1_000_000);
 		Transform cameraTransform = new TransformBuilder()
 				.setPosition(new Vec3f(0, 0, 100))
 				.setScale(Vec3f.ONE)
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(rootGameObject, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl"),
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				new Shader("/shaders/pickingVertex.glsl", "/shaders/pickingFragment.glsl"),
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -306,7 +388,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -417,7 +499,7 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(rootGameObject, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
@@ -444,17 +526,53 @@ class TestBench {
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
 
-			window.getScene().setAmbientLight(new Vec3f(0.9765f/2, 0.8431f/2, 0.1098f/2));
-
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -528,24 +646,60 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(rootGameObject, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
 
-		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
+		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder().setDebug(true);
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.1f, 0.1f, 0.1f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				null,
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
 			LWJGLGameControlManager LWJGLGameControlManager = new LWJGLGameControlManager(window.getGraphicsLibraryInput(), directTransformController);
 
-			ArrayList<GameObject> objectObjectArrayList = new ArrayList<>();
-
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, objectObjectArrayList);
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -736,14 +890,52 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(wholeSceneTransform, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 		windowInitialisationParametersBuilder.setLockCursor(true);
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl"),
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				new Shader("/shaders/pickingVertex.glsl", "/shaders/pickingFragment.glsl"),
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -751,7 +943,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -801,7 +993,7 @@ class TestBench {
 				System.out.println("INIT ERROR  DESCR: " + VR_GetVRInitErrorAsEnglishDescription(peError.get(0)));
 			}
 		}
-	}*/
+	}
 
 	@Test
 	public void particleSystem() {
@@ -882,7 +1074,7 @@ class TestBench {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
-	}
+	}*/
 
 	@Test
 	public void mase() {
@@ -927,7 +1119,7 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(wholeSceneTransform, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
@@ -1012,7 +1204,46 @@ class TestBench {
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 
-		try (Window window = new Window()) {
+
+		Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl"),
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				new Shader("/shaders/pickingVertex.glsl", "/shaders/pickingFragment.glsl"),
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -1020,7 +1251,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -1113,14 +1344,52 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(wholeSceneTransform, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, false, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, false, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 		windowInitialisationParametersBuilder.setLockCursor(false);
 
-		try (Window window = new Window()) {
+		Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl"),
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				new Shader("/shaders/pickingVertex.glsl", "/shaders/pickingFragment.glsl"),
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", new ArrayList<>());
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -1131,11 +1400,11 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				lwjglGameControlManager.checkInputs();
 
-				picking.iterate(window.getScene(), window.getHeight()).ifPresent(uuid -> {
+				picking.iterate(mainScene, mainScene.getHeight()).ifPresent(uuid -> {
 					MeshGameObject selectedMeshGameObject = (MeshGameObject) GameObjectUtils.FindGameObjectByID(gameObjects, uuid);
 					selectedMeshGameObject.getMeshObject().getMesh().destroy();
 					selectedMeshGameObject.setMeshObject(dragonMesh);
@@ -1153,6 +1422,8 @@ class TestBench {
 	public void lines() {
 
 		ArrayList<GameObject> gameObjects = new ArrayList<>();
+
+		ArrayList<GameObject> hudObjects = new ArrayList<>();
 
 		RootObject rootGameObject = new RootObject();
 
@@ -1213,14 +1484,53 @@ class TestBench {
 				.setRotation(cameraRotation)
 				.build();
 		TransformObject cameraTransformGameObject = new TransformObject(wholeSceneTransform, cameraTransform);
-		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true);
+		DirectTransformController directTransformController = new DirectTransformController(cameraTransformGameObject, true, true, 0.01f, 1);
 		CameraObject cameraObject = new CameraObject(cameraTransformGameObject, camera);
 		gameObjects.add(rootGameObject);
 
 		WindowInitialisationParametersBuilder windowInitialisationParametersBuilder = new WindowInitialisationParametersBuilder();
 		windowInitialisationParametersBuilder.setLockCursor(true);
 
-		try (Window window = new Window()) {
+
+		Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
+		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
+		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
+		Fog fog = new Fog(true, ambientLight, 0.0003f);
+
+		Scene mainScene = new Scene(
+				"MAIN_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl"),
+				new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl"),
+				new Shader("/shaders/pickingVertex.glsl", "/shaders/pickingFragment.glsl"),
+				fog,
+				ambientLight,
+				skyboxAmbientLight,
+				true
+		);
+
+		Scene hudScene = new Scene(
+				"HUD_SCENE",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				hudAmbientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
+
+		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
+		stringArrayListHashMap.put("HUD_SCENE", hudObjects);
+
+		ArrayList<Scene> sceneLayers = new ArrayList<>();
+		sceneLayers.add(mainScene);
+		sceneLayers.add(hudScene);
+
+		try (Window window = new Window(sceneLayers)) {
 
 			window.init(windowInitialisationParametersBuilder.build());
 
@@ -1228,7 +1538,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>());
+				window.loop(stringArrayListHashMap);
 
 				LWJGLGameControlManager.checkInputs();
 

@@ -12,10 +12,7 @@ public class WindowInitialisationParametersBuilder {
 	private int windowWidth = 1200;
 	private int windowHeight = 800;
 	private String title = "Window";
-	private Vec3f sceneAmbientLight = new Vec3f(.1f, .1f, .1f);
-	private Vec3f hudAmbientLight = new Vec3f(.5f, .5f, .5f);
 	private boolean debug = false;
-	private boolean picking = false;
 
 	public WindowInitialisationParameters build() {
 		return new WindowInitialisationParameters(
@@ -26,30 +23,12 @@ public class WindowInitialisationParametersBuilder {
 				windowWidth,
 				windowHeight,
 				title,
-				sceneAmbientLight,
-				hudAmbientLight,
-				debug,
-				picking
+				debug
 		);
-	}
-
-	public WindowInitialisationParametersBuilder setPicking(boolean picking) {
-		this.picking = picking;
-		return this;
 	}
 
 	public WindowInitialisationParametersBuilder setDebug(boolean debug) {
 		this.debug = debug;
-		return this;
-	}
-
-	public WindowInitialisationParametersBuilder setSceneAmbientLight(Vec3f sceneAmbientLight) {
-		this.sceneAmbientLight = sceneAmbientLight;
-		return this;
-	}
-
-	public WindowInitialisationParametersBuilder setHudAmbientLight(Vec3f hudAmbientLight) {
-		this.hudAmbientLight = hudAmbientLight;
 		return this;
 	}
 

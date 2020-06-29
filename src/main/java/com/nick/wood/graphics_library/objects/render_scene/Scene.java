@@ -3,7 +3,6 @@ package com.nick.wood.graphics_library.objects.render_scene;
 import com.nick.wood.graphics_library.Renderer;
 import com.nick.wood.graphics_library.Shader;
 import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
-import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.Light;
@@ -21,25 +20,31 @@ import java.util.*;
 
 public class Scene {
 
+	private final String name;
+	private final boolean pickingActive;
+
 	private int screenWidth;
 	private int screenHeight;
 	private boolean updateProjectionMatrices = false;
 
 	private Fog fog;
-	private Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
-	private Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
-	private Shader shader;
+	private Vec3f ambientLight;
+	private Vec3f skyboxAmbientLight;
+
+	private Shader mainShader;
 	private Shader skyboxShader;
 	private Shader waterShader;
 	private Shader pickingShader;
+
 	private final HashMap<Light, InstanceObject> lights;
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> meshes;
 	private final HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap = new HashMap<>();
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
+
 	private MeshObject skybox;
+
 	private WaterFrameBuffer waterFrameBuffer;
-	private SceneFrameBuffer sceneFrameBuffer;
 	private PickingFrameBuffer pickingFrameBuffer;
 
 	private float waveSpeed = 0.0005f;
@@ -56,16 +61,56 @@ public class Scene {
 			0, 0, 1, 0,
 			0, 0, 0, 1
 	);
-	private Matrix4f cameraTransform = Matrix4f.Identity;
 
-	public Scene() {
+	public Scene(String name,
+	             Shader mainShader,
+	             Shader waterShader,
+	             Shader skyboxShader,
+	             Shader pickingShader,
+	             Fog fog,
+	             Vec3f ambientLight,
+	             Vec3f skyboxAmbientLight,
+	             boolean pickingActive) {
+
+		this.name = name;
+
+		this.mainShader = mainShader;
+		this.waterShader = waterShader;
+		this.skyboxShader = skyboxShader;
+		this.pickingShader = pickingShader;
+
+		this.fog = fog;
+		this.ambientLight = ambientLight;
+		this.skyboxAmbientLight = skyboxAmbientLight;
+
 		this.lights = new HashMap<>();
 		this.meshes = new HashMap<>();
 		this.waterMeshes = new HashMap<>();
 		this.cameras = new HashMap<>();
-		this.fog = new Fog(true, ambientLight, 0.0003f);
-
 		this.waterCameraReflection = createReflectionMatrix(reflectionClippingPlane);
+
+		this.pickingActive = pickingActive;
+	}
+
+	public void init(int width, int height) {
+
+		if (mainShader != null) {
+			mainShader.create();
+		}
+		if (skyboxShader != null) {
+			skyboxShader.create();
+		}
+		if (waterShader != null) {
+			waterShader.create();
+			waterFrameBuffer = new WaterFrameBuffer(width, height);
+		}
+		if (pickingShader != null) {
+			pickingShader.create();
+		}
+		if (pickingActive) {
+			pickingFrameBuffer = new PickingFrameBuffer(width, height);
+		}
+
 	}
 
 	private Matrix4f createReflectionMatrix(Vec4f plane) {
@@ -74,34 +119,6 @@ public class Scene {
 				-2 * plane.getX() * plane.getY(), 1 - (2 * plane.getY() * plane.getY()), -2 * plane.getY() * plane.getZ(), 2 * plane.getY() * plane.getS(),
 				-2 * plane.getX() * plane.getZ(), -2 * plane.getY() * plane.getZ(), 1 - (2 * plane.getZ() * plane.getZ()), 2 * plane.getZ() * plane.getS(),
 				0, 0, 0, 1);
-	}
-
-	public Fog getFog() {
-		return fog;
-	}
-
-	public void setFog(Fog fog) {
-		this.fog = fog;
-	}
-
-	public Shader getShader() {
-		return shader;
-	}
-
-	public void setShader(Shader shader) {
-		this.shader = shader;
-	}
-
-	public Shader getSkyboxShader() {
-		return skyboxShader;
-	}
-
-	public void setSkyboxShader(Shader skyboxShader) {
-		this.skyboxShader = skyboxShader;
-	}
-
-	public MeshObject getSkybox() {
-		return skybox;
 	}
 
 	public HashMap<MeshObject, ArrayList<InstanceObject>> getMeshes() {
@@ -140,26 +157,24 @@ public class Scene {
 		moveFactor %= 1;
 
 		// render scene fbos
-		if (sceneFrameBuffer != null) {
-			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
-				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
-					if (shader != null) {
-						sceneFrameBuffer.bindFrameBuffer();
-						renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null);
-						sceneFrameBuffer.unbindCurrentFrameBuffer();
+		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
+			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
+				if (mainShader != null) {
 
-						GL11.glViewport(0, 0, screenWidth, screenHeight);
+					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().bindFrameBuffer();
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null);
+					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().unbindCurrentFrameBuffer();
 
-						// now render the fbo textured objects that have the same index as this camera
-						for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-							if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
-								meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(sceneFrameBuffer.getTexture());
-							}
+					GL11.glViewport(0, 0, screenWidth, screenHeight);
+
+					// now render the fbo textured objects that have the same index as this camera
+					for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+						if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
+							meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
 						}
-						;
 					}
-					break;
 				}
+				break;
 			}
 
 		}
@@ -175,8 +190,6 @@ public class Scene {
 
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : cameras.entrySet()) {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
-
-				this.cameraTransform = cameraInstanceObjectEntry.getValue().getTransformation();
 
 				if (waterFrameBuffer != null && waterShader != null && !waterMeshes.isEmpty()) {
 
@@ -209,9 +222,9 @@ public class Scene {
 							moveFactor,
 							skyboxAmbientLight);
 				}
-				if (shader != null) {
+				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-					renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight, fog, null);
+					renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, null);
 				}
 				break;
 			}
@@ -240,7 +253,7 @@ public class Scene {
 			GL11.glEnable(GLES20.GL_CULL_FACE);
 			GL11.glCullFace(GLES20.GL_BACK);
 		}
-		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, shader, ambientLight, fog, clippingPlane);
+		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}
 
 	public void removeLight(UUID uuid) {
@@ -267,14 +280,6 @@ public class Scene {
 		}
 	}
 
-	public void attachShader(Shader shader) {
-		this.shader = shader;
-	}
-
-	public void attachSkyboxShader(Shader skyboxShader) {
-		this.skyboxShader = skyboxShader;
-	}
-
 	public void setSkybox(MeshObject skybox) {
 		this.skybox = skybox;
 	}
@@ -283,50 +288,10 @@ public class Scene {
 		this.skybox = null;
 	}
 
-	public Vec3f getAmbientLight() {
-		return ambientLight;
-	}
-
-	public void setAmbientLight(Vec3f ambientLight) {
-		this.ambientLight = ambientLight;
-	}
-
-	public Vec3f getSkyboxAmbientLight() {
-		return skyboxAmbientLight;
-	}
-
-	public void setSkyboxAmbientLight(Vec3f skyboxAmbientLight) {
-		this.skyboxAmbientLight = skyboxAmbientLight;
-	}
-
-	public void attachWaterShader(Shader waterShader) {
-		this.waterShader = waterShader;
-	}
-
-	public void setWaterFrameBufferObject(WaterFrameBuffer waterFrameBuffer) {
-		this.waterFrameBuffer = waterFrameBuffer;
-	}
-
-	public void setSceneFrameBufferObject(SceneFrameBuffer sceneFrameBuffer) {
-		this.sceneFrameBuffer = sceneFrameBuffer;
-	}
-
 	public void updateScreen(int width, int height) {
 		screenWidth = width;
 		screenHeight = height;
 		updateProjectionMatrices = true;
-	}
-
-	public Matrix4f getCameraTransform() {
-		return cameraTransform;
-	}
-
-	public void attachPickingShader(Shader pickingShader) {
-		this.pickingShader = pickingShader;
-	}
-
-	public void setPickingFrameBufferObject(PickingFrameBuffer pickingFrameBuffer) {
-		this.pickingFrameBuffer = pickingFrameBuffer;
 	}
 
 	public PickingFrameBuffer getPickingFrameBuffer() {
@@ -343,5 +308,24 @@ public class Scene {
 
 	public int getHeight() {
 		return screenHeight;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void destroy() {
+		if (mainShader != null) {
+			mainShader.destroy();
+		}
+		if (skyboxShader != null) {
+			skyboxShader.destroy();
+		}
+		if (waterShader != null) {
+			waterShader.destroy();
+		}
+		if (pickingShader != null) {
+			pickingShader.destroy();
+		}
 	}
 }

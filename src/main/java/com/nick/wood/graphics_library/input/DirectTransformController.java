@@ -15,13 +15,15 @@ public class DirectTransformController implements Control {
 	private final HashMap<ActionEnum, Boolean> actions = new HashMap<>();
 	private final boolean enableLook;
 	private final boolean enableMove;
-	private float sensitivity = 0.01f;
-	private float speed = 1f;
+	private float sensitivity;
+	private float speed;
 
-	public DirectTransformController(TransformObject transformObject, boolean enableLook, boolean enableMove) {
+	public DirectTransformController(TransformObject transformObject, boolean enableLook, boolean enableMove, float sensitivity, float speed) {
 		this.transformObject = transformObject;
 		this.enableLook = enableLook;
 		this.enableMove = enableMove;
+		this.sensitivity = sensitivity;
+		this.speed = speed;
 	}
 
 	public void reset() {

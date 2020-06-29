@@ -14,9 +14,6 @@ public class WindowInitialisationParameters {
 	private final int windowWidth;
 	private final int windowHeight;
 	private final String title;
-	private final Vec3f sceneAmbientLight;
-	private final Vec3f hudAmbientLight;
-	private final boolean picking;
 	private boolean debug;
 
 	public WindowInitialisationParameters(boolean resizable,
@@ -26,10 +23,7 @@ public class WindowInitialisationParameters {
 	                                      int windowWidth,
 	                                      int windowHeight,
 	                                      String title,
-	                                      Vec3f sceneAmbientLight,
-	                                      Vec3f hudAmbientLight,
-	                                      boolean debug,
-	                                      boolean picking) {
+	                                      boolean debug) {
 		this.resizable = resizable;
 		this.decorated = decorated;
 		this.lockCursor = lockCursor;
@@ -37,10 +31,7 @@ public class WindowInitialisationParameters {
 		this.windowWidth = windowWidth;
 		this.windowHeight = windowHeight;
 		this.title = title;
-		this.sceneAmbientLight = sceneAmbientLight;
-		this.hudAmbientLight = hudAmbientLight;
 		this.debug = debug;
-		this.picking = picking;
 	}
 
 	public long accept(Window window) {
@@ -59,17 +50,10 @@ public class WindowInitialisationParameters {
 		window.setScreenDimensions(windowWidth, windowHeight);
 		window.setTitle(title);
 
-		window.setAmbientLight(sceneAmbientLight);
-		window.setAmbientHudLight(hudAmbientLight);
-
 		return windowHandler;
 	}
 
 	public boolean isDebug() {
 		return debug;
-	}
-
-	public boolean isPicking() {
-		return picking;
 	}
 }

@@ -4,12 +4,10 @@ import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
-import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import com.nick.wood.graphics_library.objects.game_objects.*;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
-import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -35,41 +33,23 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window implements AutoCloseable {
 
 	private final GraphicsLibraryInput graphicsLibraryInput;
-	private final Scene scene;
-	private final Scene hudScene;
+	private final ArrayList<Scene> sceneLayers;
+
 	// The window handle
 	private long windowHandler;
 
-	private int WIDTH;
-	private int HEIGHT;
+	private int width;
+	private int height;
 	private String title;
 
-	private Shader shader;
-	private Shader hudShader;
-	private Shader skyboxShader;
-	private Shader waterShader;
-	private Shader pickingShader;
 	private Renderer renderer;
 
 	private boolean windowSizeChanged = false;
 	private boolean titleChanged = false;
 
-	private WaterFrameBuffer waterFrameBuffer;
-	private SceneFrameBuffer sceneFrameBuffer;
-	private PickingFrameBuffer pickingFrameBuffer;
-
-	public Window() {
-		this.scene = new Scene();
-		this.hudScene = new Scene();
+	public Window(ArrayList<Scene> sceneLayers) {
+		this.sceneLayers = sceneLayers;
 		this.graphicsLibraryInput = new GraphicsLibraryInput();
-	}
-
-	public Scene getScene() {
-		return scene;
-	}
-
-	public Scene getHudScene() {
-		return hudScene;
 	}
 
 	public GraphicsLibraryInput getGraphicsLibraryInput() {
@@ -161,34 +141,9 @@ public class Window implements AutoCloseable {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		shader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		hudShader = new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl");
-		skyboxShader = new Shader("/shaders/skyboxVertex.glsl", "/shaders/skyboxFragment.glsl");
-		waterShader = new Shader("/shaders/waterVertex.glsl", "/shaders/waterFragment.glsl");
-		shader.create();
-		skyboxShader.create();
-		hudShader.create();
-		waterShader.create();
-
-		this.waterFrameBuffer = new WaterFrameBuffer(WIDTH, HEIGHT);
-		this.sceneFrameBuffer = new SceneFrameBuffer(2048);
-
-		this.scene.attachShader(shader);
-		this.scene.attachSkyboxShader(skyboxShader);
-		this.scene.attachWaterShader(waterShader);
-		this.scene.setWaterFrameBufferObject(waterFrameBuffer);
-		this.scene.setSceneFrameBufferObject(sceneFrameBuffer);
-		this.hudScene.attachShader(hudShader);
-
-		if (windowInitialisationParameters.isPicking()) {
-			pickingShader = new Shader("/shaders/simpleVertex.glsl", "/shaders/simpleFragment.glsl");
-			pickingShader.create();
-			this.pickingFrameBuffer = new PickingFrameBuffer(WIDTH, HEIGHT);
-			this.scene.attachPickingShader(pickingShader);
-			this.scene.setPickingFrameBufferObject(pickingFrameBuffer);
+		for (Scene sceneLayer : sceneLayers) {
+			sceneLayer.init(width, height);
 		}
-
-		hudScene.setAmbientLight(new Vec3f(0.8f, 0.8f, 0.8f));
 
 		this.renderer.init();
 
@@ -205,15 +160,15 @@ public class Window implements AutoCloseable {
 		glfwSetWindowSizeCallback(windowHandler, new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
-				WIDTH = width;
-				HEIGHT = height;
+				Window.this.width = width;
+				Window.this.height = height;
 				windowSizeChanged = true;
 			}
 		});
 
 	}
 
-	public void loop(ArrayList<GameObject> gameObjects, ArrayList<GameObject> hudObjects) {
+	public void loop(HashMap<String, ArrayList<GameObject>> gameObjectToSceneLateMap) {
 
 		// user inputs
 		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -221,9 +176,11 @@ public class Window implements AutoCloseable {
 		}
 
 		if (windowSizeChanged) {
-			glViewport(0, 0, WIDTH, HEIGHT);
+			glViewport(0, 0, width, height);
 			windowSizeChanged = false;
-			scene.updateScreen(WIDTH, HEIGHT);
+			for (Scene sceneLayer : sceneLayers) {
+				sceneLayer.updateScreen(width, height);
+			}
 		}
 
 		if (titleChanged) {
@@ -240,31 +197,26 @@ public class Window implements AutoCloseable {
 		// invoked during this call.
 		glfwPollEvents();
 
-		Iterator<GameObject> mainIterator = gameObjects.iterator();
+		for (Scene sceneLayer : sceneLayers) {
 
-		while (mainIterator.hasNext()) {
-			GameObject next = mainIterator.next();
-			createRenderLists(scene, next, Matrix4f.Identity);
-			if (next.getGameObjectData().isDelete()) {
-				mainIterator.remove();
+			ArrayList<GameObject> gameObjects = gameObjectToSceneLateMap.get(sceneLayer.getName());
+
+			Iterator<GameObject> mainIterator = gameObjects.iterator();
+
+			while (mainIterator.hasNext()) {
+				GameObject next = mainIterator.next();
+				createRenderLists(sceneLayer, next, Matrix4f.Identity);
+				if (next.getGameObjectData().isDelete()) {
+					mainIterator.remove();
+				}
 			}
+
+			sceneLayer.render(renderer);
+			// this makes sure hud is ontop of everything in scene
+			glClear(GL_DEPTH_BUFFER_BIT);
+
 		}
 
-		scene.render(renderer);
-		// this makes sure hud is ontop of everything in scene
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		Iterator<GameObject> hudIterator = hudObjects.iterator();
-
-		while (hudIterator.hasNext()) {
-			GameObject next = hudIterator.next();
-			createRenderLists(hudScene, next, Matrix4f.Identity);
-			if (next.getGameObjectData().isDelete()) {
-				hudIterator.remove();
-			}
-		}
-
-		hudScene.render(renderer);
 		glfwSwapBuffers(windowHandler); // swap the color buffers
 
 
@@ -400,11 +352,12 @@ public class Window implements AutoCloseable {
 		this.titleChanged = true;
 	}
 
-	public void setScreenDimensions(int WIDTH, int HEIGHT) {
-		this.WIDTH = WIDTH;
-		this.HEIGHT = HEIGHT;
-		scene.updateScreen(this.WIDTH, this.HEIGHT);
-		hudScene.updateScreen(this.WIDTH, this.HEIGHT);
+	public void setScreenDimensions(int width, int height) {
+		this.width = width;
+		this.height = height;
+		for (Scene sceneLayer : sceneLayers) {
+			sceneLayer.updateScreen(width, height);
+		}
 	}
 
 	@Override
@@ -413,12 +366,9 @@ public class Window implements AutoCloseable {
 		glfwFreeCallbacks(windowHandler);
 		glfwDestroyWindow(windowHandler);
 
-		waterFrameBuffer.destroy();
-
-		shader.destroy();
-		hudShader.destroy();
-		skyboxShader.destroy();
-		waterShader.destroy();
+		for (Scene sceneLayer : sceneLayers) {
+			sceneLayer.destroy();
+		}
 		renderer.destroy();
 
 		// Terminate GLFW and free the error callback
@@ -427,15 +377,4 @@ public class Window implements AutoCloseable {
 		GL.setCapabilities(null);
 	}
 
-	public void setAmbientLight(Vec3f ambientLight) {
-		scene.setAmbientLight(ambientLight);
-	}
-
-	public void setAmbientHudLight(Vec3f ambientLight) {
-		hudScene.setAmbientLight(ambientLight);
-	}
-
-	public int getHeight() {
-		return scene.getHeight();
-	}
 }

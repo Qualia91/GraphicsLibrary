@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.Callback;
@@ -81,8 +82,6 @@ public class Window implements AutoCloseable {
 
 
 		// window settings //
-		// debug
-		//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
 
 		// create window with init params
@@ -131,6 +130,8 @@ public class Window implements AutoCloseable {
 		// debug
 		if (windowInitialisationParameters.isDebug()) {
 			Callback callback = GLUtil.setupDebugMessageCallback();
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+			glEnable(GL43.GL_DEBUG_OUTPUT);
 		}
 
 

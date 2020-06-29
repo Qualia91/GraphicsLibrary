@@ -168,16 +168,14 @@ public class Mesh {
 	public void create() {
 		material.create();
 
-		if (vao == -1) {
-			vao = GL30.glGenVertexArrays();
-			pbo = GL15.glGenBuffers();
-			tbo = GL15.glGenBuffers();
-			nbo = GL15.glGenBuffers();
-			ibo = GL15.glGenBuffers();
-			if (hasNormalMapping) {
-				tabo = GL15.glGenBuffers();
-				btabo = GL15.glGenBuffers();
-			}
+		vao = GL30.glGenVertexArrays();
+		pbo = GL15.glGenBuffers();
+		tbo = GL15.glGenBuffers();
+		nbo = GL15.glGenBuffers();
+		ibo = GL15.glGenBuffers();
+		if (hasNormalMapping) {
+			tabo = GL15.glGenBuffers();
+			btabo = GL15.glGenBuffers();
 		}
 
 		createWithoutMaterial();

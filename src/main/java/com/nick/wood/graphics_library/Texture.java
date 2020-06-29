@@ -68,9 +68,7 @@ public class Texture {
 			this.height = h.get();
 
 			// Create a new OpenGL texture
-			if (id == -1) {
-				this.id = glGenTextures();
-			}
+			this.id = glGenTextures();
 
 			// Bind the texture
 			glBindTexture(GL_TEXTURE_2D, this.id);

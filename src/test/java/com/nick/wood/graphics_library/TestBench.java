@@ -59,7 +59,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraTransformGameObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 			}
 
@@ -145,7 +145,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -226,7 +226,7 @@ class TestBench {
 
 				chunkLoader.loadChunk(cameraTransform.getPosition());
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 
 			}
@@ -306,7 +306,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -454,7 +454,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -545,7 +545,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, objectObjectArrayList, cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, objectObjectArrayList);
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -751,7 +751,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -874,7 +874,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -1020,7 +1020,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 
@@ -1131,7 +1131,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				lwjglGameControlManager.checkInputs();
 
@@ -1228,7 +1228,7 @@ class TestBench {
 
 			while (!window.shouldClose()) {
 
-				window.loop(gameObjects, new ArrayList<>(), cameraObject.getGameObjectData().getUuid());
+				window.loop(gameObjects, new ArrayList<>());
 
 				LWJGLGameControlManager.checkInputs();
 

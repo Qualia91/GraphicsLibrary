@@ -213,7 +213,7 @@ public class Window implements AutoCloseable {
 
 	}
 
-	public void loop(ArrayList<GameObject> gameObjects, ArrayList<GameObject> hudObjects, UUID primaryCamera) {
+	public void loop(ArrayList<GameObject> gameObjects, ArrayList<GameObject> hudObjects) {
 
 		// user inputs
 		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -240,9 +240,6 @@ public class Window implements AutoCloseable {
 		// invoked during this call.
 		glfwPollEvents();
 
-		scene.setPrimaryCamera(primaryCamera);
-		hudScene.setPrimaryCamera(primaryCamera);
-
 		Iterator<GameObject> mainIterator = gameObjects.iterator();
 
 		while (mainIterator.hasNext()) {
@@ -264,13 +261,6 @@ public class Window implements AutoCloseable {
 			createRenderLists(hudScene, next, Matrix4f.Identity);
 			if (next.getGameObjectData().isDelete()) {
 				hudIterator.remove();
-			}
-		}
-
-		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : scene.getCameras().entrySet()) {
-			if (cameraInstanceObjectEntry.getValue().getUuid().equals(primaryCamera)) {
-				hudScene.getCameras().clear();
-				hudScene.getCameras().put(cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
 			}
 		}
 
@@ -414,6 +404,7 @@ public class Window implements AutoCloseable {
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
 		scene.updateScreen(this.WIDTH, this.HEIGHT);
+		hudScene.updateScreen(this.WIDTH, this.HEIGHT);
 	}
 
 	@Override

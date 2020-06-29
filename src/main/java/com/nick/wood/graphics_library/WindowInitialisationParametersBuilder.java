@@ -13,7 +13,7 @@ public class WindowInitialisationParametersBuilder {
 	private int windowHeight = 800;
 	private String title = "Window";
 	private Vec3f sceneAmbientLight = new Vec3f(.1f, .1f, .1f);
-	private Vec3f hudAmbientLight = new Vec3f(.9f, .9f, .9f);
+	private Vec3f hudAmbientLight = new Vec3f(.5f, .5f, .5f);
 	private boolean debug = false;
 	private boolean picking = false;
 

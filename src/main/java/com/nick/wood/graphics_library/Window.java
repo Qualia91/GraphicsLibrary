@@ -201,19 +201,23 @@ public class Window implements AutoCloseable {
 
 			ArrayList<GameObject> gameObjects = gameObjectToSceneLateMap.get(sceneLayer.getName());
 
-			Iterator<GameObject> mainIterator = gameObjects.iterator();
+			if (gameObjects != null) {
 
-			while (mainIterator.hasNext()) {
-				GameObject next = mainIterator.next();
-				createRenderLists(sceneLayer, next, Matrix4f.Identity);
-				if (next.getGameObjectData().isDelete()) {
-					mainIterator.remove();
+				Iterator<GameObject> mainIterator = gameObjects.iterator();
+
+				while (mainIterator.hasNext()) {
+					GameObject next = mainIterator.next();
+					createRenderLists(sceneLayer, next, Matrix4f.Identity);
+					if (next.getGameObjectData().isDelete()) {
+						mainIterator.remove();
+					}
 				}
-			}
 
-			sceneLayer.render(renderer);
-			// this makes sure hud is ontop of everything in scene
-			glClear(GL_DEPTH_BUFFER_BIT);
+				sceneLayer.render(renderer);
+				// this makes sure hud is ontop of everything in scene
+				glClear(GL_DEPTH_BUFFER_BIT);
+
+			}
 
 		}
 

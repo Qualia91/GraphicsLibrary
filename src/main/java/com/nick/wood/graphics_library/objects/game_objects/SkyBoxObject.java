@@ -33,14 +33,14 @@ public class SkyBoxObject implements GameObject {
 		switch (skyboxType) {
 			case CUBE: skybox = new MeshBuilder()
 					.setMeshType(MeshType.CUBOID)
-					.setInvertedNormals(false)
+					.setInvertedNormals(true)
 					.setTransform(build)
 					.setTexture(skyboxTexture)
 					.build();
 			break;
 			default: skybox = new MeshBuilder()
 					.setMeshType(MeshType.SPHERE)
-					.setInvertedNormals(false)
+					.setInvertedNormals(true)
 					.setTriangleNumber(10)
 					.setTransform(build)
 					.setTexture(skyboxTexture).build();

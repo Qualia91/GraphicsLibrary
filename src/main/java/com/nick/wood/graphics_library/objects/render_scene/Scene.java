@@ -206,10 +206,7 @@ public class Scene {
 
 				}
 				if (skyboxShader != null && skybox != null) {
-					GL11.glDisable(GLES20.GL_CULL_FACE);
 					renderer.renderSkybox(skybox, cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
-					GL11.glEnable(GLES20.GL_CULL_FACE);
-					GL11.glCullFace(GLES20.GL_BACK);
 				}
 				if (waterShader != null && waterFrameBuffer != null) {
 					renderer.renderWater(waterMeshes,
@@ -248,6 +245,7 @@ public class Scene {
 		// this clips everything under the water
 		GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 		if (skyboxShader != null && skybox != null) {
+			// have to put back on skybox so the reflected camera that reverses triangle loop will render it
 			GL11.glDisable(GLES20.GL_CULL_FACE);
 			renderer.renderSkybox(skybox, cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
 			GL11.glEnable(GLES20.GL_CULL_FACE);
@@ -265,7 +263,6 @@ public class Scene {
 	}
 
 	public void removeMesh(UUID uuid) {
-
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : meshes.entrySet()) {
 			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
 
@@ -273,10 +270,8 @@ public class Scene {
 	}
 
 	public void removeWater(UUID uuid) {
-
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : waterMeshes.entrySet()) {
 			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-
 		}
 	}
 

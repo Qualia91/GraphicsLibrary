@@ -1406,8 +1406,7 @@ class TestBench {
 
 				picking.iterate(mainScene, mainScene.getHeight()).ifPresent(uuid -> {
 					MeshGameObject selectedMeshGameObject = (MeshGameObject) GameObjectUtils.FindGameObjectByID(gameObjects, uuid);
-					selectedMeshGameObject.getMeshObject().getMesh().destroy();
-					selectedMeshGameObject.setMeshObject(dragonMesh);
+					System.out.println(selectedMeshGameObject);
 				});
 
 
@@ -1419,11 +1418,9 @@ class TestBench {
 	}
 
 	@Test
-	public void lines() {
+	public void renderingToFBOs() {
 
 		ArrayList<GameObject> gameObjects = new ArrayList<>();
-
-		ArrayList<GameObject> hudObjects = new ArrayList<>();
 
 		RootObject rootGameObject = new RootObject();
 
@@ -1446,6 +1443,7 @@ class TestBench {
 				.setTexture("/textures/testImage.jpg")
 				.setTransform(transformBuilder
 						.setScale(10).build())
+				.setTextureFboIndex(1)
 				.build();
 
 		MeshGameObject meshGameObject = new MeshGameObject(rootGameObject, circle);
@@ -1457,24 +1455,12 @@ class TestBench {
 						.setScale(Vec3f.ONE).build())
 				.build();
 
-		PointLight pointLight = new PointLight(
-				new Vec3f(0.0f, 1.0f, 0.0f),
-				10f);
 		DirectionalLight directionalLight = new DirectionalLight(
 				new Vec3f(1.0f, 1.0f, 1.0f),
 				new Vec3f(1.0f, 0.0f, 0.0f),
 				1f);
-		SpotLight spotLight = new SpotLight(
-				new PointLight(
-						new Vec3f(1.0f, 0.0f, 0.0f),
-						100f),
-				Vec3f.Y,
-				0.1f
-		);
 
 		Creation.CreateAxis(wholeSceneTransform);
-		Creation.CreateLight(pointLight, wholeSceneTransform, new Vec3f(-10.0f, 0.0f, -10), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
-		Creation.CreateLight(spotLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0.0f), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 		Creation.CreateLight(directionalLight, wholeSceneTransform, new Vec3f(0.0f, -10.0f, 0), Vec3f.ONE.scale(0.5f), QuaternionF.Identity, meshGroupLight);
 
 		Camera camera = new Camera(1.22173f, 1, 100000);
@@ -1492,8 +1478,26 @@ class TestBench {
 		windowInitialisationParametersBuilder.setLockCursor(true);
 
 
+		ArrayList<GameObject> fboObjectsOne = new ArrayList<>();
+
+		RootObject rootObject = new RootObject();
+
+		ArrayList<GameObject> fboObjectsTwo = new ArrayList<>();
+		//ransform fboObjectsTwoTransform = transformBuilder
+		//		.setPosition(Vec3f.X).build();
+		//ransformObject wholeSceneTransform = new TransformObject(rootGameObject, transform);
+		//eshObject circle = new MeshBuilder()
+		//		.setMeshType(MeshType.CIRCLE)
+		//		.setTriangleNumber(100)
+		//		.setTexture("/textures/testImage.jpg")
+		//		.setTransform(transformBuilder
+		//				.setScale(10).build())
+		//		.build();
+
+		//eshGameObject meshGameObject = new MeshGameObject(rootGameObject, circle);
+
+
 		Vec3f ambientLight = new Vec3f(0.0529f, 0.0808f, 0.0922f);
-		Vec3f hudAmbientLight = new Vec3f(0.5f, 0.5f, 0.5f);
 		Vec3f skyboxAmbientLight = new Vec3f(0.9f, 0.9f, 0.9f);
 		Fog fog = new Fog(true, ambientLight, 0.0003f);
 
@@ -1509,14 +1513,26 @@ class TestBench {
 				true
 		);
 
-		Scene hudScene = new Scene(
-				"HUD_SCENE",
+		Scene fboOneScene = new Scene(
+				"FBO_SCENE_ONE",
 				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
 				null,
 				null,
 				null,
 				NOFOG,
-				hudAmbientLight,
+				ambientLight,
+				skyboxAmbientLight,
+				false
+		);
+
+		Scene fboTwoScene = new Scene(
+				"FBO_SCENE_tWO",
+				new Shader("/shaders/mainVertex.glsl", "/shaders/mainFragment.glsl"),
+				null,
+				null,
+				null,
+				NOFOG,
+				ambientLight,
 				skyboxAmbientLight,
 				false
 		);
@@ -1524,11 +1540,13 @@ class TestBench {
 		HashMap<String, ArrayList<GameObject>> stringArrayListHashMap = new HashMap<>();
 
 		stringArrayListHashMap.put("MAIN_SCENE", gameObjects);
-		stringArrayListHashMap.put("HUD_SCENE", hudObjects);
+		stringArrayListHashMap.put("FBO_SCENE_ONE", gameObjects);
+		stringArrayListHashMap.put("FBO_SCENE_tWO", gameObjects);
 
 		ArrayList<Scene> sceneLayers = new ArrayList<>();
 		sceneLayers.add(mainScene);
-		sceneLayers.add(hudScene);
+		sceneLayers.add(fboOneScene);
+		sceneLayers.add(fboTwoScene);
 
 		try (Window window = new Window(sceneLayers)) {
 

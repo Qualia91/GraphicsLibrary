@@ -1,11 +1,5 @@
 #version 460 core
 
-//in vec3 position;
-//in vec2 textureCoord;
-//in vec3 normal;
-//in mat4 model;
-//in vec3 tangent;
-//in vec3 bitangent;
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 textureCoord;
 layout (location = 2) in vec3 normal;

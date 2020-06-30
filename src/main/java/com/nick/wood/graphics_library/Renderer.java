@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.lighting.*;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
@@ -299,7 +300,6 @@ public class Renderer {
 	}
 
 	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
-	                        HashMap<MeshObject, ArrayList<InstanceObject>> terrainMeshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                        HashMap<Light, InstanceObject> lights,
 	                        Shader shader,
@@ -350,12 +350,6 @@ public class Renderer {
 
 		createFog(fog, shader);
 
-		// do terrain first
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : terrainMeshes.entrySet()) {
-			if (!(meshObjectArrayListEntry.getKey() instanceof TextItem)) {
-				renderInstance(meshObjectArrayListEntry, shader);
-			}
-		}
 		// do all but text
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
 			if (!(meshObjectArrayListEntry.getKey() instanceof TextItem)) {
@@ -506,13 +500,20 @@ public class Renderer {
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexturePath()));
-		shader.setUniform("tex", 0);
+		shader.setUniform("texOne", 0);
+
+
+		Terrain terrain = (Terrain) meshObjectArrayListEntry.getKey();
+		// bind second texture
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrain.getSecondMaterial().getTexturePath()));
+		shader.setUniform("texTwo", 1);
 
 		// bind normal map if available
 		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE1);
+			GL13.glActiveTexture(GL13.GL_TEXTURE2);
 			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMapPath()));
-			shader.setUniform("normal_text_sampler", 1);
+			shader.setUniform("normal_text_sampler", 2);
 		}
 
 		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());

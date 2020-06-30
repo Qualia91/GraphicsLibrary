@@ -8,6 +8,7 @@ in vec2 passTextureCoord;
 in vec3 passVertexNormal;
 in vec3 passVertexPos;
 in mat3 tbn;
+in float vertexHeight;
 
 out vec4 outColour;
 
@@ -68,13 +69,30 @@ uniform DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform Fog fog;
 
+const float snowHeight = 4500;
+const float transitionWidth = 500;
+
 vec4 ambientC;
 vec4 diffuseC;
 vec4 speculrC;
 
 void setupColours()
 {
-    ambientC = mix(texture(texOne, passTextureCoord), texture(texTwo, passTextureCoord), 0.5);
+
+    // work out the mix value
+    // find the diff between vertex x value and snow height
+    float del = vertexHeight - snowHeight;
+
+    // get this as a fraction of the transition width
+    del = del / transitionWidth;
+
+    // cap this between -1 and 1
+    del = clamp(del, -1.0, 1.0);
+
+    // make this between 0 and 1 by dividing by 2 and adding 0.5
+    del = (del * 0.5) + 0.5;
+
+    ambientC = mix(texture(texOne, passTextureCoord), texture(texTwo, passTextureCoord), del);
     diffuseC = ambientC;
     speculrC = ambientC;
 

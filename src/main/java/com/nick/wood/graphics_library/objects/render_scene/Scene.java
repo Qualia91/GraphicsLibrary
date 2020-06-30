@@ -9,6 +9,7 @@ import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.CameraType;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -204,7 +205,7 @@ public class Scene {
 				}
 				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-					renderer.renderScene(renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
+					renderer.renderScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
 				}
 				break;
 			}
@@ -233,7 +234,10 @@ public class Scene {
 			GL11.glEnable(GL20.GL_CULL_FACE);
 			GL11.glCullFace(GL20.GL_BACK);
 		}
-		renderer.renderScene(meshes, terrainMeshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
+		if (terrainShader != null) {
+			renderer.renderTerrain(terrainMeshes, cameraInstanceObjectEntry, lights, terrainShader, ambientLight, fog, null);
+		}
+		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}
 
 	public void updateScreen(int width, int height) {

@@ -11,6 +11,7 @@ out vec2 passTextureCoord;
 out vec3 passVertexNormal;
 out vec3 passVertexPos;
 out mat3 tbn;
+out float vertexHeight;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -25,5 +26,6 @@ void main() {
     vec3 passVertexTangent = normalize(model * vec4(tangent, 0.0)).xyz;
     vec3 passVertexBitangent = normalize(model * vec4(bitangent, 0.0)).xyz;
     passVertexPos = worldPos.xyz;
+    vertexHeight = position.z;
     tbn = mat3(passVertexTangent, passVertexBitangent, passVertexNormal);
 }

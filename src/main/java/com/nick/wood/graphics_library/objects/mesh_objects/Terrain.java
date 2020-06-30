@@ -18,14 +18,16 @@ public class Terrain implements MeshObject {
 	private final MeshType meshType;
 	private final int height;
 	private final int fboTextureIndex;
+	private final Material secondMaterial;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, Material material, double cellSpace, MeshType meshType, int fboTextureIndex) {
+	Terrain(float[][] terrainHeightMap, Material material, Material secondMaterial, double cellSpace, MeshType meshType, int fboTextureIndex) {
 		this.fboTextureIndex = fboTextureIndex;
 		this.meshType = meshType;
 		this.terrainHeightMap = terrainHeightMap;
 		this.cellSpace = cellSpace;
 		this.material = material;
+		this.secondMaterial = secondMaterial;
 		this.width = terrainHeightMap.length;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
 		this.height = 0;
@@ -184,6 +186,10 @@ public class Terrain implements MeshObject {
 
 	public int getHeight() {
 		return height;
+	}
+
+	public Material getSecondMaterial() {
+		return secondMaterial;
 	}
 
 	@Override

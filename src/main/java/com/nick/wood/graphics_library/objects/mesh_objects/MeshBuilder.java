@@ -28,6 +28,7 @@ public class MeshBuilder {
 	};
 	private double cellSpace = 1;
 	private int fboTextureIndex = -1;
+	private String secondTexture = "/textures/white.png";
 
 	public MeshBuilder() {
 		modelFile = new File(MeshBuilder.class.getResource("/models/sphere.obj").getFile()).getAbsolutePath();
@@ -61,7 +62,7 @@ public class MeshBuilder {
 				meshObject = new TextItem(text, fontMaterial, rowNum, colNum, transformation, fboTextureIndex);
 				break;
 			case TERRAIN:
-				meshObject = new Terrain(terrainHeightMap, material, cellSpace, meshType, fboTextureIndex);
+				meshObject = new Terrain(terrainHeightMap, material, new Material(secondTexture), cellSpace, meshType, fboTextureIndex);
 				break;
 			case WATER:
 				meshObject = new Water(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboTextureIndex);
@@ -191,6 +192,11 @@ public class MeshBuilder {
 
 	public MeshBuilder setTextureFboIndex(int fboTextureIndex) {
 		this.fboTextureIndex = fboTextureIndex;
+		return this;
+	}
+
+	public MeshBuilder setSecondTexture(String texture) {
+		this.secondTexture = texture;
 		return this;
 	}
 }

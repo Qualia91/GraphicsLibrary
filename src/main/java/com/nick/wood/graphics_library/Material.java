@@ -8,18 +8,16 @@ import java.io.IOException;
 
 public class Material {
 
-	private Texture texture = null;
-	private Texture normalMap = null;
 	private float width, height;
-	private String path;
-	private String normalMapPath;
+	private String texturePath = "";
+	private String normalMapPath = "";
 	private Vec3f diffuseColour;
 	private Vec3f specularColour;
 	private float shininess;
 	private float reflectance;
 
 	public Material(String path, Vec3f diffuseColour, Vec3f specularColour, float shininess, float reflectance) {
-		this.path = path;
+		this.texturePath = path;
 		this.diffuseColour = diffuseColour;
 		this.specularColour = specularColour;
 		this.shininess = shininess;
@@ -30,49 +28,8 @@ public class Material {
 		this(path, Vec3f.ONE, Vec3f.ONE, 1, 1);
 	}
 
-	public void create() {
-		try {
-			if (texture == null) {
-				texture = new Texture(path, GL11.GL_LINEAR);
-			}
-			if (normalMapPath != null && normalMap == null) {
-				normalMap = new Texture(normalMapPath, GL11.GL_LINEAR);
-			}
-		} catch (IOException e) {
-			System.err.println("Cant find texture at " + path);
-		}
-		width = texture.getWidth();
-		height = texture.getHeight();
-
-	}
-
-	public void destroy() {
-		if (texture != null) {
-			texture.destroy();
-			GL13.glDeleteTextures(texture.getId());
-			texture = null;
-		}
-		if (normalMap != null) {
-			normalMap.destroy();
-			GL13.glDeleteTextures(normalMap.getId());
-			normalMap = null;
-		}
-	}
-
-	public boolean hasNormalMap() {
-		return this.normalMap != null;
-	}
-
-	public Texture getNormalMap() {
-		return normalMap;
-	}
-
 	public void setNormalMap(String normalMapPath) {
 		this.normalMapPath = normalMapPath;
-	}
-
-	public Texture getTexture() {
-		return texture;
 	}
 
 	public float getWidth() {
@@ -83,24 +40,12 @@ public class Material {
 		return height;
 	}
 
-	public void setTexture(Texture texture) {
-		this.texture = texture;
-	}
-
 	public void setWidth(float width) {
 		this.width = width;
 	}
 
 	public void setHeight(float height) {
 		this.height = height;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
 	}
 
 	public Vec3f getDiffuseColour() {
@@ -137,5 +82,21 @@ public class Material {
 
 	public String getNormalMapPath() {
 		return normalMapPath;
+	}
+
+	public String getTexturePath() {
+		return texturePath;
+	}
+
+	public void setTexturePath(String texturePath) {
+		this.texturePath = texturePath;
+	}
+
+	public void setNormalMapPath(String normalMapPath) {
+		this.normalMapPath = normalMapPath;
+	}
+
+	public boolean hasNormalMap() {
+		return !normalMapPath.isEmpty();
 	}
 }

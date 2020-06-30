@@ -34,10 +34,20 @@ public class Mesh {
 	public void updateMesh(Vertex[] vertices, int[] indices) {
 		this.vertices = vertices;
 		this.indices = indices;
-		createWithoutMaterial();
+		create();
 	}
 
-	public void createWithoutMaterial() {
+	public void create() {
+
+		vao = GL30.glGenVertexArrays();
+		pbo = GL15.glGenBuffers();
+		tbo = GL15.glGenBuffers();
+		nbo = GL15.glGenBuffers();
+		ibo = GL15.glGenBuffers();
+		if (hasNormalMapping) {
+			tabo = GL15.glGenBuffers();
+			btabo = GL15.glGenBuffers();
+		}
 		GL30.glBindVertexArray(vao);
 
 
@@ -163,23 +173,6 @@ public class Mesh {
 
 		}
 
-	}
-
-	public void create() {
-		material.create();
-
-		vao = GL30.glGenVertexArrays();
-		pbo = GL15.glGenBuffers();
-		tbo = GL15.glGenBuffers();
-		nbo = GL15.glGenBuffers();
-		ibo = GL15.glGenBuffers();
-		if (hasNormalMapping) {
-			tabo = GL15.glGenBuffers();
-			btabo = GL15.glGenBuffers();
-		}
-
-		createWithoutMaterial();
-
 		created = true;
 	}
 
@@ -214,7 +207,6 @@ public class Mesh {
 	}
 
 	public void destroy() {
-		material.destroy();
 		if (hasNormalMapping) {
 			GL15.glDeleteBuffers(tabo);
 			GL15.glDeleteBuffers(btabo);
@@ -222,19 +214,7 @@ public class Mesh {
 		GL15.glDeleteBuffers(nbo);
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(ibo);
-		GL30.glDeleteTextures(tbo);
-		GL30.glDeleteVertexArrays(vao);
-		created = false;
-	}
-
-	public void destroyWithoutDestroyingMaterial() {
-		if (hasNormalMapping) {
-			GL15.glDeleteBuffers(tabo);
-			GL15.glDeleteBuffers(btabo);
-		}
-		GL15.glDeleteBuffers(nbo);
-		GL15.glDeleteBuffers(pbo);
-		GL15.glDeleteBuffers(ibo);
+		GL15.glDeleteBuffers(tbo);
 		GL30.glDeleteVertexArrays(vao);
 		created = false;
 	}

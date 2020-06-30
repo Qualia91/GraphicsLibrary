@@ -17,7 +17,7 @@ public class GraphicsLibraryInput implements Input {
 	private final GLFWCursorPosCallback mouseMove;
 	private final GLFWMouseButtonCallback mouseButton;
 	private final GLFWScrollCallback glfwScrollCallback;
-	private final GLFWJoystickCallback glfwJoystickCallback;
+	//private final GLFWJoystickCallback glfwJoystickCallback;
 
 	public GraphicsLibraryInput() {
 		keyboard = new GLFWKeyCallback() {
@@ -50,31 +50,31 @@ public class GraphicsLibraryInput implements Input {
 			}
 		};
 
-		glfwJoystickCallback = new GLFWJoystickCallback() {
-			@Override
-			public void invoke(int jid, int event) {
-				if (event == GLFW.GLFW_CONNECTED)
-				{
-					activeJoysticks[jid] = true;
-				}
-				else if (event == GLFW.GLFW_DISCONNECTED)
-				{
-					activeJoysticks[jid] = false;
-				}
-				//String joystickName = GLFW.glfwGetJoystickName(jid);
-				//FloatBuffer joystickAxisBuffer = GLFW.glfwGetJoystickAxes(jid);
-				//ByteBuffer joystickButtonsBuffer = GLFW.glfwGetJoystickButtons(jid);
-			}
-		};
+		//glfwJoystickCallback = new GLFWJoystickCallback() {
+		//	@Override
+		//	public void invoke(int jid, int event) {
+		//		if (event == GLFW.GLFW_CONNECTED)
+		//		{
+		//			activeJoysticks[jid] = true;
+		//		}
+		//		else if (event == GLFW.GLFW_DISCONNECTED)
+		//		{
+		//			activeJoysticks[jid] = false;
+		//		}
+		//		//String joystickName = GLFW.glfwGetJoystickName(jid);
+		//		//FloatBuffer joystickAxisBuffer = GLFW.glfwGetJoystickAxes(jid);
+		//		//ByteBuffer joystickButtonsBuffer = GLFW.glfwGetJoystickButtons(jid);
+		//	}
+		//};
 	}
 
 	public boolean[] getActiveJoysticks() {
 		return activeJoysticks;
 	}
 
-	public GLFWJoystickCallback getGlfwJoystickCallback() {
-		return glfwJoystickCallback;
-	}
+	//public GLFWJoystickCallback getGlfwJoystickCallback() {
+	//	return glfwJoystickCallback;
+	//}
 
 	public boolean[] getKeys() {
 		return keys;

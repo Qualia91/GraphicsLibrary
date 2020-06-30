@@ -121,7 +121,7 @@ public class Triangle implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "TRIANGLE" + mesh.getMaterial().getPath();
+		return "TRIANGLE" + mesh.getMaterial().getTexturePath();
 	}
 
 	@Override

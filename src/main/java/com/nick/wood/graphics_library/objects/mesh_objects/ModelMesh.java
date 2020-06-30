@@ -34,7 +34,7 @@ public class ModelMesh implements MeshObject {
 	}
 
 	public String getStringToCompare() {
-		return filePath + material.getPath() + textureViaFBOFlag;
+		return filePath + material.getTexturePath() + textureViaFBOFlag;
 	}
 
 	@Override
@@ -57,12 +57,12 @@ public class ModelMesh implements MeshObject {
 		if (o == null || getClass() != o.getClass()) return false;
 		ModelMesh modelMesh = (ModelMesh) o;
 		return Objects.equals(filePath, modelMesh.filePath) &&
-				Objects.equals(material.getPath(), modelMesh.getMaterial().getPath());
+				Objects.equals(material.getTexturePath(), modelMesh.getMaterial().getTexturePath());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(filePath, getMaterial().getPath());
+		return Objects.hash(filePath, getMaterial().getTexturePath());
 	}
 
 	@Override

@@ -85,7 +85,7 @@ public class CircleMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return MeshType.CIRCLE.toString() + numberOfPointsAroundEdge + material.getPath() + fboTextureIndex;
+		return MeshType.CIRCLE.toString() + numberOfPointsAroundEdge + material.getTexturePath() + fboTextureIndex;
 	}
 
 	@Override

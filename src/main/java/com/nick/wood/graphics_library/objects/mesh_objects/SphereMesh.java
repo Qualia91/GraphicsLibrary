@@ -172,7 +172,7 @@ public class SphereMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SPHERE" + mesh.getMaterial().getPath() + triangleNumber + "" + fboTextureIndex;
+		return "SPHERE" + mesh.getMaterial().getTexturePath() + triangleNumber + "" + fboTextureIndex;
 	}
 
 	@Override

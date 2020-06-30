@@ -15,8 +15,10 @@ import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.Callback;
+import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.*;
 
@@ -50,9 +52,12 @@ public class Window implements AutoCloseable {
 	private boolean windowSizeChanged = false;
 	private boolean titleChanged = false;
 
+	private final TextureManager textureManager;
+
 	public Window(ArrayList<Scene> sceneLayers) {
 		this.sceneLayers = sceneLayers;
 		this.graphicsLibraryInput = new GraphicsLibraryInput();
+		this.textureManager = new TextureManager();
 	}
 
 	public GraphicsLibraryInput getGraphicsLibraryInput() {
@@ -63,9 +68,9 @@ public class Window implements AutoCloseable {
 		return glfwWindowShouldClose(windowHandler);
 	}
 
-	public void init(WindowInitialisationParameters windowInitialisationParameters) {
+	public void init(WindowInitialisationParameters windowInitialisationParameters) throws IOException {
 
-		renderer = new Renderer(this);
+		renderer = new Renderer(this.textureManager);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
@@ -83,6 +88,9 @@ public class Window implements AutoCloseable {
 
 		// window settings //
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
+
+
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 		// create window with init params
 		windowHandler = windowInitialisationParameters.accept(this);
@@ -130,10 +138,12 @@ public class Window implements AutoCloseable {
 		// debug
 		if (windowInitialisationParameters.isDebug()) {
 			Callback callback = GLUtil.setupDebugMessageCallback();
-			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 			glEnable(GL43.GL_DEBUG_OUTPUT);
+			Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 		}
 
+
+		textureManager.create();
 
 		// cull back faces
 		GL11.glEnable(GLES20.GL_CULL_FACE);
@@ -158,7 +168,7 @@ public class Window implements AutoCloseable {
 		glfwSetCursorPosCallback(windowHandler, graphicsLibraryInput.getMouseMove());
 		glfwSetMouseButtonCallback(windowHandler, graphicsLibraryInput.getMouseButton());
 		glfwSetScrollCallback(windowHandler, graphicsLibraryInput.getGlfwScrollCallback());
-		glfwSetJoystickCallback(graphicsLibraryInput.getGlfwJoystickCallback());
+		//glfwSetJoystickCallback(graphicsLibraryInput.getGlfwJoystickCallback());
 
 		glfwSetWindowSizeCallback(windowHandler, new GLFWWindowSizeCallback() {
 			@Override
@@ -250,6 +260,9 @@ public class Window implements AutoCloseable {
 		glfwFreeCallbacks(windowHandler);
 		glfwDestroyWindow(windowHandler);
 
+		textureManager.destroy();
+
+
 		for (Scene sceneLayer : sceneLayers) {
 			sceneLayer.destroy();
 		}
@@ -261,4 +274,7 @@ public class Window implements AutoCloseable {
 		GL.setCapabilities(null);
 	}
 
+	public TextureManager getTextureManager() {
+		return textureManager;
+	}
 }

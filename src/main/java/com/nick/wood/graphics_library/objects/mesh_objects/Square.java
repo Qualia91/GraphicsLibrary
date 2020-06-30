@@ -44,7 +44,7 @@ public class Square implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SQUARE" + material.getPath() + fboTextureIndex;
+		return "SQUARE" + material.getTexturePath() + fboTextureIndex;
 	}
 
 	@Override

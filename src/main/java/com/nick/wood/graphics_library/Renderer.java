@@ -25,8 +25,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	private final static int MAX_INSTANCE = 1500;
-	private final Window window;
+	private final TextureManager textureManager;
 	private int modelViewVBO;
 
 	private FloatBuffer modelViewBuffer;
@@ -38,8 +37,8 @@ public class Renderer {
 
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
-	public Renderer(Window window) {
-		this.window = window;
+	public Renderer(TextureManager textureManager) {
+		this.textureManager = textureManager;
 	}
 
 	public void init() {
@@ -64,7 +63,7 @@ public class Renderer {
 
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObject.getMesh().getMaterial().getTexture().getId());
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObject.getMesh().getMaterial().getTexturePath()));
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -246,13 +245,13 @@ public class Renderer {
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
 		shader.setUniform("refractionTexture", 1);
 		GL13.glActiveTexture(GL13.GL_TEXTURE2);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().getId());
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexturePath()));
 		shader.setUniform("dudvmap", 2);
 
 		// bind normal map if available
 		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
 			GL13.glActiveTexture(GL13.GL_TEXTURE3);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMap().getId());
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMapPath()));
 			shader.setUniform("normal_text_sampler", 3);
 		}
 
@@ -376,13 +375,13 @@ public class Renderer {
 
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().getId());
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexturePath()));
 		shader.setUniform("tex", 0);
 
 		// bind normal map if available
 		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
 			GL13.glActiveTexture(GL13.GL_TEXTURE1);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMap().getId());
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMapPath()));
 			shader.setUniform("normal_text_sampler", 1);
 		}
 
@@ -426,6 +425,7 @@ public class Renderer {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		GL13.glDisable(GL11.GL_TEXTURE_2D);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		meshObjectArrayListEntry.getKey().getMesh().endRender();

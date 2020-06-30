@@ -26,11 +26,19 @@ public class RenderGraph {
 	}
 
 	public void empty() {
-		for (ArrayList<InstanceObject> value : meshes.values()) {
-		value.clear();
+		stripMeshArrays(meshes);
+		stripMeshArrays(waterMeshes);
 	}
-		for (ArrayList<InstanceObject> value : waterMeshes.values()) {
-			value.clear();
+
+	private void stripMeshArrays(HashMap<MeshObject, ArrayList<InstanceObject>> meshes) {
+		Iterator<ArrayList<InstanceObject>> iterator = meshes.values().iterator();
+		while (iterator.hasNext()) {
+			ArrayList<InstanceObject> value = iterator.next();
+			if (value.isEmpty()) {
+				iterator.remove();
+			} else {
+				value.clear();
+			}
 		}
 	}
 

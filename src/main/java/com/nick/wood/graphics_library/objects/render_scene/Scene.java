@@ -142,11 +142,11 @@ public class Scene {
 					GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 					// now render the fbo textured objects that have the same index as this camera
-					for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
-						if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
-							meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
-						}
-					}
+					//for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
+					//	if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
+					//		meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
+					//	}
+					//}
 				}
 				break;
 			}

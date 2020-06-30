@@ -12,7 +12,7 @@ public class Camera {
 	private float fov;
 	private Matrix4f projectionMatrix = null;
 	private int fboTextureIndex;
-	private final SceneFrameBuffer sceneFrameBuffer;
+	private SceneFrameBuffer sceneFrameBuffer;
 
 	public Camera(CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex, SceneFrameBuffer sceneFrameBuffer) {
 		this.cameraType = cameraType;
@@ -26,6 +26,17 @@ public class Camera {
 		this.sceneFrameBuffer = sceneFrameBuffer;
 	}
 
+	public Camera(CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex) {
+		this.cameraType = cameraType;
+		this.width = width;
+		this.height = height;
+		this.fov = fov;
+		this.near = near;
+		this.far = far;
+		projectionMatrix = Matrix4f.Projection((float) width/ (float) height, fov, near, far);
+		this.fboTextureIndex = fboTextureIndex;
+	}
+
 	public Camera(float fov, float near, float far) {
 		this.fov = fov;
 		this.near = near;
@@ -34,6 +45,8 @@ public class Camera {
 		this.fboTextureIndex = 0;
 		this.sceneFrameBuffer = null;
 	}
+
+
 
 	public SceneFrameBuffer getSceneFrameBuffer() {
 		return sceneFrameBuffer;

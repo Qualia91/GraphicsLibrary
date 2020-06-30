@@ -9,18 +9,16 @@ import java.nio.ByteBuffer;
 
 public class SceneFrameBuffer {
 
-	final int WIDTH;
+	final int width;
+	final int height;
 
 	private int frameBuffer;
 	private int texture;
 	private int depthBuffer;
 
-	public int getWIDTH() {
-		return WIDTH;
-	}
-
-	public SceneFrameBuffer(int WIDTH) {
-		this.WIDTH = WIDTH;
+	public SceneFrameBuffer(int width, int height) {
+		this.width = width;
+		this.height = height;
 		frameBuffer = createFrameBuffer();
 		texture = createTextureAttachment();
 		depthBuffer = createDepthBufferAttachment();
@@ -45,7 +43,7 @@ public class SceneFrameBuffer {
 	private void bindFrameBuffer(int frameBuffer) {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, frameBuffer);
-		GL11.glViewport(0, 0, WIDTH, WIDTH);
+		GL11.glViewport(0, 0, width, height);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	}
 
@@ -71,7 +69,7 @@ public class SceneFrameBuffer {
 		// wdith and WIDTH of texture
 		// 0 border WIDTH
 		// Basic texel info
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, WIDTH, WIDTH, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, width, height, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		// attach frame buffer object to newly craeted texture
@@ -85,7 +83,7 @@ public class SceneFrameBuffer {
 		// bind
 		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, depthBuffer);
 		// tell opengl what we are going to store in the buffer
-		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT32, WIDTH, WIDTH);
+		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT32, width, height);
 		// attach to frame buffer as depth buffer
 		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, depthBuffer);
 		return depthBuffer;

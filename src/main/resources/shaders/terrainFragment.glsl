@@ -3,6 +3,7 @@
 const int MAX_POINT_LIGHTS = 50;
 const int MAX_SPOT_LIGHTS = 50;
 const int MAX_DIRECTIONAL_LIGHTS = 50;
+const int MAX_TERRAIN_TEXTURE_OBJECTS = 10;
 
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;
@@ -57,9 +58,8 @@ struct Material
     int hasNormalMap;
 };
 
-uniform sampler2D texOne;
-uniform sampler2D texTwo;
-uniform sampler2D normal_text_sampler;
+uniform sampler2D texture_array[MAX_TERRAIN_TEXTURE_OBJECTS];
+uniform sampler2D normal_array[MAX_TERRAIN_TEXTURE_OBJECTS];
 uniform vec3 ambientLight;
 uniform float specularPower;
 uniform Material material;
@@ -69,19 +69,23 @@ uniform DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform Fog fog;
 
-const float snowHeight = 4500;
-const float transitionWidth = 500;
+uniform float heights[MAX_TERRAIN_TEXTURE_OBJECTS];
+uniform float transitionWidths[MAX_TERRAIN_TEXTURE_OBJECTS];
 
 vec4 ambientC;
 vec4 diffuseC;
 vec4 speculrC;
 
-void setupColours()
-{
+vec3 calcNormal(vec2 text_coord, mat3 tbnMatrix, sampler2D normalMap) {
+    vec3 newNormal = texture(normalMap, text_coord).rgb;
+    newNormal = newNormal * 2.0 - 1.0;
+    return normalize(tbnMatrix * newNormal);
+}
 
+vec3 calcNormalMix(float height, float transitionWidth, vec3 newNormal, sampler2D nextTex, mat3 tbnMatrix, vec2 text_coord) {
     // work out the mix value
     // find the diff between vertex x value and snow height
-    float del = vertexHeight - snowHeight;
+    float del = vertexHeight - height;
 
     // get this as a fraction of the transition width
     del = del / transitionWidth;
@@ -92,7 +96,56 @@ void setupColours()
     // make this between 0 and 1 by dividing by 2 and adding 0.5
     del = (del * 0.5) + 0.5;
 
-    ambientC = mix(texture(texOne, passTextureCoord), texture(texTwo, passTextureCoord), del);
+    vec3 nextNormal = calcNormal(text_coord, tbnMatrix, nextTex);
+
+    return mix(newNormal, nextNormal, del);
+}
+
+
+vec3 calcNormal(vec2 text_coord, mat3 tbnMatrix) {
+
+    vec3 newNormal = calcNormal(text_coord, tbnMatrix, normal_array[0]);
+
+    for (int i=1; i<MAX_TERRAIN_TEXTURE_OBJECTS; i++)
+    {
+        if ( transitionWidths[i] > 0 )
+        {
+            newNormal = calcNormalMix(heights[i], transitionWidths[i], newNormal, normal_array[i], tbnMatrix, text_coord);
+        }
+    }
+
+    return newNormal;
+}
+
+vec4 calcAmbientMix(float height, float transitionWidth, vec4 currentAmbientC, sampler2D nextTex) {
+    // work out the mix value
+    // find the diff between vertex x value and snow height
+    float del = vertexHeight - height;
+
+    // get this as a fraction of the transition width
+    del = del / transitionWidth;
+
+    // cap this between -1 and 1
+    del = clamp(del, -1.0, 1.0);
+
+    // make this between 0 and 1 by dividing by 2 and adding 0.5
+    del = (del * 0.5) + 0.5;
+
+    return mix(currentAmbientC, texture(nextTex, passTextureCoord), del);
+}
+
+void setupColours()
+{
+
+    ambientC = texture(texture_array[0], passTextureCoord);
+    for (int i=1; i<MAX_TERRAIN_TEXTURE_OBJECTS; i++)
+    {
+        if ( transitionWidths[i] > 0 )
+        {
+            ambientC = calcAmbientMix(heights[i], transitionWidths[i], ambientC, texture_array[i]);
+        }
+    }
+
     diffuseC = ambientC;
     speculrC = ambientC;
 
@@ -175,24 +228,11 @@ vec4 calcFog(vec3 pos, vec4 colour, Fog fog) {
     return vec4(resultColour, colour.w);
 }
 
-vec3 calcNormal(Material material, vec3 normal, vec2 text_coord, mat3 tbnMatrix) {
-
-    vec3 newNormal = normal;
-
-    if ( material.hasNormalMap == 1 ) {
-        newNormal = texture(normal_text_sampler, text_coord).rgb;
-        newNormal = newNormal * 2.0 - 1.0;
-        newNormal = normalize(tbnMatrix * newNormal);
-    }
-
-    return newNormal;
-
-}
-
 void main() {
+
     setupColours();
 
-    vec3 newNormal = calcNormal(material, passVertexNormal, passTextureCoord, tbn);
+    vec3 newNormal = calcNormal(passTextureCoord, tbn);
 
     vec4 diffuseSpecularComp = vec4(0, 0, 0, 0);
     for (int i=0; i<MAX_POINT_LIGHTS; i++)

@@ -6,6 +6,7 @@ import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Terrain implements MeshObject {
@@ -18,19 +19,19 @@ public class Terrain implements MeshObject {
 	private final MeshType meshType;
 	private final int height;
 	private final int fboTextureIndex;
-	private final Material secondMaterial;
+	private final ArrayList<TerrainTextureObject> terrainTextureObjects;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, Material material, Material secondMaterial, double cellSpace, MeshType meshType, int fboTextureIndex) {
+	Terrain(float[][] terrainHeightMap, Material material, ArrayList<TerrainTextureObject> terrainTextureObjects, double cellSpace, MeshType meshType, int fboTextureIndex) {
 		this.fboTextureIndex = fboTextureIndex;
 		this.meshType = meshType;
 		this.terrainHeightMap = terrainHeightMap;
 		this.cellSpace = cellSpace;
 		this.material = material;
-		this.secondMaterial = secondMaterial;
 		this.width = terrainHeightMap.length;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
 		this.height = 0;
+		this.terrainTextureObjects = terrainTextureObjects;
 	}
 
 	private Mesh buildMesh(float[][] terrainHeightMap, double cellSpace) {
@@ -188,8 +189,8 @@ public class Terrain implements MeshObject {
 		return height;
 	}
 
-	public Material getSecondMaterial() {
-		return secondMaterial;
+	public ArrayList<TerrainTextureObject> getTerrainTextureObjects() {
+		return terrainTextureObjects;
 	}
 
 	@Override

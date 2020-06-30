@@ -67,7 +67,7 @@ void main() {
     // fresnel effect
     float factor = dot(passToCamera, passVertexNormal);
 
-    outColour = mix(refletionColour, refrationColour, pow(factor, 3));
+    outColour = mix(mix(refletionColour, refrationColour, pow(factor, 3)), vec4(0, 0.412, 0.58, 1), 0.2);
 
     if ( fog.isactive == 1 )
     {

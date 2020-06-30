@@ -235,7 +235,7 @@ public class Scene {
 			GL11.glCullFace(GL20.GL_BACK);
 		}
 		if (terrainShader != null) {
-			renderer.renderTerrain(terrainMeshes, cameraInstanceObjectEntry, lights, terrainShader, ambientLight, fog, null);
+			renderer.renderTerrain(terrainMeshes, cameraInstanceObjectEntry, lights, terrainShader, ambientLight, fog, clippingPlane);
 		}
 		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}

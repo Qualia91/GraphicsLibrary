@@ -4,6 +4,7 @@ import com.nick.wood.graphics_library.Material;
 import com.nick.wood.maths.objects.srt.Transform;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class MeshBuilder {
 
@@ -28,7 +29,7 @@ public class MeshBuilder {
 	};
 	private double cellSpace = 1;
 	private int fboTextureIndex = -1;
-	private String secondTexture = "/textures/white.png";
+	private final ArrayList<TerrainTextureObject> terrainTextureObjects = new ArrayList<>();
 
 	public MeshBuilder() {
 		modelFile = new File(MeshBuilder.class.getResource("/models/sphere.obj").getFile()).getAbsolutePath();
@@ -62,7 +63,7 @@ public class MeshBuilder {
 				meshObject = new TextItem(text, fontMaterial, rowNum, colNum, transformation, fboTextureIndex);
 				break;
 			case TERRAIN:
-				meshObject = new Terrain(terrainHeightMap, material, new Material(secondTexture), cellSpace, meshType, fboTextureIndex);
+				meshObject = new Terrain(terrainHeightMap, material, terrainTextureObjects, cellSpace, meshType, fboTextureIndex);
 				break;
 			case WATER:
 				meshObject = new Water(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboTextureIndex);
@@ -195,8 +196,8 @@ public class MeshBuilder {
 		return this;
 	}
 
-	public MeshBuilder setSecondTexture(String texture) {
-		this.secondTexture = texture;
+	public MeshBuilder addTerrainTextureObject(TerrainTextureObject terrainTextureObject) {
+		this.terrainTextureObjects.add(terrainTextureObject);
 		return this;
 	}
 }

@@ -497,23 +497,24 @@ public class Renderer {
 		meshObjectArrayListEntry.getKey().getMesh().initRender();
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
 
-		// bind texture
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexturePath()));
-		shader.setUniform("texOne", 0);
-
-
 		Terrain terrain = (Terrain) meshObjectArrayListEntry.getKey();
-		// bind second texture
-		GL13.glActiveTexture(GL13.GL_TEXTURE1);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrain.getSecondMaterial().getTexturePath()));
-		shader.setUniform("texTwo", 1);
 
-		// bind normal map if available
-		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE2);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMapPath()));
-			shader.setUniform("normal_text_sampler", 2);
+		for (int i = 0; i < terrain.getTerrainTextureObjects().size(); i++) {
+			// bind texture
+			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrain.getTerrainTextureObjects().get(i).getTexturePath()));
+			shader.setUniform("texture_array[" + i + "]", i);
+
+			// bind normal
+			GL13.glActiveTexture(GL13.GL_TEXTURE0 + terrain.getTerrainTextureObjects().size() + i);
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrain.getTerrainTextureObjects().get(i).getNormalPath()));
+			shader.setUniform("normal_array[" + i + "]", terrain.getTerrainTextureObjects().size() + i);
+
+			// bind heights
+			shader.setUniform("heights[" + i + "]", terrain.getTerrainTextureObjects().get(i).getHeight());
+
+			// bind transition width
+			shader.setUniform("transitionWidths[" + i + "]", terrain.getTerrainTextureObjects().get(i).getTransitionWidth());
 		}
 
 		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());

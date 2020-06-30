@@ -8,7 +8,7 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 
 import java.util.Arrays;
 
-public class Terrain implements MeshObject {
+public class Water implements MeshObject {
 
 	private final Material material;
 	private final float[][] terrainHeightMap;
@@ -20,15 +20,18 @@ public class Terrain implements MeshObject {
 	private final int fboTextureIndex;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, Material material, double cellSpace, MeshType meshType, int fboTextureIndex) {
+	Water(int size, int height, Material material, double cellSpace, MeshType meshType, int fboTextureIndex) {
 		this.fboTextureIndex = fboTextureIndex;
 		this.meshType = meshType;
-		this.terrainHeightMap = terrainHeightMap;
+		this.terrainHeightMap = new float[size][size];
+		for (float[] floats : this.terrainHeightMap) {
+			Arrays.fill(floats, height);
+		}
 		this.cellSpace = cellSpace;
 		this.material = material;
-		this.width = terrainHeightMap.length;
+		this.width = size;
+		this.height = height;
 		this.mesh = buildMesh(terrainHeightMap, cellSpace);
-		this.height = 0;
 	}
 
 	private Mesh buildMesh(float[][] terrainHeightMap, double cellSpace) {

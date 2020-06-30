@@ -35,6 +35,7 @@ public class Scene {
 	private Shader skyboxShader;
 	private Shader waterShader;
 	private Shader pickingShader;
+	private Shader terrainShader;
 
 	private final HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap = new HashMap<>();
 
@@ -61,6 +62,7 @@ public class Scene {
 	             Shader waterShader,
 	             Shader skyboxShader,
 	             Shader pickingShader,
+	             Shader terrainShader,
 	             Fog fog,
 	             Vec3f ambientLight,
 	             Vec3f skyboxAmbientLight,
@@ -72,6 +74,7 @@ public class Scene {
 		this.waterShader = waterShader;
 		this.skyboxShader = skyboxShader;
 		this.pickingShader = pickingShader;
+		this.terrainShader = terrainShader;
 
 		this.fog = fog;
 		this.ambientLight = ambientLight;
@@ -96,6 +99,9 @@ public class Scene {
 		}
 		if (pickingShader != null) {
 			pickingShader.create();
+		}
+		if (terrainShader != null) {
+			terrainShader.create();
 		}
 		if (pickingActive) {
 			pickingFrameBuffer = new PickingFrameBuffer(width, height);
@@ -136,7 +142,7 @@ public class Scene {
 				if (mainShader != null) {
 
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().bindFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().unbindCurrentFrameBuffer();
 
 					GL11.glViewport(0, 0, screenWidth, screenHeight);
@@ -172,9 +178,9 @@ public class Scene {
 							new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
 									new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
 					waterFrameBuffer.bindReflectionFrameBuffer();
-					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					waterFrameBuffer.bindRefractionFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 
 				}
@@ -192,9 +198,13 @@ public class Scene {
 							moveFactor,
 							skyboxAmbientLight);
 				}
+
+				if (terrainShader != null) {
+					renderer.renderTerrain(renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), terrainShader, ambientLight, fog, null);
+				}
 				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-					renderer.renderScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
+					renderer.renderScene(renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
 				}
 				break;
 			}
@@ -206,7 +216,13 @@ public class Scene {
 		renderer.renderPickingScene(meshes, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
 	}
 
-	private void renderSceneToBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Vec4f clippingPlane, MeshObject skybox, HashMap<MeshObject, ArrayList<InstanceObject>> meshes, HashMap<Light, InstanceObject> lights) {
+	private void renderSceneToBuffer(Renderer renderer,
+	                                 Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
+	                                 Vec4f clippingPlane,
+	                                 MeshObject skybox,
+	                                 HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
+	                                 HashMap<MeshObject, ArrayList<InstanceObject>> terrainMeshes,
+	                                 HashMap<Light, InstanceObject> lights) {
 		// enable clip planes
 		// this clips everything under the water
 		GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
@@ -217,7 +233,7 @@ public class Scene {
 			GL11.glEnable(GL20.GL_CULL_FACE);
 			GL11.glCullFace(GL20.GL_BACK);
 		}
-		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
+		renderer.renderScene(meshes, terrainMeshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}
 
 	public void updateScreen(int width, int height) {

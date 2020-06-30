@@ -64,7 +64,7 @@ public class MeshBuilder {
 				meshObject = new Terrain(terrainHeightMap, material, cellSpace, meshType, fboTextureIndex);
 				break;
 			case WATER:
-				meshObject = new Terrain(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboTextureIndex);
+				meshObject = new Water(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboTextureIndex);
 				break;
 			case POINT:
 				meshObject = new Point(transformation, material, fboTextureIndex);

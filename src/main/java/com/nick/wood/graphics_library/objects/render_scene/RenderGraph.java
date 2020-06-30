@@ -12,6 +12,7 @@ public class RenderGraph {
 	private final HashMap<Light, InstanceObject> lights;
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> meshes;
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
+	private final HashMap<MeshObject, ArrayList<InstanceObject>> terrainMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
 	private MeshObject skybox;
 	private final ArrayList<Mesh> meshesToBuild = new ArrayList<>();
@@ -21,6 +22,7 @@ public class RenderGraph {
 		this.lights = new HashMap<>();
 		this.meshes = new HashMap<>();
 		this.waterMeshes = new HashMap<>();
+		this.terrainMeshes = new HashMap<>();
 		this.cameras = new HashMap<>();
 		this.skybox = null;
 	}
@@ -28,6 +30,7 @@ public class RenderGraph {
 	public void empty() {
 		stripMeshArrays(meshes);
 		stripMeshArrays(waterMeshes);
+		stripMeshArrays(terrainMeshes);
 	}
 
 	private void stripMeshArrays(HashMap<MeshObject, ArrayList<InstanceObject>> meshes) {
@@ -52,6 +55,10 @@ public class RenderGraph {
 
 	public HashMap<MeshObject, ArrayList<InstanceObject>> getWaterMeshes() {
 		return waterMeshes;
+	}
+
+	public HashMap<MeshObject, ArrayList<InstanceObject>> getTerrainMeshes() {
+		return terrainMeshes;
 	}
 
 	public HashMap<Camera, InstanceObject> getCameras() {
@@ -84,6 +91,15 @@ public class RenderGraph {
 
 	public void removeWater(UUID uuid) {
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : waterMeshes.entrySet()) {
+			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
+			if (next.getValue().isEmpty()) {
+				meshesToDestroy.add(next.getKey().getMesh());
+			}
+		}
+	}
+
+	public void removeTerrain(UUID uuid) {
+		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : terrainMeshes.entrySet()) {
 			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
 			if (next.getValue().isEmpty()) {
 				meshesToDestroy.add(next.getKey().getMesh());

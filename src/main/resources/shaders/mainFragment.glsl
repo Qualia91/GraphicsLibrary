@@ -56,11 +56,6 @@ struct Material
     int hasNormalMap;
 };
 
-struct Camera
-{
-    vec3 cameraPos;
-};
-
 uniform sampler2D tex;
 uniform sampler2D normal_text_sampler;
 uniform vec3 ambientLight;

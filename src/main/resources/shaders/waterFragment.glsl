@@ -2,17 +2,36 @@
 
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;
+in vec3 passVertexPos;
 in vec4 clipSpace;
 in vec3 passToCamera;
 
 out vec4 outColour;
 
+struct Fog
+{
+    int isactive;
+    vec3 colour;
+    float density;
+};
+
 uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
 uniform sampler2D dudvmap;
 uniform float moveFactor;
+uniform vec3 cameraPos;
+uniform Fog fog;
 
 const float distStrength = 0.005;
+
+vec4 calcFog(vec3 pos, vec4 colour, Fog fog) {
+    float distance = length(pos);
+    float fogFactor = 1.0 / exp((distance * fog.density) * (distance * fog.density));
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+    vec3 resultColour = mix(fog.colour, colour.xyz, fogFactor);
+    return vec4(resultColour, colour.w);
+}
 
 void main() {
 
@@ -49,4 +68,9 @@ void main() {
     float factor = dot(passToCamera, passVertexNormal);
 
     outColour = mix(refletionColour, refrationColour, pow(factor, 3));
+
+    if ( fog.isactive == 1 )
+    {
+        outColour = calcFog(cameraPos - passVertexPos, outColour, fog);
+    }
 }

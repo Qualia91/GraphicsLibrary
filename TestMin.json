@@ -1,0 +1,736 @@
+{
+  "sceneGraphNodeSers": [
+    {
+      "tag": "tag",
+      "uuid": "86ef68b7-e8f8-4c36-af32-0cef57897183",
+      "type": "GROUP",
+      "children": [
+        {
+          "tag": "tag",
+          "uuid": "2a016bf1-911b-464c-a621-64b52061b4c9",
+          "type": "TRANSFORM",
+          "children": [
+            {
+              "tag": "tag",
+              "uuid": "91e55fed-8d1b-45f3-9d72-23e02119ffad",
+              "type": "MESH",
+              "children": [],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                "DATA": {
+                  "tag": "tag",
+                  "meshType": "CUBOID",
+                  "invertedNormals": false,
+                  "texture": "/textures/brickwall.jpg",
+                  "normalTexture": "/normalMaps/brickwall_normal.jpg",
+                  "transformation": {
+                    "tag": "tag",
+                    "scale": {
+                      "x": 1.0,
+                      "y": 1.0,
+                      "z": 1.0
+                    },
+                    "rotation": {
+                      "s": 1.0,
+                      "i": 0.0,
+                      "j": 0.0,
+                      "k": 0.0
+                    },
+                    "position": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    }
+                  },
+                  "triangleNumber": 0,
+                  "rowNum": 0,
+                  "colNum": 0,
+                  "waterSquareWidth": 0,
+                  "waterHeight": 0,
+                  "cellSpace": 0.0,
+                  "fboIndex": -1
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "e39e63e0-f30f-447b-a5fe-6af0289b0a40",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "b4bf1f26-7ca1-495b-bf1c-2dcdce22cc51",
+                  "type": "MESH",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "meshType": "CUBOID",
+                      "invertedNormals": false,
+                      "texture": "/textures/red.png",
+                      "normalTexture": "",
+                      "transformation": {
+                        "tag": "tag",
+                        "scale": {
+                          "x": 1.0,
+                          "y": 1.0,
+                          "z": 1.0
+                        },
+                        "rotation": {
+                          "s": 1.0,
+                          "i": 0.0,
+                          "j": 0.0,
+                          "k": 0.0
+                        },
+                        "position": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        }
+                      },
+                      "triangleNumber": 0,
+                      "rowNum": 0,
+                      "colNum": 0,
+                      "waterSquareWidth": 0,
+                      "waterHeight": 0,
+                      "cellSpace": 0.0,
+                      "fboIndex": -1
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 10.1,
+                    "y": 0.1,
+                    "z": 0.1
+                  },
+                  "rotation": {
+                    "s": 1.0,
+                    "i": 0.0,
+                    "j": 0.0,
+                    "k": 0.0
+                  },
+                  "position": {
+                    "x": 2.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  }
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "3e96c832-2fbe-4983-a4b2-6f1dd280c053",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "d248673d-5599-42ad-9b5c-9243c46a65c6",
+                  "type": "MESH",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "meshType": "CUBOID",
+                      "invertedNormals": false,
+                      "texture": "/textures/blue.png",
+                      "normalTexture": "",
+                      "transformation": {
+                        "tag": "tag",
+                        "scale": {
+                          "x": 1.0,
+                          "y": 1.0,
+                          "z": 1.0
+                        },
+                        "rotation": {
+                          "s": 1.0,
+                          "i": 0.0,
+                          "j": 0.0,
+                          "k": 0.0
+                        },
+                        "position": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        }
+                      },
+                      "triangleNumber": 0,
+                      "rowNum": 0,
+                      "colNum": 0,
+                      "waterSquareWidth": 0,
+                      "waterHeight": 0,
+                      "cellSpace": 0.0,
+                      "fboIndex": -1
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 10.1,
+                    "y": 0.1,
+                    "z": 0.1
+                  },
+                  "rotation": {
+                    "s": 0.70710677,
+                    "i": 0.0,
+                    "j": 0.0,
+                    "k": 0.70710677
+                  },
+                  "position": {
+                    "x": 0.0,
+                    "y": 2.0,
+                    "z": 0.0
+                  }
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "39db01b3-064d-4771-811d-6991f63d5fc4",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "85ac55d2-e286-4c4b-8595-b276be93bbd1",
+                  "type": "MESH",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "meshType": "CUBOID",
+                      "invertedNormals": false,
+                      "texture": "/textures/green.png",
+                      "normalTexture": "",
+                      "transformation": {
+                        "tag": "tag",
+                        "scale": {
+                          "x": 1.0,
+                          "y": 1.0,
+                          "z": 1.0
+                        },
+                        "rotation": {
+                          "s": 1.0,
+                          "i": 0.0,
+                          "j": 0.0,
+                          "k": 0.0
+                        },
+                        "position": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        }
+                      },
+                      "triangleNumber": 0,
+                      "rowNum": 0,
+                      "colNum": 0,
+                      "waterSquareWidth": 0,
+                      "waterHeight": 0,
+                      "cellSpace": 0.0,
+                      "fboIndex": -1
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 10.1,
+                    "y": 0.1,
+                    "z": 0.1
+                  },
+                  "rotation": {
+                    "s": 0.70710677,
+                    "i": 0.0,
+                    "j": 0.70710677,
+                    "k": 0.0
+                  },
+                  "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 2.0
+                  }
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "0be5f5bf-6d82-4ef3-ab4f-3077de4815af",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "ac5b7f11-5df5-4fa9-a82c-b419a48aa00c",
+                  "type": "LIGHT",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.LightSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "type": "POINT",
+                      "colour": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                      },
+                      "intensity": 10.0,
+                      "constant": 1.0,
+                      "linear": 0.5,
+                      "exponent": 0.25,
+                      "direction": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                      },
+                      "coneAngle": 0.0
+                    }
+                  }
+                },
+                {
+                  "tag": "tag",
+                  "uuid": "67dcbf7b-77dd-497f-80e8-74daf437933f",
+                  "type": "MESH",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "meshType": "MODEL",
+                      "invertedNormals": false,
+                      "texture": "/textures/mars.jpg",
+                      "normalTexture": "",
+                      "transformation": {
+                        "tag": "tag",
+                        "scale": {
+                          "x": 1.0,
+                          "y": 1.0,
+                          "z": 1.0
+                        },
+                        "rotation": {
+                          "s": 1.0,
+                          "i": 0.0,
+                          "j": 0.0,
+                          "k": 0.0
+                        },
+                        "position": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        }
+                      },
+                      "triangleNumber": 0,
+                      "rowNum": 0,
+                      "colNum": 0,
+                      "waterSquareWidth": 0,
+                      "waterHeight": 0,
+                      "modelFile": "D:\\Software\\Programming\\projects\\Java\\GameEngine\\production\\GraphicsLibrary\\models\\sphere.obj",
+                      "cellSpace": 0.0,
+                      "fboIndex": -1
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.5
+                  },
+                  "rotation": {
+                    "s": 1.0,
+                    "i": 0.0,
+                    "j": 0.0,
+                    "k": 0.0
+                  },
+                  "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": -10.0
+                  }
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "17de102b-8747-413e-b130-62b05d5480cb",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "3e04212d-76ac-4482-8d70-9d984b773c80",
+                  "type": "LIGHT",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.LightSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "type": "SPOT",
+                      "colour": {
+                        "x": 1.0,
+                        "y": 0.0,
+                        "z": 0.0
+                      },
+                      "intensity": 100.0,
+                      "constant": 1.0,
+                      "linear": 0.5,
+                      "exponent": 0.25,
+                      "direction": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                      },
+                      "coneAngle": 0.1
+                    }
+                  }
+                },
+                {
+                  "tag": "tag",
+                  "uuid": "f259ea52-8062-4ec9-8b6e-6a621fdddc98",
+                  "type": "MESH",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "meshType": "MODEL",
+                      "invertedNormals": false,
+                      "texture": "/textures/mars.jpg",
+                      "normalTexture": "",
+                      "transformation": {
+                        "tag": "tag",
+                        "scale": {
+                          "x": 1.0,
+                          "y": 1.0,
+                          "z": 1.0
+                        },
+                        "rotation": {
+                          "s": 1.0,
+                          "i": 0.0,
+                          "j": 0.0,
+                          "k": 0.0
+                        },
+                        "position": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        }
+                      },
+                      "triangleNumber": 0,
+                      "rowNum": 0,
+                      "colNum": 0,
+                      "waterSquareWidth": 0,
+                      "waterHeight": 0,
+                      "modelFile": "D:\\Software\\Programming\\projects\\Java\\GameEngine\\production\\GraphicsLibrary\\models\\sphere.obj",
+                      "cellSpace": 0.0,
+                      "fboIndex": -1
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.5
+                  },
+                  "rotation": {
+                    "s": 1.0,
+                    "i": 0.0,
+                    "j": 0.0,
+                    "k": 0.0
+                  },
+                  "position": {
+                    "x": 0.0,
+                    "y": -10.0,
+                    "z": 0.0
+                  }
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "9d62a7eb-f2df-461b-85b1-1ca3058d0bc3",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "19fdb5de-7030-48ef-917c-b53d23b3aa47",
+                  "type": "LIGHT",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.LightSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "type": "DIRECTIONAL",
+                      "colour": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                      },
+                      "intensity": 1.0,
+                      "constant": 0.0,
+                      "linear": 0.0,
+                      "exponent": 0.0,
+                      "direction": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": -1.0
+                      },
+                      "coneAngle": 0.0
+                    }
+                  }
+                },
+                {
+                  "tag": "tag",
+                  "uuid": "77219dc9-aea9-4d5b-aa10-1d4aa77cc3de",
+                  "type": "MESH",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "meshType": "MODEL",
+                      "invertedNormals": false,
+                      "texture": "/textures/mars.jpg",
+                      "normalTexture": "",
+                      "transformation": {
+                        "tag": "tag",
+                        "scale": {
+                          "x": 1.0,
+                          "y": 1.0,
+                          "z": 1.0
+                        },
+                        "rotation": {
+                          "s": 1.0,
+                          "i": 0.0,
+                          "j": 0.0,
+                          "k": 0.0
+                        },
+                        "position": {
+                          "x": 0.0,
+                          "y": 0.0,
+                          "z": 0.0
+                        }
+                      },
+                      "triangleNumber": 0,
+                      "rowNum": 0,
+                      "colNum": 0,
+                      "waterSquareWidth": 0,
+                      "waterHeight": 0,
+                      "modelFile": "D:\\Software\\Programming\\projects\\Java\\GameEngine\\production\\GraphicsLibrary\\models\\sphere.obj",
+                      "cellSpace": 0.0,
+                      "fboIndex": -1
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "z": 0.5
+                  },
+                  "rotation": {
+                    "s": 1.0,
+                    "i": 0.0,
+                    "j": 0.0,
+                    "k": 0.0
+                  },
+                  "position": {
+                    "x": 0.0,
+                    "y": -10.0,
+                    "z": 0.0
+                  }
+                }
+              }
+            },
+            {
+              "tag": "tag",
+              "uuid": "d2cad4ea-0edb-46a9-a224-7203231045e4",
+              "type": "TRANSFORM",
+              "children": [
+                {
+                  "tag": "tag",
+                  "uuid": "66de2b5b-be0e-4dc0-91a1-df00927e9154",
+                  "type": "CAMERA",
+                  "children": [],
+                  "gameObjectSer": {
+                    "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.CameraSer",
+                    "DATA": {
+                      "tag": "tag",
+                      "cameraType": "PRIMARY",
+                      "width": 0,
+                      "height": 0,
+                      "fov": 1.22173,
+                      "near": 1.0,
+                      "far": 100000.0,
+                      "fboIndex": 0
+                    }
+                  }
+                }
+              ],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+                "DATA": {
+                  "tag": "tag",
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                  },
+                  "rotation": {
+                    "s": -0.5,
+                    "i": -0.49999994,
+                    "j": 0.5,
+                    "k": 0.49999994
+                  },
+                  "position": {
+                    "x": -10.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  }
+                }
+              }
+            }
+          ],
+          "gameObjectSer": {
+            "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+            "DATA": {
+              "tag": "tag",
+              "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
+              "rotation": {
+                "s": 1.0,
+                "i": 0.0,
+                "j": 0.0,
+                "k": 0.0
+              },
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              }
+            }
+          }
+        },
+        {
+          "tag": "tag",
+          "uuid": "ead7d285-802d-4b2f-9304-f9492fbc4f72",
+          "type": "TRANSFORM",
+          "children": [
+            {
+              "tag": "tag",
+              "uuid": "0435a625-f466-4110-9902-8129aa663bea",
+              "type": "MESH",
+              "children": [],
+              "gameObjectSer": {
+                "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.MeshSer",
+                "DATA": {
+                  "tag": "tag",
+                  "meshType": "TEXT",
+                  "invertedNormals": false,
+                  "texture": "/fonts/verandaGreenBold.png",
+                  "transformation": {
+                    "tag": "tag",
+                    "scale": {
+                      "x": 1.0,
+                      "y": 1.0,
+                      "z": 1.0
+                    },
+                    "rotation": {
+                      "s": 1.0,
+                      "i": 0.0,
+                      "j": 0.0,
+                      "k": 0.0
+                    },
+                    "position": {
+                      "x": 0.0,
+                      "y": 0.0,
+                      "z": 0.0
+                    }
+                  },
+                  "triangleNumber": 0,
+                  "text": "0",
+                  "fontFile": "/fonts/verandaGreenBold.png",
+                  "rowNum": 16,
+                  "colNum": 16,
+                  "waterSquareWidth": 0,
+                  "waterHeight": 0,
+                  "cellSpace": 0.0,
+                  "fboIndex": -1
+                }
+              }
+            }
+          ],
+          "gameObjectSer": {
+            "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.TransformSer",
+            "DATA": {
+              "tag": "tag",
+              "scale": {
+                "x": 100.0,
+                "y": 100.0,
+                "z": 100.0
+              },
+              "rotation": {
+                "s": 1.0,
+                "i": 0.0,
+                "j": 0.0,
+                "k": 0.0
+              },
+              "position": {
+                "x": 0.0,
+                "y": 10.0,
+                "z": 0.0
+              }
+            }
+          }
+        },
+        {
+          "tag": "tag",
+          "uuid": "d00d20ca-fa81-4df5-8fef-70ac148fa130",
+          "type": "SKYBOX",
+          "children": [],
+          "gameObjectSer": {
+            "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.SkyBoxSer",
+            "DATA": {
+              "tag": "tag",
+              "skyboxType": "SPHERE",
+              "skyboxTexture": "/textures/altimeterSphere.png",
+              "distance": 1000.0
+            }
+          }
+        }
+      ],
+      "gameObjectSer": {
+        "CLASSNAME": "com.nick.wood.game_object_serialiser.ser.GroupSer",
+        "DATA": {
+          "tag": "tag"
+        }
+      }
+    }
+  ]
+}

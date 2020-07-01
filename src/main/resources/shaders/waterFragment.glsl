@@ -46,9 +46,7 @@ void main() {
     vec2 refractionTextCoord = vec2(ndc.x, ndc.y);
 
     // get dudv map
-    vec2 distortion1 = (texture(dudvmap, vec2(passTextureCoord.x + moveFactor, passTextureCoord.y)).rg * 2 - 1) * distStrength;
-    vec2 distortion2 = (texture(dudvmap, vec2(passTextureCoord.x, passTextureCoord.y - moveFactor)).rg * 2 - 1) * distStrength;
-    vec2 distortion = distortion1 + distortion2;
+    vec2 distortion = (texture(dudvmap, vec2(passTextureCoord.x + moveFactor, passTextureCoord.y - moveFactor)).rg * 2 - 1) * distStrength;
 
     reflectionTextCoord += distortion;
     refractionTextCoord += distortion;
@@ -67,7 +65,7 @@ void main() {
     // fresnel effect
     float factor = dot(passToCamera, passVertexNormal);
 
-    outColour = mix(mix(refletionColour, refrationColour, pow(factor, 3)), vec4(0, 0.412, 0.58, 1), 0.2);
+    outColour = mix(mix(refletionColour, refrationColour, pow(factor, 3)), vec4(0, 0.412, 0.58, 1), 0.3);
 
     if ( fog.isactive == 1 )
     {

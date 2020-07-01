@@ -29,7 +29,7 @@ public class MeshBuilder {
 	};
 	private double cellSpace = 1;
 	private final ArrayList<TerrainTextureObject> terrainTextureObjects = new ArrayList<>();
-	// this is used as the id for meshs that want to be textured via fbos. the fbos are created using fbo cameras so
+	// this is used as the id for meshes that want to be textured via fbos. the fbos are created using fbo cameras so
 	// the id is the name of the camera that creates it.
 	private String fboCameraName = "";
 

@@ -17,4 +17,5 @@ module com.nick.wood.graphics_library {
 	exports com.nick.wood.graphics_library.objects.render_scene;
 	exports com.nick.wood.graphics_library.input;
 	exports com.nick.wood.graphics_library.frame_buffers;
+	exports com.nick.wood.graphics_library.materials;
 }

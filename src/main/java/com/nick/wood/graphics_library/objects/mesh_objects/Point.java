@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.graphics_library.Material;
+import com.nick.wood.graphics_library.materials.Material;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.srt.Transform;
 import com.nick.wood.maths.objects.vector.Vec2f;

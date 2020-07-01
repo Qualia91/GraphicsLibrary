@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.graphics_library.Texture;
+import com.nick.wood.graphics_library.materials.Texture;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 
 import java.util.HashMap;

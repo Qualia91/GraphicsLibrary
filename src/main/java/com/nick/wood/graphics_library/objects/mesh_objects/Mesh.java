@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.graphics_library.Material;
+import com.nick.wood.graphics_library.materials.Material;
 import com.nick.wood.graphics_library.Vertex;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;

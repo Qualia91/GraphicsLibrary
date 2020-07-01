@@ -6,6 +6,7 @@ import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.Light;
+import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.CameraType;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
@@ -118,7 +119,7 @@ public class Scene {
 				0, 0, 0, 1);
 	}
 
-	public void render(Renderer renderer, RenderGraph renderGraph) {
+	public void render(Renderer renderer, RenderGraph renderGraph, TextureManager textureManager) {
 
 		// update camera projection matrices if need be
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
@@ -134,7 +135,6 @@ public class Scene {
 
 		// Todo need sim time here
 		moveFactor += waveSpeed; // * simTimeSinceLast;
-
 		moveFactor %= 1;
 
 		// render scene fbos
@@ -146,14 +146,16 @@ public class Scene {
 					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().unbindCurrentFrameBuffer();
 
+					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
+
 					GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 					// now render the fbo textured objects that have the same index as this camera
-					//for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
-					//	if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
-					//		meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexture().setId(cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
-					//	}
-					//}
+					for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
+						if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
+							meshObjectArrayListEntry.getKey().getMesh().getMaterial().setTexturePath(cameraInstanceObjectEntry.getKey().getName());
+						}
+					}
 				}
 				break;
 			}

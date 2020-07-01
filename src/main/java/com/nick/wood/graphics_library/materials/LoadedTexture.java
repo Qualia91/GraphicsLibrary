@@ -1,14 +1,12 @@
-package com.nick.wood.graphics_library;
+package com.nick.wood.graphics_library.materials;
 
-import static org.lwjgl.BufferUtils.createByteBuffer;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
-import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
-import static org.lwjgl.system.MemoryStack.stackPush;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
@@ -18,13 +16,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.*;
-import org.lwjgl.system.MemoryUtil;
+import static org.lwjgl.BufferUtils.createByteBuffer;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
+import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
+import static org.lwjgl.system.MemoryStack.stackPush;
 
-public class Texture {
+public class LoadedTexture implements Texture {
 
 	private final String texturePath;
 	private final int parameter;
@@ -32,7 +30,7 @@ public class Texture {
 	private int height;
 	private int id;
 
-	public Texture(String path, int parameter) {
+	public LoadedTexture(String path, int parameter) {
 		this.texturePath = path;
 		this.parameter = parameter;
 	}
@@ -105,7 +103,7 @@ public class Texture {
 
 	public void create() throws IOException {
 		String imagePath = texturePath.split("[.]")[1];
-		InputStream resourceAsStream = Texture.class.getResourceAsStream(texturePath);
+		InputStream resourceAsStream = LoadedTexture.class.getResourceAsStream(texturePath);
 
 		if (resourceAsStream == null) {
 			// try to find it in the user input folder via environment variable

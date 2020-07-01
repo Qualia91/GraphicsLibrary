@@ -1,10 +1,6 @@
-package com.nick.wood.graphics_library;
+package com.nick.wood.graphics_library.materials;
 
 import com.nick.wood.maths.objects.vector.Vec3f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-
-import java.io.IOException;
 
 public class Material {
 

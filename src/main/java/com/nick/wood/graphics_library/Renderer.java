@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.lighting.*;
+import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;

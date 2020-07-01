@@ -4,6 +4,8 @@ import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 public class Camera {
+
+	private final String name;
 	private final float near;
 	private final float far;
 	private CameraType cameraType;
@@ -14,7 +16,8 @@ public class Camera {
 	private int fboTextureIndex;
 	private SceneFrameBuffer sceneFrameBuffer;
 
-	public Camera(CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex, SceneFrameBuffer sceneFrameBuffer) {
+	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex, SceneFrameBuffer sceneFrameBuffer) {
+		this.name = name;
 		this.cameraType = cameraType;
 		this.width = width;
 		this.height = height;
@@ -26,7 +29,8 @@ public class Camera {
 		this.sceneFrameBuffer = sceneFrameBuffer;
 	}
 
-	public Camera(CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex) {
+	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex) {
+		this.name = name;
 		this.cameraType = cameraType;
 		this.width = width;
 		this.height = height;
@@ -37,7 +41,8 @@ public class Camera {
 		this.fboTextureIndex = fboTextureIndex;
 	}
 
-	public Camera(float fov, float near, float far) {
+	public Camera(String name, float fov, float near, float far) {
+		this.name = name;
 		this.fov = fov;
 		this.near = near;
 		this.far = far;
@@ -45,9 +50,7 @@ public class Camera {
 		this.fboTextureIndex = 0;
 		this.sceneFrameBuffer = null;
 	}
-
-
-
+	
 	public SceneFrameBuffer getSceneFrameBuffer() {
 		return sceneFrameBuffer;
 	}
@@ -100,5 +103,9 @@ public class Camera {
 
 	public int getFboTextureIndex() {
 		return fboTextureIndex;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

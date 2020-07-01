@@ -1,8 +1,8 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
+import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import org.lwjgl.Version;
@@ -24,7 +24,6 @@ import java.util.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwSetJoystickCallback;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -230,7 +229,7 @@ public class Window implements AutoCloseable {
 				renderGraph.getMeshesToBuild().clear();
 				renderGraph.getMeshesToDestroy().clear();
 
-				sceneLayer.render(renderer, renderGraph);
+				sceneLayer.render(renderer, renderGraph, textureManager);
 				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}

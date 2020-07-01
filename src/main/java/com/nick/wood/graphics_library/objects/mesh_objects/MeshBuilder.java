@@ -28,8 +28,10 @@ public class MeshBuilder {
 			{0, 0},
 	};
 	private double cellSpace = 1;
-	private int fboTextureIndex = -1;
 	private final ArrayList<TerrainTextureObject> terrainTextureObjects = new ArrayList<>();
+	// this is used as the id for meshs that want to be textured via fbos. the fbos are created using fbo cameras so
+	// the id is the name of the camera that creates it.
+	private String fboCameraName = "";
 
 	public MeshBuilder() {
 		modelFile = new File(MeshBuilder.class.getResource("/models/sphere.obj").getFile()).getAbsolutePath();
@@ -48,34 +50,34 @@ public class MeshBuilder {
 		MeshObject meshObject = null;
 		switch (meshType) {
 			case SPHERE:
-				meshObject = new SphereMesh(triangleNumber, material, invertedNormals, transformation, fboTextureIndex);
+				meshObject = new SphereMesh(triangleNumber, material, invertedNormals, transformation, fboCameraName);
 				break;
 			case CUBOID:
-				meshObject = new CubeMesh(material, invertedNormals, transformation, fboTextureIndex);
+				meshObject = new CubeMesh(material, invertedNormals, transformation, fboCameraName);
 				break;
 			case MODEL:
-				meshObject = new ModelMesh(modelFile, material, invertedNormals, transformation, fboTextureIndex);
+				meshObject = new ModelMesh(modelFile, material, invertedNormals, transformation, fboCameraName);
 				break;
 			case SQUARE:
-				meshObject = new Square(material, transformation, fboTextureIndex);
+				meshObject = new Square(material, transformation, fboCameraName);
 				break;
 			case TEXT:
-				meshObject = new TextItem(text, fontMaterial, rowNum, colNum, transformation, fboTextureIndex);
+				meshObject = new TextItem(text, fontMaterial, rowNum, colNum, transformation, fboCameraName);
 				break;
 			case TERRAIN:
-				meshObject = new Terrain(terrainHeightMap, material, terrainTextureObjects, cellSpace, meshType, fboTextureIndex);
+				meshObject = new Terrain(terrainHeightMap, material, terrainTextureObjects, cellSpace, meshType, fboCameraName);
 				break;
 			case WATER:
-				meshObject = new Water(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboTextureIndex);
+				meshObject = new Water(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboCameraName);
 				break;
 			case POINT:
-				meshObject = new Point(transformation, material, fboTextureIndex);
+				meshObject = new Point(transformation, material, fboCameraName);
 				break;
 			case TRIANGLE:
-				meshObject = new Triangle(transformation, material, triangleNumber, invertedNormals, fboTextureIndex);
+				meshObject = new Triangle(transformation, material, triangleNumber, invertedNormals, fboCameraName);
 				break;
 			case CIRCLE:
-				meshObject = new CircleMesh(transformation, material, triangleNumber, fboTextureIndex);
+				meshObject = new CircleMesh(transformation, material, triangleNumber, fboCameraName);
 				break;
 		};
 
@@ -191,13 +193,13 @@ public class MeshBuilder {
 		return this;
 	}
 
-	public MeshBuilder setTextureFboIndex(int fboTextureIndex) {
-		this.fboTextureIndex = fboTextureIndex;
+	public MeshBuilder addTerrainTextureObject(TerrainTextureObject terrainTextureObject) {
+		this.terrainTextureObjects.add(terrainTextureObject);
 		return this;
 	}
 
-	public MeshBuilder addTerrainTextureObject(TerrainTextureObject terrainTextureObject) {
-		this.terrainTextureObjects.add(terrainTextureObject);
+	public MeshBuilder setTextureFboCameraName(String fboCameraName) {
+		this.fboCameraName = fboCameraName;
 		return this;
 	}
 }

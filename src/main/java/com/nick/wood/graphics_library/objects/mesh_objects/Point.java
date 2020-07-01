@@ -11,11 +11,11 @@ public class Point implements MeshObject {
 	private final Transform transformation;
 	private final Mesh mesh;
 	private final Material material;
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 
-	public Point(Transform transformation, Material material, int fboTextureIndex) {
+	public Point(Transform transformation, Material material, String fboCameraName) {
 		this.transformation = transformation;
-		this.fboTextureIndex = fboTextureIndex;
+		this.fboCameraName = fboCameraName;
 		mesh = new Mesh(
 				new Vertex[] {new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.ONE)}, new int[]{0},
 				material,
@@ -39,8 +39,8 @@ public class Point implements MeshObject {
 	}
 
 	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
+	public String getFboTextureCameraName() {
+		return fboCameraName;
 	}
 
 	@Override

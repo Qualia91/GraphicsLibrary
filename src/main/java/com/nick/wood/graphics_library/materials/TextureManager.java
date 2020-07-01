@@ -23,7 +23,7 @@ public class TextureManager {
 		try {
 			texture.create();
 			stringTextureHashMap.put(texturePath, texture);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.out.println("Texture with path " + texturePath + " was unable to load. Using default texture.");
 			texture = stringTextureHashMap.get("DEFAULT");
 		}

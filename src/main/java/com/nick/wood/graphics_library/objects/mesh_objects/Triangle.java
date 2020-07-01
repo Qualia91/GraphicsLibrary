@@ -8,14 +8,14 @@ import com.nick.wood.maths.objects.vector.Vec3f;
 
 public class Triangle implements MeshObject {
 
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 	private Transform transformation;
 	private final Mesh mesh;
 	private final int triangleNumber;
 
-	public Triangle(Transform transform, Material material, int triangleNumber, boolean invertedNormals, int fboTextureIndex) {
+	public Triangle(Transform transform, Material material, int triangleNumber, boolean invertedNormals, String fboCameraName) {
 
-		this.fboTextureIndex = fboTextureIndex;
+		this.fboCameraName = fboCameraName;
 		this.transformation = transform;
 		this.triangleNumber = triangleNumber;
 
@@ -125,8 +125,8 @@ public class Triangle implements MeshObject {
 	}
 
 	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
+	public String getFboTextureCameraName() {
+		return fboCameraName;
 	}
 
 	@Override

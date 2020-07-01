@@ -10,13 +10,13 @@ public class CircleMesh implements MeshObject {
 
 	private final Mesh mesh;
 	private final Material material;
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 	private final int numberOfPointsAroundEdge;
 	private Transform transformation;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	CircleMesh(Transform transformation, Material material, int numberOfPointsAroundEdge, int fboTextureIndex) {
-		this.fboTextureIndex = fboTextureIndex;
+	CircleMesh(Transform transformation, Material material, int numberOfPointsAroundEdge, String fboCameraName) {
+		this.fboCameraName = fboCameraName;
 		this.transformation = transformation;
 		this.numberOfPointsAroundEdge = numberOfPointsAroundEdge;
 
@@ -85,12 +85,12 @@ public class CircleMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return MeshType.CIRCLE.toString() + numberOfPointsAroundEdge + material.getTexturePath() + fboTextureIndex;
+		return MeshType.CIRCLE.toString() + numberOfPointsAroundEdge + material.getTexturePath() + fboCameraName;
 	}
 
 	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
+	public String getFboTextureCameraName() {
+		return fboCameraName;
 	}
 
 	@Override

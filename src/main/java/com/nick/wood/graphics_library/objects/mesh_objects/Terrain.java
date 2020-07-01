@@ -18,12 +18,12 @@ public class Terrain implements MeshObject {
 	private final int width;
 	private final MeshType meshType;
 	private final int height;
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 	private final ArrayList<TerrainTextureObject> terrainTextureObjects;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, Material material, ArrayList<TerrainTextureObject> terrainTextureObjects, double cellSpace, MeshType meshType, int fboTextureIndex) {
-		this.fboTextureIndex = fboTextureIndex;
+	Terrain(float[][] terrainHeightMap, Material material, ArrayList<TerrainTextureObject> terrainTextureObjects, double cellSpace, MeshType meshType, String fboCameraName) {
+		this.fboCameraName = fboCameraName;
 		this.meshType = meshType;
 		this.terrainHeightMap = terrainHeightMap;
 		this.cellSpace = cellSpace;
@@ -169,6 +169,11 @@ public class Terrain implements MeshObject {
 	}
 
 	@Override
+	public String getFboTextureCameraName() {
+		return fboCameraName;
+	}
+
+	@Override
 	public MeshType getMeshType() {
 		return meshType;
 	}
@@ -193,9 +198,6 @@ public class Terrain implements MeshObject {
 		return terrainTextureObjects;
 	}
 
-	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
-	}
+
 
 }

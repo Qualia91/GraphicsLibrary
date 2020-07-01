@@ -12,7 +12,7 @@ public class TextItem implements MeshObject {
 
 	private static final float ZPOS = 0.0f;
 	private static final int VERTICES_PER_QUAD = 4;
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 	private Mesh mesh;
 	private String text;
 	private final int numCols;
@@ -23,8 +23,8 @@ public class TextItem implements MeshObject {
 	private Transform transformation;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	TextItem(String text, Material material, int numRows, int numCols, Transform transformation, int fboTextureIndex) {
-		this.fboTextureIndex = fboTextureIndex;
+	TextItem(String text, Material material, int numRows, int numCols, Transform transformation, String fboCameraName) {
+		this.fboCameraName = fboCameraName;
 		this.text = text;
 		this.numCols = numCols;
 		this.numRows = numRows;
@@ -138,8 +138,8 @@ public class TextItem implements MeshObject {
 	}
 
 	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
+	public String getFboTextureCameraName() {
+		return fboCameraName;
 	}
 
 	public float getWidth() {

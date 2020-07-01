@@ -142,6 +142,10 @@ public class Scene {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
 				if (mainShader != null) {
 
+					if (cameraInstanceObjectEntry.getKey().getSceneFrameBuffer() == null) {
+						cameraInstanceObjectEntry.getKey().create();
+					}
+
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().bindFrameBuffer();
 					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().unbindCurrentFrameBuffer();
@@ -150,17 +154,19 @@ public class Scene {
 
 					GL11.glViewport(0, 0, screenWidth, screenHeight);
 
-					// now render the fbo textured objects that have the same index as this camera
-					for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
-						if (meshObjectArrayListEntry.getKey().getFboTextureIndex() == cameraInstanceObjectEntry.getKey().getFboTextureIndex()) {
-							meshObjectArrayListEntry.getKey().getMesh().getMaterial().setTexturePath(cameraInstanceObjectEntry.getKey().getName());
-						}
-					}
 				}
 				break;
 			}
 
 		}
+
+		// update textures that are being rendered via fbos
+		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
+			if (!meshObjectArrayListEntry.getKey().getFboTextureCameraName().isEmpty()) {
+				meshObjectArrayListEntry.getKey().getMesh().getMaterial().setTexturePath(meshObjectArrayListEntry.getKey().getFboTextureCameraName());
+			}
+		}
+
 		if (pickingShader != null && pickingFrameBuffer != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {

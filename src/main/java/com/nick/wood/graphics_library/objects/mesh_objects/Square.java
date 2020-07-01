@@ -10,12 +10,12 @@ public class Square implements MeshObject {
 
 	private final Mesh mesh;
 	private final Material material;
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 	private Transform transformation;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Square(Material material, Transform transformation, int fboTextureIndex) {
-		this.fboTextureIndex = fboTextureIndex;
+	Square(Material material, Transform transformation, String fboCameraName) {
+		this.fboCameraName = fboCameraName;
 		this.transformation = transformation;
 		mesh = new Mesh(new Vertex[] {
 				new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
@@ -44,12 +44,12 @@ public class Square implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SQUARE" + material.getTexturePath() + fboTextureIndex;
+		return "SQUARE" + material.getTexturePath() + fboCameraName;
 	}
 
 	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
+	public String getFboTextureCameraName() {
+		return fboCameraName;
 	}
 
 	@Override

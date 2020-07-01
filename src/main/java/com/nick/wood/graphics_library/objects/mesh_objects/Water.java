@@ -17,11 +17,11 @@ public class Water implements MeshObject {
 	private final int width;
 	private final MeshType meshType;
 	private final int height;
-	private final int fboTextureIndex;
+	private final String fboCameraName;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Water(int size, int height, Material material, double cellSpace, MeshType meshType, int fboTextureIndex) {
-		this.fboTextureIndex = fboTextureIndex;
+	Water(int size, int height, Material material, double cellSpace, MeshType meshType, String fboCameraName) {
+		this.fboCameraName = fboCameraName;
 		this.meshType = meshType;
 		this.terrainHeightMap = new float[size][size];
 		for (float[] floats : this.terrainHeightMap) {
@@ -169,6 +169,11 @@ public class Water implements MeshObject {
 	}
 
 	@Override
+	public String getFboTextureCameraName() {
+		return fboCameraName;
+	}
+
+	@Override
 	public MeshType getMeshType() {
 		return meshType;
 	}
@@ -187,11 +192,6 @@ public class Water implements MeshObject {
 
 	public int getHeight() {
 		return height;
-	}
-
-	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
 	}
 
 }

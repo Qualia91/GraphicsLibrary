@@ -12,12 +12,12 @@ public class SphereMesh implements MeshObject {
 	private Mesh mesh;
 	private final int triangleNumber;
 	private Transform meshTransformation;
-	private int fboTextureIndex;
+	private String fboCameraName;
 
-	SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Transform transformation, int fboTextureIndex) {
+	SphereMesh(int triangleNumber, Material material, boolean invertedNormals, Transform transformation, String fboCameraName) {
 		this.triangleNumber = triangleNumber;
 		this.meshTransformation = transformation;
-		this.fboTextureIndex = fboTextureIndex;
+		this.fboCameraName = fboCameraName;
 		int normalSign = invertedNormals ? -1 : 1;
 
 		Vec3f startFrontLeft = new Vec3f(-1.0f, 1.0f, 0.0f);
@@ -172,11 +172,12 @@ public class SphereMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SPHERE" + mesh.getMaterial().getTexturePath() + triangleNumber + "" + fboTextureIndex;
+		return "SPHERE" + mesh.getMaterial().getTexturePath() + triangleNumber + "" + fboCameraName;
 	}
 
 	@Override
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
+	public String getFboTextureCameraName() {
+		return fboCameraName;
 	}
+
 }

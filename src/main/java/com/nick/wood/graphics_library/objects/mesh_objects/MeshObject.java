@@ -7,5 +7,5 @@ public interface MeshObject {
 	Mesh getMesh();
 	Transform getMeshTransformation();
 	String getStringToCompare();
-	int getFboTextureIndex();
+	String getFboTextureCameraName();
 }

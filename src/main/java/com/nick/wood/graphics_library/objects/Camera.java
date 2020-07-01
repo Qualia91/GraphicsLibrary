@@ -13,10 +13,9 @@ public class Camera {
 	private int height;
 	private float fov;
 	private Matrix4f projectionMatrix = null;
-	private int fboTextureIndex;
 	private SceneFrameBuffer sceneFrameBuffer;
 
-	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex, SceneFrameBuffer sceneFrameBuffer) {
+	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far) {
 		this.name = name;
 		this.cameraType = cameraType;
 		this.width = width;
@@ -24,21 +23,7 @@ public class Camera {
 		this.fov = fov;
 		this.near = near;
 		this.far = far;
-		projectionMatrix = Matrix4f.Projection((float) width/ (float) height, fov, near, far);
-		this.fboTextureIndex = fboTextureIndex;
-		this.sceneFrameBuffer = sceneFrameBuffer;
-	}
-
-	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far, int fboTextureIndex) {
-		this.name = name;
-		this.cameraType = cameraType;
-		this.width = width;
-		this.height = height;
-		this.fov = fov;
-		this.near = near;
-		this.far = far;
-		projectionMatrix = Matrix4f.Projection((float) width/ (float) height, fov, near, far);
-		this.fboTextureIndex = fboTextureIndex;
+		this.projectionMatrix = Matrix4f.Projection((float) width / (float) height, fov, near, far);
 	}
 
 	public Camera(String name, float fov, float near, float far) {
@@ -47,8 +32,10 @@ public class Camera {
 		this.near = near;
 		this.far = far;
 		this.cameraType = CameraType.PRIMARY;
-		this.fboTextureIndex = 0;
-		this.sceneFrameBuffer = null;
+	}
+
+	public void create() {
+		this.sceneFrameBuffer = new SceneFrameBuffer(width, height);
 	}
 	
 	public SceneFrameBuffer getSceneFrameBuffer() {
@@ -99,10 +86,6 @@ public class Camera {
 		} else {
 			projectionMatrix = projectionMatrix.updateProjection((float) width / (float) height, fov);
 		}
-	}
-
-	public int getFboTextureIndex() {
-		return fboTextureIndex;
 	}
 
 	public String getName() {

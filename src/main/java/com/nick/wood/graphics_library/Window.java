@@ -1,6 +1,12 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.input.GraphicsLibraryInput;
+import com.nick.wood.event_bus.interfaces.Bus;
+import com.nick.wood.event_bus.interfaces.Event;
+import com.nick.wood.event_bus.interfaces.EventData;
+import com.nick.wood.event_bus.interfaces.Subscribable;
+import com.nick.wood.event_bus.event_types.ManagementEventType;
+import com.nick.wood.event_bus.events.ManagementEvent;
+import com.nick.wood.graphics_library.input.GLInputListener;
 import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
@@ -21,6 +27,7 @@ import org.lwjgl.system.MemoryStack;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -29,14 +36,12 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Window implements AutoCloseable {
+public class Window implements Subscribable {
 
-	// this map will contain all of the meshes created and be accessible via the stringtocompair variable
-	// ion mesh. This will enable objects that have been unloaded then reloaded to use the old created ones
-	// and it wont have to create new ones.
-	private final HashMap<String, Mesh> createdMeshMap = new HashMap<>();
+	private final Set<Class<?>> supports = new HashSet<>();
+	private final ArrayBlockingQueue<ManagementEvent> managementEvents = new ArrayBlockingQueue<>(10);
 
-	private final GraphicsLibraryInput graphicsLibraryInput;
+	private final GLInputListener graphicsLibraryInput;
 	private final ArrayList<Scene> sceneLayers;
 
 	// The window handle
@@ -53,14 +58,13 @@ public class Window implements AutoCloseable {
 
 	private final TextureManager textureManager;
 
-	public Window(ArrayList<Scene> sceneLayers) {
-		this.sceneLayers = sceneLayers;
-		this.graphicsLibraryInput = new GraphicsLibraryInput();
-		this.textureManager = new TextureManager();
-	}
+	private final ArrayList<ManagementEvent> drainedEventList = new ArrayList<>(10);
 
-	public GraphicsLibraryInput getGraphicsLibraryInput() {
-		return graphicsLibraryInput;
+	public Window(ArrayList<Scene> sceneLayers, Bus bus) {
+		this.sceneLayers = sceneLayers;
+		this.graphicsLibraryInput = new GLInputListener(bus);
+		this.textureManager = new TextureManager();
+		this.supports.add(ManagementEvent.class);
 	}
 
 	public boolean shouldClose() {
@@ -87,8 +91,6 @@ public class Window implements AutoCloseable {
 
 		// window settings //
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-
-
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 		// create window with init params
@@ -141,7 +143,6 @@ public class Window implements AutoCloseable {
 			Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 		}
 
-
 		textureManager.create();
 
 		// cull back faces
@@ -167,7 +168,6 @@ public class Window implements AutoCloseable {
 		glfwSetCursorPosCallback(windowHandler, graphicsLibraryInput.getMouseMove());
 		glfwSetMouseButtonCallback(windowHandler, graphicsLibraryInput.getMouseButton());
 		glfwSetScrollCallback(windowHandler, graphicsLibraryInput.getGlfwScrollCallback());
-		//glfwSetJoystickCallback(graphicsLibraryInput.getGlfwJoystickCallback());
 
 		glfwSetWindowSizeCallback(windowHandler, new GLFWWindowSizeCallback() {
 			@Override
@@ -182,10 +182,17 @@ public class Window implements AutoCloseable {
 
 	public void loop(HashMap<String, RenderGraph> renderGraphs) {
 
-		// user inputs
-		if (graphicsLibraryInput.isKeyPressed(GLFW_KEY_ESCAPE)) {
-			glfwSetWindowShouldClose(windowHandler, true);
+		// deal with events
+		managementEvents.drainTo(drainedEventList);
+
+		for (ManagementEvent event : drainedEventList) {
+			if (event.getType().equals(ManagementEventType.SHUTDOWN)) {
+				glfwSetWindowShouldClose(windowHandler, true);
+				return;
+			}
 		}
+
+		drainedEventList.clear();
 
 		if (windowSizeChanged) {
 			glViewport(0, 0, width, height);
@@ -253,18 +260,17 @@ public class Window implements AutoCloseable {
 		}
 	}
 
-	@Override
-	public void close() throws Exception {
+	public void close() {
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(windowHandler);
 		glfwDestroyWindow(windowHandler);
 
 		textureManager.destroy();
 
-
 		for (Scene sceneLayer : sceneLayers) {
 			sceneLayer.destroy();
 		}
+
 		renderer.destroy();
 
 		// Terminate GLFW and free the error callback
@@ -275,5 +281,17 @@ public class Window implements AutoCloseable {
 
 	public TextureManager getTextureManager() {
 		return textureManager;
+	}
+
+	@Override
+	public void handle(Event<?> event) {
+		if (event instanceof ManagementEvent) {
+			managementEvents.add((ManagementEvent) event);
+		}
+	}
+
+	@Override
+	public boolean supports(Class<? extends Event> aClass) {
+		return supports.contains(aClass);
 	}
 }

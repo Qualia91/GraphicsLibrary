@@ -3,6 +3,7 @@ package com.nick.wood.graphics_library.objects.render_scene;
 import com.nick.wood.graphics_library.Renderer;
 import com.nick.wood.graphics_library.Shader;
 import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
+import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
 import com.nick.wood.graphics_library.lighting.Fog;
 import com.nick.wood.graphics_library.lighting.Light;
@@ -42,6 +43,7 @@ public class Scene {
 
 	private WaterFrameBuffer waterFrameBuffer;
 	private PickingFrameBuffer pickingFrameBuffer;
+	private final HashMap<String, SceneFrameBuffer> cameraNameToSceneFrameBuffersMap = new HashMap<>();
 
 	private float waveSpeed = 0.0005f;
 	private float moveFactor = 0;
@@ -128,7 +130,7 @@ public class Scene {
 		}
 
 		// Todo need sim time here
-		moveFactor += waveSpeed; // * simTimeSinceLast;
+		moveFactor += waveSpeed;
 		moveFactor %= 1;
 
 		// render scene fbos
@@ -136,15 +138,17 @@ public class Scene {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
 				if (mainShader != null) {
 
-					if (cameraInstanceObjectEntry.getKey().getSceneFrameBuffer() == null) {
-						cameraInstanceObjectEntry.getKey().create();
+					if (!cameraNameToSceneFrameBuffersMap.containsKey(cameraInstanceObjectEntry.getKey().getName())) {
+						cameraNameToSceneFrameBuffersMap.put(
+								cameraInstanceObjectEntry.getKey().getName(),
+								new SceneFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight()));
 					}
 
-					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().bindFrameBuffer();
+					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).bindFrameBuffer();
 					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
-					cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().unbindCurrentFrameBuffer();
+					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).unbindCurrentFrameBuffer();
 
-					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraInstanceObjectEntry.getKey().getSceneFrameBuffer().getTexture());
+					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).getTexture());
 
 					GL11.glViewport(0, 0, screenWidth, screenHeight);
 

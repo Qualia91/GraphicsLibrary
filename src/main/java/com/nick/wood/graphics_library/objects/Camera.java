@@ -1,6 +1,5 @@
 package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 
 public class Camera {
@@ -13,7 +12,6 @@ public class Camera {
 	private int height;
 	private float fov;
 	private Matrix4f projectionMatrix = null;
-	private SceneFrameBuffer sceneFrameBuffer;
 
 	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far) {
 		this.name = name;
@@ -32,14 +30,6 @@ public class Camera {
 		this.near = near;
 		this.far = far;
 		this.cameraType = CameraType.PRIMARY;
-	}
-
-	public void create() {
-		this.sceneFrameBuffer = new SceneFrameBuffer(width, height);
-	}
-	
-	public SceneFrameBuffer getSceneFrameBuffer() {
-		return sceneFrameBuffer;
 	}
 
 	public float getNear() {

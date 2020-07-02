@@ -56,4 +56,8 @@ public class WindowInitialisationParameters {
 	public boolean isDebug() {
 		return debug;
 	}
+
+	public boolean isPicking() {
+		return false;
+	}
 }

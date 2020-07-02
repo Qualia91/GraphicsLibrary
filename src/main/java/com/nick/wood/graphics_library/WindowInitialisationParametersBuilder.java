@@ -66,5 +66,4 @@ public class WindowInitialisationParametersBuilder {
 		this.title = title;
 		return this;
 	}
-
 }

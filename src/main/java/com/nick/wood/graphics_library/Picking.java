@@ -1,6 +1,12 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.event_bus.events.PickingRequestEvent;
+import com.nick.wood.event_bus.event_data.MoveEventData;
+import com.nick.wood.event_bus.event_data.PickingEventData;
+import com.nick.wood.event_bus.event_data.PressEventData;
+import com.nick.wood.event_bus.event_types.ControlEventType;
+import com.nick.wood.event_bus.event_types.PickingEventType;
+import com.nick.wood.event_bus.events.ControlEvent;
+import com.nick.wood.event_bus.events.PickingEvent;
 import com.nick.wood.event_bus.interfaces.Bus;
 import com.nick.wood.event_bus.interfaces.Event;
 import com.nick.wood.event_bus.interfaces.Subscribable;
@@ -25,15 +31,17 @@ public class Picking implements Subscribable {
 	private final FloatBuffer rgb = BufferUtils.createFloatBuffer(3);
 	private final Scene scene;
 	private final RenderGraph renderGraph;
+	private int x = 0;
+	private int y = 0;
 
 	public Picking(Bus bus, Scene scene, RenderGraph renderGraph) {
 		this.bus = bus;
 		this.scene = scene;
 		this.renderGraph = renderGraph;
-		supported.add(PickingRequestEvent.class);
+		supported.add(ControlEvent.class);
 	}
 
-	public void actionPickingRequest(int x, int y) {
+	public void actionPickingRequest() {
 
 			if (scene.getPickingFrameBuffer() != null && scene.getPickingShader() != null) {
 				for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
@@ -44,7 +52,10 @@ public class Picking implements Subscribable {
 						GL11.glReadPixels(x, scene.getHeight() - y, 1, 1, GL12.GL_RGB, GL11.GL_FLOAT, rgb);
 						if (scene.getIndexToUUIDMap().containsKey(Math.round(rgb.get(0)))) {
 							if (scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).containsKey(Math.round(rgb.get(1)))) {
-								// send this: (scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1))));
+								bus.dispatch(
+									new PickingEvent(
+										new PickingEventData(scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1)))),
+										PickingEventType.FOUND));
 							}
 						}
 						glReadBuffer(GL_NONE);
@@ -57,6 +68,17 @@ public class Picking implements Subscribable {
 
 	@Override
 	public void handle(Event<?> event) {
+
+		if (event.getType().equals(ControlEventType.MOUSE)) {
+			MoveEventData moveEventData = (MoveEventData) event.getData();
+			this.x = (int) moveEventData.getXAxis();
+			this.y = (int) moveEventData.getYAxis();
+		} else if (event.getType().equals(ControlEventType.MOUSE_BUTTON)) {
+			PressEventData pressEventData = (PressEventData) event.getData();
+			if (pressEventData.getKey() == 0 && pressEventData.getAction() == 1) {
+				actionPickingRequest();
+			}
+		}
 
 	}
 

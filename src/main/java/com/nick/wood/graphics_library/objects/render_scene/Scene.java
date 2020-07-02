@@ -23,7 +23,6 @@ import java.util.*;
 public class Scene {
 
 	private final String name;
-	private final boolean pickingActive;
 
 	private int screenWidth;
 	private int screenHeight;
@@ -67,8 +66,7 @@ public class Scene {
 	             Shader terrainShader,
 	             Fog fog,
 	             Vec3f ambientLight,
-	             Vec3f skyboxAmbientLight,
-	             boolean pickingActive) {
+	             Vec3f skyboxAmbientLight) {
 
 		this.name = name;
 
@@ -83,8 +81,6 @@ public class Scene {
 		this.skyboxAmbientLight = skyboxAmbientLight;
 
 		this.waterCameraReflection = createReflectionMatrix(reflectionClippingPlane);
-
-		this.pickingActive = pickingActive;
 	}
 
 	public void init(int width, int height) {
@@ -101,12 +97,10 @@ public class Scene {
 		}
 		if (pickingShader != null) {
 			pickingShader.create();
+			pickingFrameBuffer = new PickingFrameBuffer(width, height);
 		}
 		if (terrainShader != null) {
 			terrainShader.create();
-		}
-		if (pickingActive) {
-			pickingFrameBuffer = new PickingFrameBuffer(width, height);
 		}
 
 	}

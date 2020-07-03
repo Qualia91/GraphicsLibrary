@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.materials.Material;
+import com.nick.wood.graphics_library.objects.TerrainTextureObject;
 import com.nick.wood.maths.objects.srt.Transform;
 
 import java.io.File;

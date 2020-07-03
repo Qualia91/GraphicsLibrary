@@ -11,7 +11,6 @@ import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.CameraType;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -121,7 +120,7 @@ public class Scene {
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 				// see if projection matrix needs updating
-				if (updateProjectionMatrices) {
+				if (updateProjectionMatrices || cameraInstanceObjectEntry.getKey().getProjectionMatrix() == null) {
 					cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
 					updateProjectionMatrices = false;
 					break;
@@ -135,7 +134,7 @@ public class Scene {
 
 		// render scene fbos
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
-			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO_CAMERA)) {
+			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO)) {
 				if (mainShader != null) {
 
 					if (!cameraNameToSceneFrameBuffersMap.containsKey(cameraInstanceObjectEntry.getKey().getName())) {

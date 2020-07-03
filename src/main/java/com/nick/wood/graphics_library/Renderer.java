@@ -113,7 +113,7 @@ public class Renderer {
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
-		int modelTypeId = 0;
+		int modelTypeId = 1;
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
 
 			if (!indexToUUIDMap.containsKey(modelTypeId)) {

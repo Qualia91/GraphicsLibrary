@@ -34,13 +34,14 @@ public class RenderGraph {
 	}
 
 	private void stripMeshArrays(HashMap<MeshObject, ArrayList<InstanceObject>> meshes) {
-		Iterator<ArrayList<InstanceObject>> iterator = meshes.values().iterator();
+		Iterator<Map.Entry<MeshObject, ArrayList<InstanceObject>>> iterator = meshes.entrySet().iterator();
 		while (iterator.hasNext()) {
-			ArrayList<InstanceObject> value = iterator.next();
-			if (value.isEmpty()) {
+			Map.Entry<MeshObject, ArrayList<InstanceObject>> next = iterator.next();
+			if (next.getValue().isEmpty()) {
+				meshesToDestroy.add(next.getKey().getMesh());
 				iterator.remove();
 			} else {
-				value.clear();
+				next.getValue().clear();
 			}
 		}
 	}
@@ -78,31 +79,25 @@ public class RenderGraph {
 	}
 
 	public void removeMesh(UUID uuid) {
-		Iterator<Map.Entry<MeshObject, ArrayList<InstanceObject>>> iterator = meshes.entrySet().iterator();
+		removeMesh(uuid, meshes);
+	}
+
+	public void removeWater(UUID uuid) {
+		removeMesh(uuid, waterMeshes);
+	}
+
+	public void removeTerrain(UUID uuid) {
+		removeMesh(uuid, terrainMeshes);
+	}
+
+	private void removeMesh(UUID uuid, HashMap<MeshObject, ArrayList<InstanceObject>> mesheMap) {
+		Iterator<Map.Entry<MeshObject, ArrayList<InstanceObject>>> iterator = mesheMap.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<MeshObject, ArrayList<InstanceObject>> next = iterator.next();
 			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
 			if (next.getValue().isEmpty()) {
 				meshesToDestroy.add(next.getKey().getMesh());
 				iterator.remove();
-			}
-		}
-	}
-
-	public void removeWater(UUID uuid) {
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : waterMeshes.entrySet()) {
-			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-			if (next.getValue().isEmpty()) {
-				meshesToDestroy.add(next.getKey().getMesh());
-			}
-		}
-	}
-
-	public void removeTerrain(UUID uuid) {
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> next : terrainMeshes.entrySet()) {
-			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-			if (next.getValue().isEmpty()) {
-				meshesToDestroy.add(next.getKey().getMesh());
 			}
 		}
 	}
@@ -130,4 +125,5 @@ public class RenderGraph {
 	public ArrayList<Mesh> getMeshesToDestroy() {
 		return meshesToDestroy;
 	}
+
 }

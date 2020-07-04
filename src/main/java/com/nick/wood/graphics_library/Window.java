@@ -180,7 +180,7 @@ public class Window implements Subscribable {
 
 	}
 
-	public void loop(HashMap<String, RenderGraph> renderGraphs) {
+	public void render(HashMap<String, RenderGraph> renderGraphs) {
 
 		// deal with events
 		managementEvents.drainTo(drainedEventList);
@@ -223,11 +223,13 @@ public class Window implements Subscribable {
 			if (renderGraph != null) {
 
 				// destroy all the meshes that need to be destroyed
+				System.out.println("Destorying: " + renderGraph.getMeshesToDestroy().size());
 				for (Mesh mesh : renderGraph.getMeshesToDestroy()) {
 					mesh.destroy();
 				}
 
 				// build all the meshes that are yet to be build
+				System.out.println("Building: " + renderGraph.getMeshesToBuild().size());
 				for (Mesh mesh : renderGraph.getMeshesToBuild()) {
 					mesh.create();
 				}

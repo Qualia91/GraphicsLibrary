@@ -1,11 +1,10 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.event_bus.interfaces.Bus;
-import com.nick.wood.event_bus.interfaces.Event;
-import com.nick.wood.event_bus.interfaces.EventData;
-import com.nick.wood.event_bus.interfaces.Subscribable;
-import com.nick.wood.event_bus.event_types.ManagementEventType;
-import com.nick.wood.event_bus.events.ManagementEvent;
+import com.nick.wood.game_engine.event_bus.event_types.ManagementEventType;
+import com.nick.wood.game_engine.event_bus.events.ManagementEvent;
+import com.nick.wood.game_engine.event_bus.interfaces.Bus;
+import com.nick.wood.game_engine.event_bus.interfaces.Event;
+import com.nick.wood.game_engine.event_bus.interfaces.Subscribable;
 import com.nick.wood.graphics_library.input.GLInputListener;
 import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
@@ -223,13 +222,11 @@ public class Window implements Subscribable {
 			if (renderGraph != null) {
 
 				// destroy all the meshes that need to be destroyed
-				System.out.println("Destorying: " + renderGraph.getMeshesToDestroy().size());
 				for (Mesh mesh : renderGraph.getMeshesToDestroy()) {
 					mesh.destroy();
 				}
 
 				// build all the meshes that are yet to be build
-				System.out.println("Building: " + renderGraph.getMeshesToBuild().size());
 				for (Mesh mesh : renderGraph.getMeshesToBuild()) {
 					mesh.create();
 				}

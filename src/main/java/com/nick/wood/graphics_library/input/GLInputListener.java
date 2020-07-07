@@ -1,10 +1,10 @@
 package com.nick.wood.graphics_library.input;
 
-import com.nick.wood.event_bus.interfaces.Bus;
-import com.nick.wood.event_bus.event_data.MoveEventData;
-import com.nick.wood.event_bus.event_data.PressEventData;
-import com.nick.wood.event_bus.event_types.ControlEventType;
-import com.nick.wood.event_bus.events.ControlEvent;
+import com.nick.wood.game_engine.event_bus.interfaces.Bus;
+import com.nick.wood.game_engine.event_bus.event_data.MoveEventData;
+import com.nick.wood.game_engine.event_bus.event_data.PressEventData;
+import com.nick.wood.game_engine.event_bus.event_types.ControlEventType;
+import com.nick.wood.game_engine.event_bus.events.ControlEvent;
 import org.lwjgl.glfw.*;
 
 public class GLInputListener {

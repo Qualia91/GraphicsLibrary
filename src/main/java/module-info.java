@@ -8,7 +8,7 @@ module com.nick.wood.graphics_library {
 	requires org.lwjgl.opengl.natives;
 	requires org.lwjgl.glfw.natives;
 	requires org.lwjgl.natives;
-	requires com.nick.wood.event_bus;
+	requires com.nick.wood.game_engine.event_bus;
 	exports com.nick.wood.graphics_library.objects;
 	exports com.nick.wood.graphics_library.lighting;
 	exports com.nick.wood.graphics_library.objects.mesh_objects;

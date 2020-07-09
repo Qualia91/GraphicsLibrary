@@ -15,8 +15,6 @@ public class RenderGraph {
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> terrainMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
 	private MeshObject skybox;
-	private final ArrayList<Mesh> meshesToBuild = new ArrayList<>();
-	private final ArrayList<Mesh> meshesToDestroy = new ArrayList<>();
 
 	public RenderGraph() {
 		this.lights = new HashMap<>();
@@ -25,25 +23,6 @@ public class RenderGraph {
 		this.terrainMeshes = new HashMap<>();
 		this.cameras = new HashMap<>();
 		this.skybox = null;
-	}
-
-	public void empty() {
-		stripMeshArrays(meshes);
-		stripMeshArrays(waterMeshes);
-		stripMeshArrays(terrainMeshes);
-	}
-
-	private void stripMeshArrays(HashMap<MeshObject, ArrayList<InstanceObject>> meshes) {
-		Iterator<Map.Entry<MeshObject, ArrayList<InstanceObject>>> iterator = meshes.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<MeshObject, ArrayList<InstanceObject>> next = iterator.next();
-			if (next.getValue().isEmpty()) {
-				meshesToDestroy.add(next.getKey().getMesh());
-				iterator.remove();
-			} else {
-				next.getValue().clear();
-			}
-		}
 	}
 
 	public HashMap<Light, InstanceObject> getLights() {
@@ -70,60 +49,10 @@ public class RenderGraph {
 		return skybox;
 	}
 
-	public void removeLight(UUID uuid) {
-		lights.entrySet().removeIf(next -> next.getValue().getUuid().equals(uuid));
-	}
-
-	public void removeCamera(UUID uuid) {
-		cameras.entrySet().removeIf(next -> next.getValue().getUuid().equals(uuid));
-	}
-
-	public void removeMesh(UUID uuid) {
-		removeMesh(uuid, meshes);
-	}
-
-	public void removeWater(UUID uuid) {
-		removeMesh(uuid, waterMeshes);
-	}
-
-	public void removeTerrain(UUID uuid) {
-		removeMesh(uuid, terrainMeshes);
-	}
-
-	private void removeMesh(UUID uuid, HashMap<MeshObject, ArrayList<InstanceObject>> mesheMap) {
-		Iterator<Map.Entry<MeshObject, ArrayList<InstanceObject>>> iterator = mesheMap.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<MeshObject, ArrayList<InstanceObject>> next = iterator.next();
-			next.getValue().removeIf(instance -> instance.getUuid().equals(uuid));
-			if (next.getValue().isEmpty()) {
-				meshesToDestroy.add(next.getKey().getMesh());
-				iterator.remove();
-			}
-		}
-	}
-
 	public void setSkybox(MeshObject skybox) {
 		if (!skybox.equals(this.skybox)) {
-			// if we are replacing the skybox, destroy the last one
-			if (this.skybox != null) {
-				meshesToDestroy.add(skybox.getMesh());
-			}
-			meshesToBuild.add(skybox.getMesh());
 			this.skybox = skybox;
 		}
-	}
-
-	public void removeSkybox() {
-		meshesToDestroy.add(skybox.getMesh());
-		this.skybox = null;
-	}
-
-	public ArrayList<Mesh> getMeshesToBuild() {
-		return meshesToBuild;
-	}
-
-	public ArrayList<Mesh> getMeshesToDestroy() {
-		return meshesToDestroy;
 	}
 
 }

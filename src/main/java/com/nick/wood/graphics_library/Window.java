@@ -264,7 +264,6 @@ public class Window implements Subscribable {
 				// if no longer used, destroy mesh and remove it from built meshes
 				next.getValue().getMesh().destroy();
 				iterator.remove();
-				System.out.println("mesh destroyed");
 			}
 			next.getValue().resetCounter();
 		}

@@ -1,20 +1,18 @@
 package com.nick.wood.graphics_library;
 
+import com.nick.wood.game_engine.event_bus.event_data.PickingRequestEventData;
 import com.nick.wood.game_engine.event_bus.event_types.ManagementEventType;
 import com.nick.wood.game_engine.event_bus.events.ManagementEvent;
 import com.nick.wood.game_engine.event_bus.events.RenderEvent;
 import com.nick.wood.game_engine.event_bus.interfaces.Bus;
 import com.nick.wood.game_engine.event_bus.interfaces.Event;
-import com.nick.wood.game_engine.event_bus.interfaces.EventData;
 import com.nick.wood.game_engine.event_bus.interfaces.Subscribable;
 import com.nick.wood.graphics_library.input.GLInputListener;
 import com.nick.wood.graphics_library.materials.TextureManager;
-import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
-import com.nick.wood.maths.objects.dev.Matrixnd;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -44,7 +42,10 @@ public class Window implements Subscribable {
 
 	private final Set<Class<?>> supports = new HashSet<>();
 	private final ArrayBlockingQueue<ManagementEvent> managementEvents = new ArrayBlockingQueue<>(10);
-	private final ArrayBlockingQueue<RenderEvent> renderEvents = new ArrayBlockingQueue<>(100000);
+	private final ArrayBlockingQueue<RenderEvent> renderEvents = new ArrayBlockingQueue<>(100);
+
+	private final ArrayList<ManagementEvent> drainedEventList = new ArrayList<>(10);
+	private final ArrayList<RenderEvent> drainedRenderEventList = new ArrayList<>(100);
 
 	private final GLInputListener graphicsLibraryInput;
 	private final ArrayList<Scene> sceneLayers;
@@ -63,10 +64,9 @@ public class Window implements Subscribable {
 
 	private final TextureManager textureManager;
 
-	private final ArrayList<ManagementEvent> drainedEventList = new ArrayList<>(10);
-	private final ArrayList<RenderEvent> drainedRenderEventList = new ArrayList<>(100);
 	private final HashMap<String, RenderGraph> renderGraphs;
 	private final HashMap<String, MeshInstanceCounter> builtMeshes = new HashMap<>();
+	private long cullStepSize;
 
 	public Window(ArrayList<Scene> sceneLayers, Bus bus) {
 		this.sceneLayers = sceneLayers;
@@ -75,6 +75,9 @@ public class Window implements Subscribable {
 		renderGraphs = new HashMap<>();
 		for (Scene sceneLayer : sceneLayers) {
 			renderGraphs.put(sceneLayer.getName(), null);
+			if (sceneLayer.getPickingShader() != null) {
+				bus.register(new Picking(bus, sceneLayer, renderGraphs));
+			}
 		}
 		this.supports.add(ManagementEvent.class);
 		this.supports.add(RenderEvent.class);
@@ -85,6 +88,8 @@ public class Window implements Subscribable {
 	}
 
 	public void init(WindowInitialisationParameters windowInitialisationParameters) throws IOException {
+
+		cullStepSize = windowInitialisationParameters.getCullStepSize();
 
 		renderer = new Renderer(this.textureManager);
 
@@ -193,7 +198,7 @@ public class Window implements Subscribable {
 
 	}
 
-	public void render() {
+	public void render(long step) {
 
 		// deal with events
 		managementEvents.drainTo(drainedEventList);
@@ -245,7 +250,7 @@ public class Window implements Subscribable {
 
 			if (renderGraph != null) {
 
-				construct(renderGraph);
+				construct(renderGraph, step);
 
 				sceneLayer.render(renderer, renderGraph, textureManager);
 				// this makes sure next scene is on top of last scene
@@ -260,34 +265,32 @@ public class Window implements Subscribable {
 		Iterator<Map.Entry<String, MeshInstanceCounter>> iterator = builtMeshes.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<String, MeshInstanceCounter> next = iterator.next();
-			if (next.getValue().getCounter() == 0) {
-				// if no longer used, destroy mesh and remove it from built meshes
+			if (step - next.getValue().getStepLastSeen() > cullStepSize) {
 				next.getValue().getMesh().destroy();
 				iterator.remove();
 			}
-			next.getValue().resetCounter();
 		}
 
 	}
 
-	private void construct(RenderGraph renderGraph) {
-		construct(renderGraph.getMeshes());
-		construct(renderGraph.getTerrainMeshes());
-		construct(renderGraph.getWaterMeshes());
+	private void construct(RenderGraph renderGraph, long step) {
+		construct(renderGraph.getMeshes(), step);
+		construct(renderGraph.getTerrainMeshes(), step);
+		construct(renderGraph.getWaterMeshes(), step);
 		if (renderGraph.getSkybox() != null) {
 			if (!builtMeshes.containsKey(renderGraph.getSkybox().getStringToCompare())) {
-				builtMeshes.put(renderGraph.getSkybox().getStringToCompare(), new MeshInstanceCounter(renderGraph.getSkybox().getMesh()));
+				builtMeshes.put(renderGraph.getSkybox().getStringToCompare(), new MeshInstanceCounter(renderGraph.getSkybox().getMesh(), step));
 			}
-			builtMeshes.get(renderGraph.getSkybox().getStringToCompare()).increment();
+			builtMeshes.get(renderGraph.getSkybox().getStringToCompare()).seen(step);
 		}
 	}
 
-	private void construct(HashMap<MeshObject, ArrayList<InstanceObject>> meshObjs) {
+	private void construct(HashMap<MeshObject, ArrayList<InstanceObject>> meshObjs, long step) {
 		for (MeshObject meshObject : meshObjs.keySet()) {
 			if (!builtMeshes.containsKey(meshObject.getStringToCompare())) {
-				builtMeshes.put(meshObject.getStringToCompare(),  new MeshInstanceCounter(meshObject.getMesh()));
+				builtMeshes.put(meshObject.getStringToCompare(), new MeshInstanceCounter(meshObject.getMesh(), step));
 			} else {
-				builtMeshes.get(meshObject.getStringToCompare()).increment();
+				builtMeshes.get(meshObject.getStringToCompare()).seen(step);
 			}
 		}
 	}

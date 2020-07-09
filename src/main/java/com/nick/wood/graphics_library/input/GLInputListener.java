@@ -14,6 +14,9 @@ public class GLInputListener {
 	private final GLFWMouseButtonCallback mouseButton;
 	private final GLFWScrollCallback glfwScrollCallback;
 
+	private int x = 0;
+	private int y = 0;
+
 	public GLInputListener(Bus bus) {
 
 		keyboard = new GLFWKeyCallback() {

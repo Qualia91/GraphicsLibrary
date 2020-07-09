@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.game_engine.event_bus.event_data.MoveEventData;
 import com.nick.wood.game_engine.event_bus.event_data.PickingEventData;
+import com.nick.wood.game_engine.event_bus.event_data.PickingResponseEventData;
 import com.nick.wood.game_engine.event_bus.event_data.PressEventData;
 import com.nick.wood.game_engine.event_bus.event_types.ControlEventType;
 import com.nick.wood.game_engine.event_bus.event_types.PickingEventType;
@@ -30,18 +31,22 @@ public class Picking implements Subscribable {
 	private final Bus bus;
 	private final FloatBuffer rgb = BufferUtils.createFloatBuffer(3);
 	private final Scene scene;
-	private final RenderGraph renderGraph;
+	private final HashMap<String, RenderGraph> renderGraphs;
 	private int x = 0;
 	private int y = 0;
 
-	public Picking(Bus bus, Scene scene, RenderGraph renderGraph) {
+	public Picking(Bus bus, Scene scene, HashMap<String, RenderGraph> renderGraphs) {
 		this.bus = bus;
 		this.scene = scene;
-		this.renderGraph = renderGraph;
+		this.renderGraphs = renderGraphs;
 		supported.add(ControlEvent.class);
 	}
 
 	public void actionPickingRequest() {
+
+		RenderGraph renderGraph = renderGraphs.get(scene.getName());
+
+		if (renderGraph != null) {
 
 			if (scene.getPickingFrameBuffer() != null && scene.getPickingShader() != null) {
 				for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
@@ -53,9 +58,9 @@ public class Picking implements Subscribable {
 						if (scene.getIndexToUUIDMap().containsKey(Math.round(rgb.get(0)))) {
 							if (scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).containsKey(Math.round(rgb.get(1)))) {
 								bus.dispatch(
-									new PickingEvent(
-										new PickingEventData(scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1)))),
-										PickingEventType.FOUND));
+										new PickingEvent(
+												new PickingResponseEventData(scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1)))),
+												PickingEventType.RESPONSE));
 							}
 						}
 						glReadBuffer(GL_NONE);
@@ -64,6 +69,8 @@ public class Picking implements Subscribable {
 					}
 				}
 			}
+		}
+
 	}
 
 	@Override

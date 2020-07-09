@@ -13,6 +13,7 @@ public class WindowInitialisationParametersBuilder {
 	private int windowHeight = 800;
 	private String title = "Window";
 	private boolean debug = false;
+	private long cullStepSize = 100;
 
 	public WindowInitialisationParameters build() {
 		return new WindowInitialisationParameters(
@@ -23,8 +24,14 @@ public class WindowInitialisationParametersBuilder {
 				windowWidth,
 				windowHeight,
 				title,
+				cullStepSize,
 				debug
 		);
+	}
+
+	public WindowInitialisationParametersBuilder setCullStepSize(long cullStepSize) {
+		this.cullStepSize = cullStepSize;
+		return this;
 	}
 
 	public WindowInitialisationParametersBuilder setDebug(boolean debug) {

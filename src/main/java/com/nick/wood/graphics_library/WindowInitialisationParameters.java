@@ -15,6 +15,7 @@ public class WindowInitialisationParameters {
 	private final int windowHeight;
 	private final String title;
 	private boolean debug;
+	private long cullStepSize;
 
 	public WindowInitialisationParameters(boolean resizable,
 	                                      boolean decorated,
@@ -23,6 +24,7 @@ public class WindowInitialisationParameters {
 	                                      int windowWidth,
 	                                      int windowHeight,
 	                                      String title,
+	                                      long cullStepSize,
 	                                      boolean debug) {
 		this.resizable = resizable;
 		this.decorated = decorated;
@@ -31,6 +33,7 @@ public class WindowInitialisationParameters {
 		this.windowWidth = windowWidth;
 		this.windowHeight = windowHeight;
 		this.title = title;
+		this.cullStepSize = cullStepSize;
 		this.debug = debug;
 	}
 
@@ -59,5 +62,9 @@ public class WindowInitialisationParameters {
 
 	public boolean isPicking() {
 		return false;
+	}
+
+	public long getCullStepSize() {
+		return cullStepSize;
 	}
 }

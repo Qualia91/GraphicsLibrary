@@ -5,27 +5,23 @@ import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 public class MeshInstanceCounter {
 
 	private final Mesh mesh;
-	private int counter;
+	private long stepLastSeen;
 
-	public MeshInstanceCounter(Mesh mesh) {
+	public MeshInstanceCounter(Mesh mesh, long stepLastSeen) {
 		this.mesh = mesh;
 		mesh.create();
-		counter = 1;
+		this.stepLastSeen = stepLastSeen;
 	}
 
-	public void increment() {
-		counter++;
+	public void seen(long stepLastSeen) {
+		this.stepLastSeen = stepLastSeen;
 	}
 
 	public Mesh getMesh() {
 		return mesh;
 	}
 
-	public int getCounter() {
-		return counter;
-	}
-
-	public void resetCounter() {
-		counter = 0;
+	public long getStepLastSeen() {
+		return stepLastSeen;
 	}
 }

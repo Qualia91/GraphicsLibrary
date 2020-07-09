@@ -5,10 +5,12 @@ import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 
 public class RenderEventData implements EventData {
 
+	private final long step;
 	private final String layerName;
 	private final RenderGraph renderGraph;
 
-	public RenderEventData(String layerName, RenderGraph renderGraph) {
+	public RenderEventData(long step, String layerName, RenderGraph renderGraph) {
+		this.step = step;
 		this.layerName = layerName;
 		this.renderGraph = renderGraph;
 	}
@@ -19,5 +21,9 @@ public class RenderEventData implements EventData {
 
 	public RenderGraph getRenderGraph() {
 		return renderGraph;
+	}
+
+	public long getStep() {
+		return step;
 	}
 }

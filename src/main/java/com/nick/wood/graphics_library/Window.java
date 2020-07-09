@@ -217,7 +217,13 @@ public class Window implements Subscribable {
 
 		for (RenderEvent renderEvent : drainedRenderEventList) {
 			RenderEventData data = (RenderEventData) renderEvent.getData();
-			renderGraphs.put(data.getLayerName(), data.getRenderGraph());
+			if (renderGraphs.containsKey(data.getLayerName())) {
+				if (renderGraphs.get(data.getLayerName()) == null || data.getStep() > renderGraphs.get(data.getLayerName()).getStep()) {
+					renderGraphs.put(data.getLayerName(), data.getRenderGraph());
+				}
+			} else {
+				renderGraphs.put(data.getLayerName(), data.getRenderGraph());
+			}
 		}
 
 		drainedRenderEventList.clear();
@@ -334,9 +340,9 @@ public class Window implements Subscribable {
 	@Override
 	public void handle(Event<?> event) {
 		if (event instanceof ManagementEvent) {
-			managementEvents.add((ManagementEvent) event);
+			managementEvents.offer((ManagementEvent) event);
 		} else if (event instanceof RenderEvent) {
-			renderEvents.add((RenderEvent) event);
+			renderEvents.offer((RenderEvent) event);
 		}
 	}
 

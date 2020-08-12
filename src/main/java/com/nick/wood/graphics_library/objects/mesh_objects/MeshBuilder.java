@@ -48,6 +48,9 @@ public class MeshBuilder {
 
 		Material fontMaterial = new Material(fontFile);
 
+		createMaterialId(material);
+		createMaterialId(material);
+
 		MeshObject meshObject = null;
 		switch (meshType) {
 			case SPHERE:
@@ -97,6 +100,10 @@ public class MeshBuilder {
 		 */
 
 		return meshObject;
+	}
+
+	private void createMaterialId(Material material) {
+		material.setId(material.getTexturePath() + material.getNormalMapPath());
 	}
 
 	public MeshBuilder setWaterSquareWidth(int waterSquareWidth) {

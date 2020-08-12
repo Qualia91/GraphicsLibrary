@@ -144,7 +144,6 @@ public class SphereMesh implements MeshObject {
 			indexList = temp;
 		}
 
-
 		mesh = new Mesh(vertices, indexList, material, invertedNormals, false);
 	}
 
@@ -172,7 +171,7 @@ public class SphereMesh implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "SPHERE" + mesh.getMaterial().getTexturePath() + triangleNumber + "" + fboCameraName;
+		return "SPHERE" + mesh.getMaterial().getIdString() + fboCameraName + triangleNumber;
 	}
 
 	@Override

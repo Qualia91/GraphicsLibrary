@@ -11,6 +11,7 @@ public class Material {
 	private Vec3f specularColour;
 	private float shininess;
 	private float reflectance;
+	private String idString;
 
 	public Material(String path, Vec3f diffuseColour, Vec3f specularColour, float shininess, float reflectance) {
 		this.texturePath = path;
@@ -94,5 +95,13 @@ public class Material {
 
 	public boolean hasNormalMap() {
 		return !normalMapPath.isEmpty();
+	}
+
+	public void setId(String idString) {
+		this.idString = idString;
+	}
+
+	public String getIdString() {
+		return idString;
 	}
 }

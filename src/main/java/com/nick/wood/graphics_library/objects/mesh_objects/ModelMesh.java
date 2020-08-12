@@ -33,7 +33,7 @@ public class ModelMesh implements MeshObject {
 	}
 
 	public String getStringToCompare() {
-		return filePath + material.getTexturePath() + fboCameraName;
+		return filePath +  mesh.getMaterial().getIdString() + fboCameraName;
 	}
 
 	@Override

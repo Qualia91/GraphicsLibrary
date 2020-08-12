@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 public class ResourceManager {
 
-	HashMap<String, Mesh> meshMap = new HashMap<>();
-	HashMap<String, Texture> textureMap = new HashMap<>();
+	private final HashMap<String, Mesh> meshMap = new HashMap<>();
+	private final HashMap<String, Texture> textureMap = new HashMap<>();
 
 	public ResourceManager() {
 	}

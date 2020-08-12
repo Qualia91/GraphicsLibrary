@@ -7,14 +7,16 @@ import org.lwjgl.opengl.GL32;
 
 import java.nio.ByteBuffer;
 
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+
 public class SceneFrameBuffer {
 
 	final int width;
 	final int height;
 
-	private int frameBuffer;
-	private int texture;
-	private int depthBuffer;
+	private final int frameBuffer;
+	private final int texture;
+	private final int depthBuffer;
 
 	public SceneFrameBuffer(int width, int height) {
 		this.width = width;
@@ -77,15 +79,27 @@ public class SceneFrameBuffer {
 		return texture;
 	}
 
+//	private int createDepthBufferAttachment() {
+//		// create
+//		int depthBuffer = GL30.glGenRenderbuffers();
+//		// bind
+//		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, depthBuffer);
+//		// tell opengl what we are going to store in the buffer
+//		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT32, width, height);
+//		// attach to frame buffer as depth buffer
+//		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, depthBuffer);
+//		return depthBuffer;
+//	}
+
 	private int createDepthBufferAttachment() {
 		// create
-		int depthBuffer = GL30.glGenRenderbuffers();
+		int depthBuffer = GL30.glGenTextures();
 		// bind
-		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, depthBuffer);
-		// tell opengl what we are going to store in the buffer
-		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL14.GL_DEPTH_COMPONENT32, width, height);
-		// attach to frame buffer as depth buffer
-		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, depthBuffer);
+		GL30.glBindTexture(GL_TEXTURE_2D, depthBuffer);
+		GL11.glTexImage2D(GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height,
+				0, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, (ByteBuffer) null);
+		GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+				depthBuffer, 0);
 		return depthBuffer;
 	}
 

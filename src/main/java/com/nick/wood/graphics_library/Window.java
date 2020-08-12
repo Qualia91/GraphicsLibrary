@@ -258,7 +258,7 @@ public class Window implements Subscribable {
 
 				construct(renderGraph, step);
 
-				sceneLayer.render(renderer, renderGraph, textureManager);
+				sceneLayer.render(renderer, renderGraph, textureManager, step);
 				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}

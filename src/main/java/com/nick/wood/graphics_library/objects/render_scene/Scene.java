@@ -114,7 +114,7 @@ public class Scene {
 				0, 0, 0, 1);
 	}
 
-	public void render(Renderer renderer, RenderGraph renderGraph, TextureManager textureManager) {
+	public void render(Renderer renderer, RenderGraph renderGraph, TextureManager textureManager, long step) {
 
 		// update camera projection matrices if need be
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
@@ -149,13 +149,14 @@ public class Scene {
 
 					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).getTexture());
 
-					GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 				}
 				break;
 			}
 
 		}
+
+		GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 		// update textures that are being rendered via fbos
 		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {

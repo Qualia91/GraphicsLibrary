@@ -9,8 +9,8 @@ public class WindowInitialisationParametersBuilder {
 	private boolean decorated = true;
 	private boolean lockCursor = true;
 	private boolean fullScreen = false;
-	private int windowWidth = 1200;
-	private int windowHeight = 800;
+	private int windowWidth = 1920;
+	private int windowHeight = 1080;
 	private String title = "Window";
 	private boolean debug = false;
 	private long cullStepSize = 100;

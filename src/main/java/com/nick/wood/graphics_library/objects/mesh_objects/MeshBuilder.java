@@ -126,70 +126,50 @@ public class MeshBuilder {
 		return this;
 	}
 
-	;
-
 	public MeshBuilder setFontFile(String fontFile) {
 		this.fontFile = fontFile;
 		return this;
 	}
-
-	;
 
 	public MeshBuilder setRowNumber(int rowNum) {
 		this.rowNum = rowNum;
 		return this;
 	}
 
-	;
-
 	public MeshBuilder setColNumber(int colNum) {
 		this.colNum = colNum;
 		return this;
 	}
-
-	;
 
 	public MeshBuilder setMeshType(MeshType meshType) {
 		this.meshType = meshType;
 		return this;
 	}
 
-	;
-
 	public MeshBuilder setInvertedNormals(boolean invertedNormals) {
 		this.invertedNormals = invertedNormals;
 		return this;
 	}
-
-	;
 
 	public MeshBuilder setTexture(String texture) {
 		this.texture = texture;
 		return this;
 	}
 
-	;
-
 	public MeshBuilder setNormalTexture(String normalTexture) {
 		this.normalTexture = normalTexture;
 		return this;
 	}
-
-	;
 
 	public MeshBuilder setTransform(Transform transformation) {
 		this.transformation = transformation;
 		return this;
 	}
 
-	;
-
 	public MeshBuilder setTriangleNumber(int triangleNumber) {
 		this.triangleNumber = triangleNumber;
 		return this;
 	}
-
-	;
 
 	public MeshBuilder setTerrainHeightMap(float[][] terrainHeightMap) {
 		this.terrainHeightMap = terrainHeightMap;

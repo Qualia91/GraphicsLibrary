@@ -11,6 +11,7 @@ public class MeshBuilder {
 
 	// todo add model map here so i dont remake models that are already made
 
+	private String givenName = null;
 	private MeshType meshType = MeshType.SPHERE;
 	private boolean invertedNormals = false;
 	private String texture = "/textures/white.png";
@@ -69,7 +70,7 @@ public class MeshBuilder {
 				meshObject = new TextItem(text, fontMaterial, rowNum, colNum, transformation, fboCameraName);
 				break;
 			case TERRAIN:
-				meshObject = new Terrain(terrainHeightMap, material, terrainTextureObjects, cellSpace, meshType, fboCameraName);
+				meshObject = new Terrain(givenName, terrainHeightMap, material, terrainTextureObjects, cellSpace, meshType, fboCameraName);
 				break;
 			case WATER:
 				meshObject = new Water(waterSquareWidth, waterHeight, material, cellSpace, meshType, fboCameraName);
@@ -104,6 +105,11 @@ public class MeshBuilder {
 
 	private void createMaterialId(Material material) {
 		material.setId(material.getTexturePath() + material.getNormalMapPath());
+	}
+
+	public MeshBuilder setGivenName(String givenName) {
+		this.givenName = givenName;
+		return this;
 	}
 
 	public MeshBuilder setWaterSquareWidth(int waterSquareWidth) {

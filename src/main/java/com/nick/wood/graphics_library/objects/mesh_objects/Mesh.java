@@ -23,7 +23,7 @@ public class Mesh {
 	private Material material;
 	private int vao = -1, pbo, ibo, tbo, nbo, tabo, btabo;
 
-	Mesh(Vertex[] vertices, int[] indices, Material material, boolean invertedNormals, boolean hasNormalMapping) {
+	public Mesh(Vertex[] vertices, int[] indices, Material material, boolean invertedNormals, boolean hasNormalMapping) {
 		this.vertices = vertices;
 		this.indices = indices;
 		this.material = material;

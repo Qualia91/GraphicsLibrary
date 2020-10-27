@@ -1,6 +1,5 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.game_engine.event_bus.event_data.PickingRequestEventData;
 import com.nick.wood.game_engine.event_bus.event_types.ManagementEventType;
 import com.nick.wood.game_engine.event_bus.events.ManagementEvent;
 import com.nick.wood.game_engine.event_bus.events.RenderEvent;
@@ -8,11 +7,18 @@ import com.nick.wood.game_engine.event_bus.interfaces.Bus;
 import com.nick.wood.game_engine.event_bus.interfaces.Event;
 import com.nick.wood.game_engine.event_bus.interfaces.Subscribable;
 import com.nick.wood.graphics_library.input.GLInputListener;
+import com.nick.wood.graphics_library.logging.Logger;
+import com.nick.wood.graphics_library.logging.Stats;
+import com.nick.wood.graphics_library.logging.StatsCalc;
+import com.nick.wood.graphics_library.materials.Material;
 import com.nick.wood.graphics_library.materials.TextureManager;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
+import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -39,6 +45,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window implements Subscribable {
+
+	private Logger LOGGER = new Logger();
+	private ArrayList<Stats> STATS_array = new ArrayList<>();
 
 	private final Set<Class<?>> supports = new HashSet<>();
 	private final ArrayBlockingQueue<ManagementEvent> managementEvents = new ArrayBlockingQueue<>(10);
@@ -200,6 +209,10 @@ public class Window implements Subscribable {
 
 	public void render(long step) {
 
+		Stats STATS = new Stats();
+//		LOGGER.getStringBuilder().append("Start step ").append(step).append("\n");
+//		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
+		STATS.start(System.currentTimeMillis());
 		// deal with events
 		managementEvents.drainTo(drainedEventList);
 
@@ -215,6 +228,11 @@ public class Window implements Subscribable {
 		// deal with events
 		renderEvents.drainTo(drainedRenderEventList);
 
+//		if (!drainedRenderEventList.isEmpty()) {
+//			LOGGER.getStringBuilder().append("Getting render events, amount: ").append(drainedRenderEventList.size()).append("\n");
+//			LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
+//		}
+		STATS.beginGetRenderEvent(System.currentTimeMillis());
 		for (RenderEvent renderEvent : drainedRenderEventList) {
 			RenderEventData data = (RenderEventData) renderEvent.getData();
 			if (renderGraphs.containsKey(data.getLayerName())) {
@@ -225,6 +243,9 @@ public class Window implements Subscribable {
 				renderGraphs.put(data.getLayerName(), data.getRenderGraph());
 			}
 		}
+//		LOGGER.getStringBuilder().append("Getting render events, finished").append("\n");
+//		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
+		STATS.endGetRenderEvent(System.currentTimeMillis());
 
 		drainedRenderEventList.clear();
 
@@ -250,6 +271,10 @@ public class Window implements Subscribable {
 		// invoked during this call.
 		glfwPollEvents();
 
+//		LOGGER.getStringBuilder().append("Rendering").append("\n");
+//		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
+		STATS.beginRender(System.currentTimeMillis());
+
 		for (Scene sceneLayer : sceneLayers) {
 
 			RenderGraph renderGraph = this.renderGraphs.get(sceneLayer.getName());
@@ -265,6 +290,10 @@ public class Window implements Subscribable {
 
 		}
 
+//		LOGGER.getStringBuilder().append("Rendering finished").append("\n");
+//		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
+		STATS.endRender(System.currentTimeMillis());
+
 		glfwSwapBuffers(windowHandler); // swap the color buffers
 
 		// sort out build meshes
@@ -277,17 +306,34 @@ public class Window implements Subscribable {
 			}
 		}
 
+//		LOGGER.getStringBuilder().append("Loop finished").append("\n");
+//		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
+		STATS.finish(System.currentTimeMillis());
+
+//		LOGGER.finish();
+		STATS_array.add(STATS);
+
 	}
 
 	private void construct(RenderGraph renderGraph, long step) {
 		construct(renderGraph.getMeshes(), step);
-		construct(renderGraph.getTerrainMeshes(), step);
 		construct(renderGraph.getWaterMeshes(), step);
+
+		for (Map.Entry<Terrain, InstanceObject> terrainInstanceObjectEntry : renderGraph.getTerrainMeshes().entrySet()) {
+			if (!builtMeshes.containsKey(terrainInstanceObjectEntry.getKey().getStringToCompare())) {
+				builtMeshes.put(terrainInstanceObjectEntry.getKey().getStringToCompare(), new MeshInstanceCounter(terrainInstanceObjectEntry.getKey().getMesh(), step));
+				System.out.println("Building terrain mesh");
+			} else {
+				builtMeshes.get(terrainInstanceObjectEntry.getKey().getStringToCompare()).seen(step);
+			}
+		}
+
 		if (renderGraph.getSkybox() != null) {
 			if (!builtMeshes.containsKey(renderGraph.getSkybox().getStringToCompare())) {
 				builtMeshes.put(renderGraph.getSkybox().getStringToCompare(), new MeshInstanceCounter(renderGraph.getSkybox().getMesh(), step));
+			} else {
+				builtMeshes.get(renderGraph.getSkybox().getStringToCompare()).seen(step);
 			}
-			builtMeshes.get(renderGraph.getSkybox().getStringToCompare()).seen(step);
 		}
 	}
 
@@ -315,6 +361,9 @@ public class Window implements Subscribable {
 	}
 
 	public void close() {
+
+		StatsCalc statsCalc = new StatsCalc(STATS_array);
+
 		// Free the window callbacks and destroy the window
 		glfwFreeCallbacks(windowHandler);
 		glfwDestroyWindow(windowHandler);

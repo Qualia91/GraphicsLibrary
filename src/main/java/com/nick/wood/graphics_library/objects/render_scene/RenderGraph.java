@@ -2,7 +2,9 @@ package com.nick.wood.graphics_library.objects.render_scene;
 
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 
 import java.util.*;
 
@@ -12,7 +14,7 @@ public class RenderGraph {
 	private final HashMap<Light, InstanceObject> lights;
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> meshes;
 	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
-	private final HashMap<MeshObject, ArrayList<InstanceObject>> terrainMeshes;
+	private final HashMap<Terrain, InstanceObject> terrainMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
 	private MeshObject skybox;
 
@@ -42,7 +44,7 @@ public class RenderGraph {
 		return waterMeshes;
 	}
 
-	public HashMap<MeshObject, ArrayList<InstanceObject>> getTerrainMeshes() {
+	public HashMap<Terrain, InstanceObject> getTerrainMeshes() {
 		return terrainMeshes;
 	}
 

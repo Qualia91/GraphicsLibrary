@@ -12,6 +12,7 @@ import java.util.Arrays;
 
 public class Terrain implements MeshObject {
 
+	private final String givenName;
 	private final Material material;
 	private final float[][] terrainHeightMap;
 	private final Mesh mesh;
@@ -23,7 +24,8 @@ public class Terrain implements MeshObject {
 	private final ArrayList<TerrainTextureObject> terrainTextureObjects;
 
 	// package private so you have to use builder so builder can build mesh's when open gl is initialised
-	Terrain(float[][] terrainHeightMap, Material material, ArrayList<TerrainTextureObject> terrainTextureObjects, double cellSpace, MeshType meshType, String fboCameraName) {
+	Terrain(String givenName, float[][] terrainHeightMap, Material material, ArrayList<TerrainTextureObject> terrainTextureObjects, double cellSpace, MeshType meshType, String fboCameraName) {
+		this.givenName = givenName;
 		this.fboCameraName = fboCameraName;
 		this.meshType = meshType;
 		this.terrainHeightMap = terrainHeightMap;
@@ -166,7 +168,7 @@ public class Terrain implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "TERRAIN" + Arrays.deepHashCode(terrainHeightMap) + cellSpace;
+		return givenName;
 	}
 
 	@Override

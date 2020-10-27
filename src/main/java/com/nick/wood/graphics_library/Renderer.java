@@ -3,6 +3,8 @@ package com.nick.wood.graphics_library;
 import com.nick.wood.graphics_library.lighting.*;
 import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
+import com.nick.wood.graphics_library.objects.TerrainTextureObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
@@ -87,8 +89,6 @@ public class Renderer {
 		 * modelViewBuffer.put(0, transform.transpose().getValues());
 		 */
 
-
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
@@ -148,8 +148,8 @@ public class Renderer {
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
 			integerUUIDHashMap.put(index, instanceObject.getUuid());
 
-			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
+			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
+				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
 			}
 
 			/** for java 14
@@ -275,8 +275,8 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
-			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
+			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
+				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
 			}
 
 			/** for java 14
@@ -343,11 +343,7 @@ public class Renderer {
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 
-		if (clippingPlane != null) {
-			shader.setUniform("clippingPlane", clippingPlane);
-		} else {
-			shader.setUniform("clippingPlane", Vec4f.ZERO);
-		}
+		shader.setUniform("clippingPlane", Objects.requireNonNullElse(clippingPlane, Vec4f.ZERO));
 
 		createFog(fog, shader);
 
@@ -406,8 +402,8 @@ public class Renderer {
 		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
 
-			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
+			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
+				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
 			}
 
 			/** for java 14
@@ -433,13 +429,13 @@ public class Renderer {
 
 	}
 
-	public void renderTerrain(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
-	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
-	                        HashMap<Light, InstanceObject> lights,
-	                        Shader shader,
-	                        Vec3f ambientLight,
-	                        Fog fog,
-	                        Vec4f clippingPlane) {
+	public void renderTerrain(HashMap<Terrain, InstanceObject> terrainMeshs,
+	                          Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
+	                          HashMap<Light, InstanceObject> lights,
+	                          Shader shader,
+	                          Vec3f ambientLight,
+	                          Fog fog,
+	                          Vec4f clippingPlane) {
 
 		shader.bind();
 
@@ -484,45 +480,46 @@ public class Renderer {
 
 		createFog(fog, shader);
 
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			renderTerrainInstance(meshObjectArrayListEntry, shader);
+		for (Map.Entry<Terrain, InstanceObject> meshObjectInstanceObjectEntry : terrainMeshs.entrySet()) {
+
+			renderTerrainInstance(meshObjectInstanceObjectEntry, shader);
+
 		}
+
 
 
 		shader.unbind();
 
 	}
 
-	private void renderTerrainInstance(Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry, Shader shader) {
+	private void renderTerrainInstance(Map.Entry<Terrain, InstanceObject> terrainMesh, Shader shader) {
 
-		meshObjectArrayListEntry.getKey().getMesh().initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
+		terrainMesh.getKey().getMesh().initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, terrainMesh.getKey().getMesh().getIbo());
 
-		Terrain terrain = (Terrain) meshObjectArrayListEntry.getKey();
-
-		for (int i = 0; i < terrain.getTerrainTextureObjects().size(); i++) {
+		for (int i = 0; i < terrainMesh.getKey().getTerrainTextureObjects().size(); i++) {
 			// bind texture
 			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrain.getTerrainTextureObjects().get(i).getTexturePath()));
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrainMesh.getKey().getTerrainTextureObjects().get(i).getTexturePath()));
 			shader.setUniform("texture_array[" + i + "]", i);
 
 			// bind normal
-			GL13.glActiveTexture(GL13.GL_TEXTURE0 + terrain.getTerrainTextureObjects().size() + i);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrain.getTerrainTextureObjects().get(i).getNormalPath()));
-			shader.setUniform("normal_array[" + i + "]", terrain.getTerrainTextureObjects().size() + i);
+			GL13.glActiveTexture(GL13.GL_TEXTURE0 + terrainMesh.getKey().getTerrainTextureObjects().size() + i);
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrainMesh.getKey().getTerrainTextureObjects().get(i).getNormalPath()));
+			shader.setUniform("normal_array[" + i + "]", terrainMesh.getKey().getTerrainTextureObjects().size() + i);
 
 			// bind heights
-			shader.setUniform("heights[" + i + "]", terrain.getTerrainTextureObjects().get(i).getHeight());
+			shader.setUniform("heights[" + i + "]", terrainMesh.getKey().getTerrainTextureObjects().get(i).getHeight());
 
 			// bind transition width
-			shader.setUniform("transitionWidths[" + i + "]", terrain.getTerrainTextureObjects().get(i).getTransitionWidth());
+			shader.setUniform("transitionWidths[" + i + "]", terrainMesh.getKey().getTerrainTextureObjects().get(i).getTransitionWidth());
 		}
 
-		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());
-		shader.setUniform("material.specular", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getSpecularColour());
-		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
-		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
-		shader.setUniform("material.hasNormalMap", meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
+		shader.setUniform("material.diffuse", terrainMesh.getKey().getMesh().getMaterial().getDiffuseColour());
+		shader.setUniform("material.specular", terrainMesh.getKey().getMesh().getMaterial().getSpecularColour());
+		shader.setUniform("material.shininess", terrainMesh.getKey().getMesh().getMaterial().getShininess());
+		shader.setUniform("material.reflectance", terrainMesh.getKey().getMesh().getMaterial().getReflectance());
+		shader.setUniform("material.hasNormalMap", terrainMesh.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -533,26 +530,16 @@ public class Renderer {
 			start++;
 		}
 
-		int index = 0;
-
-		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
-		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
-
-			for (int i = 0; i < meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues()[i]);
-			}
-
-			/** for java 14
-			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
-			 */
-
-			index++;
+		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+		for (int i = 0; i < Matrix4f.Identity.getValues().length; i++) {
+			modelViewBuffer.put(i, terrainMesh.getValue().getTransformation().getValues()[i]);
 		}
+
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
+		glDrawElements(GL11.GL_TRIANGLES, terrainMesh.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 
@@ -561,7 +548,7 @@ public class Renderer {
 		GL13.glDisable(GL11.GL_TEXTURE_2D);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		meshObjectArrayListEntry.getKey().getMesh().endRender();
+		terrainMesh.getKey().getMesh().endRender();
 
 	}
 
@@ -585,7 +572,7 @@ public class Renderer {
 
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".colour", pointLight.getColour());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".position", transformation.getTranslation());
-		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".intensity", (float) pointLight.getIntensity());
+		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".intensity", pointLight.getIntensity());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.constant", pointLight.getAttenuation().getConstant());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.linear", pointLight.getAttenuation().getLinear());
 		shader.setUniform(namePrefix + "pointLight" + indexAddition + ".att.exponent", pointLight.getAttenuation().getExponent());

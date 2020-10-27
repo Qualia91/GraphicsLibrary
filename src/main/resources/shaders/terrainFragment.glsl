@@ -251,7 +251,6 @@ void main() {
         }
     }
 
-
     for (int i=0; i<MAX_DIRECTIONAL_LIGHTS; i++)
     {
         if ( directionalLights[i].intensity > 0 )

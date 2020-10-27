@@ -165,7 +165,7 @@ public class Water implements MeshObject {
 
 	@Override
 	public String getStringToCompare() {
-		return "TERRAIN" + Arrays.deepHashCode(terrainHeightMap) + cellSpace;
+		return "WATER";
 	}
 
 	@Override

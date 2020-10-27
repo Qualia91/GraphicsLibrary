@@ -10,7 +10,10 @@ import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.CameraType;
+import com.nick.wood.graphics_library.objects.TerrainTextureObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -132,30 +135,6 @@ public class Scene {
 		moveFactor += waveSpeed;
 		moveFactor %= 1;
 
-		// render scene fbos
-		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
-			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO)) {
-				if (mainShader != null) {
-
-					if (!cameraNameToSceneFrameBuffersMap.containsKey(cameraInstanceObjectEntry.getKey().getName())) {
-						cameraNameToSceneFrameBuffersMap.put(
-								cameraInstanceObjectEntry.getKey().getName(),
-								new SceneFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight()));
-					}
-
-					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).bindFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
-					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).unbindCurrentFrameBuffer();
-
-					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).getTexture());
-
-
-				}
-				break;
-			}
-
-		}
-
 		GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 		// update textures that are being rendered via fbos
@@ -176,7 +155,28 @@ public class Scene {
 		}
 
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
-			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
+
+			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO)) {
+				if (mainShader != null) {
+
+					if (!cameraNameToSceneFrameBuffersMap.containsKey(cameraInstanceObjectEntry.getKey().getName())) {
+						cameraNameToSceneFrameBuffersMap.put(
+								cameraInstanceObjectEntry.getKey().getName(),
+								new SceneFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight()));
+					}
+
+					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).bindFrameBuffer();
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).unbindCurrentFrameBuffer();
+
+					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).getTexture());
+
+
+				}
+				break;
+			}
+
+			else if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 
 				if (waterFrameBuffer != null && waterShader != null && !renderGraph.getWaterMeshes().isEmpty()) {
 
@@ -207,7 +207,13 @@ public class Scene {
 				}
 
 				if (terrainShader != null) {
-					renderer.renderTerrain(renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), terrainShader, ambientLight, fog, null);
+					if (!renderGraph.getTerrainMeshes().isEmpty()) {
+						for (MeshObject meshObject : renderGraph.getTerrainMeshes().keySet()) {
+							Terrain terrain = (Terrain) meshObject;
+							renderer.renderTerrain(renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), terrainShader, ambientLight, fog, null);
+							break;
+						}
+					}
 				}
 				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
@@ -228,7 +234,7 @@ public class Scene {
 	                                 Vec4f clippingPlane,
 	                                 MeshObject skybox,
 	                                 HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
-	                                 HashMap<MeshObject, ArrayList<InstanceObject>> terrainMeshes,
+	                                 HashMap<Terrain, InstanceObject> terrainMeshes,
 	                                 HashMap<Light, InstanceObject> lights) {
 		// enable clip planes
 		// this clips everything under the water

@@ -1,14 +1,14 @@
 package com.nick.wood.graphics_library;
 
 import com.nick.wood.graphics_library.lighting.*;
-import com.nick.wood.graphics_library.materials.TextureManager;
+import com.nick.wood.graphics_library.materials.*;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.TerrainTextureObject;
+import com.nick.wood.graphics_library.objects.MeshManager;
+import com.nick.wood.graphics_library.objects.ModelManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
+import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.TextItem;
+import com.nick.wood.graphics_library.objects.render_scene.Pair;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -28,7 +28,10 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
+	private final MaterialManager materialManager;
 	private final TextureManager textureManager;
+	private final MeshManager meshManager;
+	private final ModelManager modelManager;
 	private int modelViewVBO;
 
 	private FloatBuffer modelViewBuffer;
@@ -40,8 +43,11 @@ public class Renderer {
 
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
-	public Renderer(TextureManager textureManager) {
+	public Renderer(TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
 		this.textureManager = textureManager;
+		this.materialManager = materialManager;
+		this.meshManager = meshManager;
+		this.modelManager = modelManager;
 	}
 
 	public void init() {
@@ -52,21 +58,24 @@ public class Renderer {
 		glDeleteBuffers(modelViewVBO);
 	}
 
-	public void renderSkybox(MeshObject meshObject, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
+	public void renderSkybox(Pair<String, InstanceObject> modelID, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
 
 		shader.bind();
 
-		meshObject.getMesh().initRender();
+		Model model = modelManager.getModel(modelID.getKey());
+		Mesh mesh = meshManager.getMesh(model.getMeshString());
+
+		mesh.initRender();
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObject.getMesh().getIbo());
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
 
 		// bind texture
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObject.getMesh().getMaterial().getTexturePath()));
+
+		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -79,34 +88,28 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
 
-		Matrix4f transform = Matrix4f.Transform(cameraInstanceObjectEntry.getValue().getTransformation().getTranslation(), meshObject.getMeshTransformation().getRotation().toMatrix(), meshObject.getMeshTransformation().getScale());
-
-		for (int i = 0; i < transform.transpose().getValues().length; i++) {
-			modelViewBuffer.put(i, transform.transpose().getValues()[i]);
+		for (int i = 0; i < modelID.getValue().getTransformation().transpose().getValues().length; i++) {
+			modelViewBuffer.put(i, modelID.getValue().getTransformation().transpose().getValues()[i]);
 		}
-
-		/** for java 14
-		 * modelViewBuffer.put(0, transform.transpose().getValues());
-		 */
 
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, meshObject.getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		meshObject.getMesh().endRender();
+		mesh.endRender();
 
 		shader.unbind();
 
 	}
 
-	public void renderPickingScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap) {
+	public void renderPickingScene(HashMap<String, ArrayList<InstanceObject>> models, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap) {
 		shader.bind();
 
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
@@ -114,24 +117,27 @@ public class Renderer {
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
 		int modelTypeId = 1;
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
+		for (Map.Entry<String, ArrayList<InstanceObject>> modelArrayListEntry : models.entrySet()) {
 
 			if (!indexToUUIDMap.containsKey(modelTypeId)) {
 				indexToUUIDMap.put(modelTypeId, new HashMap<>());
 			}
 
 			shader.setUniform("inInstanceColourID", modelTypeId);
-			renderPickingInstance(meshObjectArrayListEntry, indexToUUIDMap.get(modelTypeId));
+			renderPickingInstance(modelArrayListEntry, indexToUUIDMap.get(modelTypeId));
 			modelTypeId++;
 		}
 
 		shader.unbind();
 	}
 
-	private void renderPickingInstance(Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
+	private void renderPickingInstance(Map.Entry<String, ArrayList<InstanceObject>> modelArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
 
-		meshObjectArrayListEntry.getKey().getMesh().initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
+		Model model = modelManager.getModel(modelArrayListEntry.getKey());
+		Mesh mesh = meshManager.getMesh(model.getMeshString());
+
+		mesh.initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -144,17 +150,13 @@ public class Renderer {
 
 		int index = 0;
 
-		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
-		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
+		modelViewBuffer = MemoryUtil.memAllocFloat(modelArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
 			integerUUIDHashMap.put(index, instanceObject.getUuid());
 
 			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
 				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
 			}
-
-			/** for java 14
-			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
-			 */
 
 			index++;
 		}
@@ -162,7 +164,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
 
 		// clean up
 
@@ -170,16 +172,14 @@ public class Renderer {
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		meshObjectArrayListEntry.getKey().getMesh().endRender();
+		mesh.endRender();
 
 	}
 
-	public void renderWater(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
+	public void renderWater(HashMap<String, InstanceObject> models,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                        HashMap<Light, InstanceObject> lights, Shader shader,
 	                        Fog fog,
-	                        int reflectionTexture,
-	                        int refractionTexture,
 	                        float moveFactor,
 	                        Vec3f ambientLight) {
 
@@ -210,22 +210,14 @@ public class Renderer {
 
 		}
 
-
-		shader.setUniform("ambientLight", ambientLight);
-		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
-
-		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
-		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
-		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
 
 		shader.setUniform("moveFactor", moveFactor);
 
 		createFog(fog, shader);
 
-		// do all text ones last as the background wont be see through properly if they dont
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			renderWaterMesh(meshObjectArrayListEntry, shader, reflectionTexture, refractionTexture);
+		for (Map.Entry<String, InstanceObject> modelArrayListEntry : models.entrySet()) {
+			renderWaterMesh(modelArrayListEntry, shader);
 		}
 
 
@@ -233,34 +225,16 @@ public class Renderer {
 
 	}
 
-	public void renderWaterMesh(Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry,
-	                            Shader shader, int reflectionTexture, int refractionTexture) {
-		meshObjectArrayListEntry.getKey().getMesh().initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
+	public void renderWaterMesh(Map.Entry<String, InstanceObject> modelArrayListEntry,
+	                            Shader shader) {
 
-		// bind texture
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, reflectionTexture);
-		shader.setUniform("reflectionTexture", 0);
-		GL13.glActiveTexture(GL13.GL_TEXTURE1);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, refractionTexture);
-		shader.setUniform("refractionTexture", 1);
-		GL13.glActiveTexture(GL13.GL_TEXTURE2);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexturePath()));
-		shader.setUniform("dudvmap", 2);
+		Model model = modelManager.getModel(modelArrayListEntry.getKey());
+		Mesh mesh = meshManager.getMesh(model.getMeshString());
+		
+		mesh.initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
 
-		// bind normal map if available
-		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE3);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMapPath()));
-			shader.setUniform("normal_text_sampler", 3);
-		}
-
-		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());
-		shader.setUniform("material.specular", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getSpecularColour());
-		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
-		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
-		shader.setUniform("material.hasNormalMap", meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
+		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -271,25 +245,16 @@ public class Renderer {
 			start++;
 		}
 
-		int index = 0;
-
-		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
-		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
-			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
-			}
-
-			/** for java 14
-			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
-			 */
-			index++;
+		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+		for (int i = 0; i < modelArrayListEntry.getValue().getTransformation().getValues().length; i++) {
+			modelViewBuffer.put(i, modelArrayListEntry.getValue().getTransformation().getValues()[i]);
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
+		GL31.glDrawElements(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 
@@ -297,10 +262,10 @@ public class Renderer {
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		meshObjectArrayListEntry.getKey().getMesh().endRender();
+		mesh.endRender();
 	}
 
-	public void renderScene(HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
+	public void renderScene(HashMap<String, ArrayList<InstanceObject>> meshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                        HashMap<Light, InstanceObject> lights,
 	                        Shader shader,
@@ -335,29 +300,14 @@ public class Renderer {
 
 		}
 
-		shader.setUniform("ambientLight", ambientLight);
-		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
-
-		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
-		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
-		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
 
 		shader.setUniform("clippingPlane", Objects.requireNonNullElse(clippingPlane, Vec4f.ZERO));
 
 		createFog(fog, shader);
 
-		// do all but text
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			if (!(meshObjectArrayListEntry.getKey() instanceof TextItem)) {
-				renderInstance(meshObjectArrayListEntry, shader);
-			}
-		}
-		// do all text ones last as the background wont be see through properly if they dont
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : meshes.entrySet()) {
-			if ((meshObjectArrayListEntry.getKey() instanceof TextItem)) {
-				renderInstance(meshObjectArrayListEntry, shader);
-			}
+		for (Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry : meshes.entrySet()) {
+			renderInstance(meshArrayListEntry, shader);
 		}
 
 
@@ -365,28 +315,15 @@ public class Renderer {
 
 	}
 
-	private void renderInstance(Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry, Shader shader) {
+	private void renderInstance(Map.Entry<String, ArrayList<InstanceObject>> modelArrayListEntry, Shader shader) {
 
-		meshObjectArrayListEntry.getKey().getMesh().initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, meshObjectArrayListEntry.getKey().getMesh().getIbo());
+		Model model = modelManager.getModel(modelArrayListEntry.getKey());
+		Mesh mesh = meshManager.getMesh(model.getMeshString());
 
-		// bind texture
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getTexturePath()));
-		shader.setUniform("tex", 0);
+		mesh.initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
 
-		// bind normal map if available
-		if (meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap()) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE1);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(meshObjectArrayListEntry.getKey().getMesh().getMaterial().getNormalMapPath()));
-			shader.setUniform("normal_text_sampler", 1);
-		}
-
-		shader.setUniform("material.diffuse", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getDiffuseColour());
-		shader.setUniform("material.specular", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getSpecularColour());
-		shader.setUniform("material.shininess", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getShininess());
-		shader.setUniform("material.reflectance", meshObjectArrayListEntry.getKey().getMesh().getMaterial().getReflectance());
-		shader.setUniform("material.hasNormalMap", meshObjectArrayListEntry.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
+		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -399,24 +336,19 @@ public class Renderer {
 
 		int index = 0;
 
-		modelViewBuffer = MemoryUtil.memAllocFloat(meshObjectArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
-		for (InstanceObject instanceObject : meshObjectArrayListEntry.getValue()) {
+		modelViewBuffer = MemoryUtil.memAllocFloat(modelArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
 
 			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
 				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
 			}
-
-			/** for java 14
-			 * modelViewBuffer.put(index * 16, meshObjectArrayListEntry.getKey().getMeshTransformation().getSRT().multiply(instanceObject.getTransformation()).transpose().getValues());
-			 */
-
 			index++;
 		}
-		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_STATIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, meshObjectArrayListEntry.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0, meshObjectArrayListEntry.getValue().size());
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
 
 		// clean up
 
@@ -425,11 +357,11 @@ public class Renderer {
 		GL13.glDisable(GL11.GL_TEXTURE_2D);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		meshObjectArrayListEntry.getKey().getMesh().endRender();
+		mesh.endRender();
 
 	}
 
-	public void renderTerrain(HashMap<Terrain, InstanceObject> terrainMeshs,
+	public void renderTerrain(HashMap<String, InstanceObject> terrainModels,
 	                          Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                          HashMap<Light, InstanceObject> lights,
 	                          Shader shader,
@@ -464,13 +396,7 @@ public class Renderer {
 
 		}
 
-		shader.setUniform("ambientLight", ambientLight);
-		shader.setUniform("specularPower", 0.5f);
-		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
-
-		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
-		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
-		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
+		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
 
 		if (clippingPlane != null) {
 			shader.setUniform("clippingPlane", clippingPlane);
@@ -480,46 +406,25 @@ public class Renderer {
 
 		createFog(fog, shader);
 
-		for (Map.Entry<Terrain, InstanceObject> meshObjectInstanceObjectEntry : terrainMeshs.entrySet()) {
+		for (Map.Entry<String, InstanceObject> modelInstanceObjectEntry : terrainModels.entrySet()) {
 
-			renderTerrainInstance(meshObjectInstanceObjectEntry, shader);
+			renderTerrainInstance(modelInstanceObjectEntry, shader);
 
 		}
-
-
 
 		shader.unbind();
 
 	}
 
-	private void renderTerrainInstance(Map.Entry<Terrain, InstanceObject> terrainMesh, Shader shader) {
+	private void renderTerrainInstance(Map.Entry<String, InstanceObject> terrainModel, Shader shader) {
 
-		terrainMesh.getKey().getMesh().initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, terrainMesh.getKey().getMesh().getIbo());
+		Model model = modelManager.getModel(terrainModel.getKey());
+		Mesh mesh = meshManager.getMesh(model.getMeshString());
 
-		for (int i = 0; i < terrainMesh.getKey().getTerrainTextureObjects().size(); i++) {
-			// bind texture
-			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrainMesh.getKey().getTerrainTextureObjects().get(i).getTexturePath()));
-			shader.setUniform("texture_array[" + i + "]", i);
+		mesh.initRender();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
 
-			// bind normal
-			GL13.glActiveTexture(GL13.GL_TEXTURE0 + terrainMesh.getKey().getTerrainTextureObjects().size() + i);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(terrainMesh.getKey().getTerrainTextureObjects().get(i).getNormalPath()));
-			shader.setUniform("normal_array[" + i + "]", terrainMesh.getKey().getTerrainTextureObjects().size() + i);
-
-			// bind heights
-			shader.setUniform("heights[" + i + "]", terrainMesh.getKey().getTerrainTextureObjects().get(i).getHeight());
-
-			// bind transition width
-			shader.setUniform("transitionWidths[" + i + "]", terrainMesh.getKey().getTerrainTextureObjects().get(i).getTransitionWidth());
-		}
-
-		shader.setUniform("material.diffuse", terrainMesh.getKey().getMesh().getMaterial().getDiffuseColour());
-		shader.setUniform("material.specular", terrainMesh.getKey().getMesh().getMaterial().getSpecularColour());
-		shader.setUniform("material.shininess", terrainMesh.getKey().getMesh().getMaterial().getShininess());
-		shader.setUniform("material.reflectance", terrainMesh.getKey().getMesh().getMaterial().getReflectance());
-		shader.setUniform("material.hasNormalMap", terrainMesh.getKey().getMesh().getMaterial().hasNormalMap() ? 1 : 0);
+		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -532,14 +437,14 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
 		for (int i = 0; i < Matrix4f.Identity.getValues().length; i++) {
-			modelViewBuffer.put(i, terrainMesh.getValue().getTransformation().getValues()[i]);
+			modelViewBuffer.put(i, terrainModel.getValue().getTransformation().getValues()[i]);
 		}
 
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, terrainMesh.getKey().getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 
@@ -548,7 +453,18 @@ public class Renderer {
 		GL13.glDisable(GL11.GL_TEXTURE_2D);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		terrainMesh.getKey().getMesh().endRender();
+		mesh.endRender();
+
+	}
+
+	private void createBasic(Shader shader, Vec3f ambientLight, float specularPower, Camera camera, InstanceObject cameraInstance) {
+		shader.setUniform("ambientLight", ambientLight);
+		shader.setUniform("specularPower", specularPower); // 0.5f
+		shader.setUniform("projection", camera.getProjectionMatrix());
+
+		shader.setUniform("cameraPos", cameraInstance.getTransformation().getTranslation());
+		shader.setUniform("view", cameraInstance.getTransformationInverse());
+		shader.setUniform("modelLightViewMatrix", lightViewMatrix);
 
 	}
 

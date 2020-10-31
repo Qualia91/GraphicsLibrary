@@ -26,8 +26,6 @@ public class LoadedTexture implements Texture {
 
 	private final String texturePath;
 	private final int parameter;
-	private int width;
-	private int height;
 	private int id;
 
 	public LoadedTexture(String path, int parameter) {
@@ -85,22 +83,6 @@ public class LoadedTexture implements Texture {
 		return newBuffer;
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public void create() throws IOException {
 		String imagePath = texturePath.split("[.]")[1];
 		InputStream resourceAsStream = LoadedTexture.class.getResourceAsStream(texturePath);
@@ -120,9 +102,6 @@ public class LoadedTexture implements Texture {
 			// Decode texture image into a byte buffer
 			ByteBuffer decodedImage = stbi_load_from_memory(imageData, w, h, components, 4);
 
-			this.width = w.get();
-			this.height = h.get();
-
 			// Create a new OpenGL texture
 			this.id = glGenTextures();
 
@@ -137,7 +116,7 @@ public class LoadedTexture implements Texture {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 			// Upload the texture data
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImage);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, decodedImage);
 
 			// Generate Mip Map
 			glGenerateMipmap(GL_TEXTURE_2D);
@@ -146,6 +125,16 @@ public class LoadedTexture implements Texture {
 
 			MemoryUtil.memFree(decodedImage);
 		}
+	}
+
+	@Override
+	public int getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(int textureId) {
+		this.id = id;
 	}
 
 	public void destroy() {

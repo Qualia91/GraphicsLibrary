@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library.objects;
+package com.nick.wood.graphics_library.materials;
 
 public class TerrainTextureObject {
 

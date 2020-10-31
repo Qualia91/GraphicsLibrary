@@ -5,5 +5,8 @@ public enum RenderObjectType {
 	CAMERA,
 	TERRAIN,
 	WATER,
+	MESH,
+	TEXT,
+	SKYBOX
 
 }

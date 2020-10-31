@@ -9,10 +9,12 @@ public class InstanceObject {
 
 	private final UUID uuid;
 	private Matrix4f transformation;
+	private Matrix4f transformationInverse;
 
 	public InstanceObject(UUID uuid, Matrix4f transformation) {
 		this.uuid = uuid;
 		this.transformation = transformation;
+		this.transformationInverse = transformation.invert();
 	}
 
 	public UUID getUuid() {
@@ -23,8 +25,13 @@ public class InstanceObject {
 		return transformation;
 	}
 
+	public Matrix4f getTransformationInverse() {
+		return transformationInverse;
+	}
+
 	public void setTransformation(Matrix4f transformation) {
 		this.transformation = transformation;
+		this.transformationInverse = transformation.invert();
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.graphics_library.materials.Material;
 import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
@@ -11,7 +10,7 @@ import java.io.IOException;
 
 public class ModelLoader {
 
-	public Mesh loadModel(String filePath, Material material, boolean invertedNormals) throws IOException {
+	public Mesh loadModel(String filePath) throws IOException {
 
 		if (!new File(filePath).exists()) {
 			filePath = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
@@ -41,9 +40,6 @@ public class ModelLoader {
 			Vec3f normalVec = getVecFromData(normals, i);
 			Vec3f tangentVec = getVecFromData(tangents, i);
 			Vec3f bitangentVec = getVecFromData(bitangents, i);
-			if (invertedNormals) {
-				normalVec = normalVec.neg();
-			}
 			Vec2f texCoord = Vec2f.ZERO;
 			if (aiMesh.mTextureCoords(0) != null) {
 				AIVector3D textCoordAI = aiMesh.mTextureCoords(0).get(i);
@@ -57,23 +53,14 @@ public class ModelLoader {
 		AIFace.Buffer indices = aiMesh.mFaces();
 		int[] indexList = new int[faceCount * 3];
 
-		if (invertedNormals) {
-			for (int i = 0; i < faceCount; i++) {
-				AIFace aiFace = indices.get(i);
-				indexList[i * 3 + 2] = aiFace.mIndices().get(0);
-				indexList[i * 3 + 1] = aiFace.mIndices().get(1);
-				indexList[i * 3 + 0] = aiFace.mIndices().get(2);
-			}
-		} else {
-			for (int i = 0; i < faceCount; i++) {
-				AIFace aiFace = indices.get(i);
-				indexList[i * 3 + 0] = aiFace.mIndices().get(0);
-				indexList[i * 3 + 1] = aiFace.mIndices().get(1);
-				indexList[i * 3 + 2] = aiFace.mIndices().get(2);
-			}
+		for (int i = 0; i < faceCount; i++) {
+			AIFace aiFace = indices.get(i);
+			indexList[i * 3 + 0] = aiFace.mIndices().get(0);
+			indexList[i * 3 + 1] = aiFace.mIndices().get(1);
+			indexList[i * 3 + 2] = aiFace.mIndices().get(2);
 		}
 
-		return new Mesh(vertexArray, indexList, material, invertedNormals, true);
+		return new Mesh(vertexArray, indexList);
 	}
 
 	private Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {

@@ -2,23 +2,20 @@ package com.nick.wood.graphics_library;
 
 import com.nick.wood.game_engine.event_bus.event_types.ManagementEventType;
 import com.nick.wood.game_engine.event_bus.events.ManagementEvent;
-import com.nick.wood.game_engine.event_bus.events.RenderEvent;
 import com.nick.wood.game_engine.event_bus.interfaces.Bus;
 import com.nick.wood.game_engine.event_bus.interfaces.Event;
 import com.nick.wood.game_engine.event_bus.interfaces.Subscribable;
+import com.nick.wood.graphics_library.communication.*;
 import com.nick.wood.graphics_library.input.GLInputListener;
 import com.nick.wood.graphics_library.logging.Logger;
 import com.nick.wood.graphics_library.logging.Stats;
 import com.nick.wood.graphics_library.logging.StatsCalc;
-import com.nick.wood.graphics_library.materials.Material;
+import com.nick.wood.graphics_library.materials.MaterialManager;
 import com.nick.wood.graphics_library.materials.TextureManager;
-import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
-import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
+import com.nick.wood.graphics_library.objects.MeshManager;
+import com.nick.wood.graphics_library.objects.ModelManager;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
-import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -51,10 +48,10 @@ public class Window implements Subscribable {
 
 	private final Set<Class<?>> supports = new HashSet<>();
 	private final ArrayBlockingQueue<ManagementEvent> managementEvents = new ArrayBlockingQueue<>(10);
-	private final ArrayBlockingQueue<RenderEvent> renderEvents = new ArrayBlockingQueue<>(100);
+	private final ArrayBlockingQueue<RenderUpdateEvent> renderEvents = new ArrayBlockingQueue<>(100000);
 
 	private final ArrayList<ManagementEvent> drainedEventList = new ArrayList<>(10);
-	private final ArrayList<RenderEvent> drainedRenderEventList = new ArrayList<>(100);
+	private final ArrayList<RenderUpdateEvent> drainedRenderEventList = new ArrayList<>(100000);
 
 	private final GLInputListener graphicsLibraryInput;
 	private final ArrayList<Scene> sceneLayers;
@@ -72,15 +69,19 @@ public class Window implements Subscribable {
 	private boolean titleChanged = false;
 
 	private final TextureManager textureManager;
+	private final MaterialManager materialManager;
+	private final MeshManager meshManager;
+	private final ModelManager modelManager;
 
 	private final HashMap<String, RenderGraph> renderGraphs;
-	private final HashMap<String, MeshInstanceCounter> builtMeshes = new HashMap<>();
-	private long cullStepSize;
 
 	public Window(ArrayList<Scene> sceneLayers, Bus bus) {
 		this.sceneLayers = sceneLayers;
 		this.graphicsLibraryInput = new GLInputListener(bus);
 		this.textureManager = new TextureManager();
+		this.materialManager = new MaterialManager();
+		this.meshManager = new MeshManager();
+		this.modelManager = new ModelManager();
 		renderGraphs = new HashMap<>();
 		for (Scene sceneLayer : sceneLayers) {
 			renderGraphs.put(sceneLayer.getName(), null);
@@ -89,7 +90,23 @@ public class Window implements Subscribable {
 			}
 		}
 		this.supports.add(ManagementEvent.class);
-		this.supports.add(RenderEvent.class);
+		this.supports.add(RenderUpdateEvent.class);
+
+		this.supports.add(GeometryCreateEvent.class);
+		this.supports.add(GeometryUpdateEvent.class);
+		this.supports.add(GeometryRemoveEvent.class);
+
+		this.supports.add(MaterialCreateEvent.class);
+		//this.supports.add(MaterialUpdateEvent.class);
+		//this.supports.add(MaterialRemoveEvent.class);
+
+		this.supports.add(TextureCreateEvent.class);
+		//this.supports.add(MaterialUpdateEvent.class);
+		//this.supports.add(MaterialRemoveEvent.class);
+
+		this.supports.add(CameraCreateEvent.class);
+		this.supports.add(CameraUpdateEvent.class);
+		//this.supports.add(CameraRemoveEvent.class);
 	}
 
 	public boolean shouldClose() {
@@ -98,9 +115,7 @@ public class Window implements Subscribable {
 
 	public void init(WindowInitialisationParameters windowInitialisationParameters) throws IOException {
 
-		cullStepSize = windowInitialisationParameters.getCullStepSize();
-
-		renderer = new Renderer(this.textureManager);
+		renderer = new Renderer(this.textureManager, this.materialManager, this.meshManager, this.modelManager);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
@@ -170,7 +185,11 @@ public class Window implements Subscribable {
 			Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 		}
 
-		textureManager.create();
+		UUID defaultMaterialId = UUID.randomUUID();
+		textureManager.create("/textures/red.png");
+		materialManager.create("/textures/red.png", defaultMaterialId);
+		meshManager.create("/models/sphere.obj");
+		modelManager.create(defaultMaterialId);
 
 		// cull back faces
 		GL11.glEnable(GLES20.GL_CULL_FACE);
@@ -186,6 +205,7 @@ public class Window implements Subscribable {
 		}
 
 		this.renderer.init();
+
 
 	}
 
@@ -233,15 +253,10 @@ public class Window implements Subscribable {
 //			LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
 //		}
 		STATS.beginGetRenderEvent(System.currentTimeMillis());
-		for (RenderEvent renderEvent : drainedRenderEventList) {
-			RenderEventData data = (RenderEventData) renderEvent.getData();
-			if (renderGraphs.containsKey(data.getLayerName())) {
-				if (renderGraphs.get(data.getLayerName()) == null || data.getStep() > renderGraphs.get(data.getLayerName()).getStep()) {
-					renderGraphs.put(data.getLayerName(), data.getRenderGraph());
-				}
-			} else {
-				renderGraphs.put(data.getLayerName(), data.getRenderGraph());
-			}
+		for (RenderUpdateEvent renderUpdateEvent : drainedRenderEventList) {
+
+			renderUpdateEvent.applyToGraphicsEngine(this);
+
 		}
 //		LOGGER.getStringBuilder().append("Getting render events, finished").append("\n");
 //		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
@@ -280,9 +295,6 @@ public class Window implements Subscribable {
 			RenderGraph renderGraph = this.renderGraphs.get(sceneLayer.getName());
 
 			if (renderGraph != null) {
-
-				construct(renderGraph, step);
-
 				sceneLayer.render(renderer, renderGraph, textureManager, step);
 				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT);
@@ -296,16 +308,6 @@ public class Window implements Subscribable {
 
 		glfwSwapBuffers(windowHandler); // swap the color buffers
 
-		// sort out build meshes
-		Iterator<Map.Entry<String, MeshInstanceCounter>> iterator = builtMeshes.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<String, MeshInstanceCounter> next = iterator.next();
-			if (step - next.getValue().getStepLastSeen() > cullStepSize) {
-				next.getValue().getMesh().destroy();
-				iterator.remove();
-			}
-		}
-
 //		LOGGER.getStringBuilder().append("Loop finished").append("\n");
 //		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
 		STATS.finish(System.currentTimeMillis());
@@ -313,38 +315,6 @@ public class Window implements Subscribable {
 //		LOGGER.finish();
 		STATS_array.add(STATS);
 
-	}
-
-	private void construct(RenderGraph renderGraph, long step) {
-		construct(renderGraph.getMeshes(), step);
-		construct(renderGraph.getWaterMeshes(), step);
-
-		for (Map.Entry<Terrain, InstanceObject> terrainInstanceObjectEntry : renderGraph.getTerrainMeshes().entrySet()) {
-			if (!builtMeshes.containsKey(terrainInstanceObjectEntry.getKey().getStringToCompare())) {
-				builtMeshes.put(terrainInstanceObjectEntry.getKey().getStringToCompare(), new MeshInstanceCounter(terrainInstanceObjectEntry.getKey().getMesh(), step));
-				System.out.println("Building terrain mesh");
-			} else {
-				builtMeshes.get(terrainInstanceObjectEntry.getKey().getStringToCompare()).seen(step);
-			}
-		}
-
-		if (renderGraph.getSkybox() != null) {
-			if (!builtMeshes.containsKey(renderGraph.getSkybox().getStringToCompare())) {
-				builtMeshes.put(renderGraph.getSkybox().getStringToCompare(), new MeshInstanceCounter(renderGraph.getSkybox().getMesh(), step));
-			} else {
-				builtMeshes.get(renderGraph.getSkybox().getStringToCompare()).seen(step);
-			}
-		}
-	}
-
-	private void construct(HashMap<MeshObject, ArrayList<InstanceObject>> meshObjs, long step) {
-		for (MeshObject meshObject : meshObjs.keySet()) {
-			if (!builtMeshes.containsKey(meshObject.getStringToCompare())) {
-				builtMeshes.put(meshObject.getStringToCompare(), new MeshInstanceCounter(meshObject.getMesh(), step));
-			} else {
-				builtMeshes.get(meshObject.getStringToCompare()).seen(step);
-			}
-		}
 	}
 
 	public void setTitle(String title) {
@@ -390,13 +360,29 @@ public class Window implements Subscribable {
 	public void handle(Event<?> event) {
 		if (event instanceof ManagementEvent) {
 			managementEvents.offer((ManagementEvent) event);
-		} else if (event instanceof RenderEvent) {
-			renderEvents.offer((RenderEvent) event);
+		} else if (event instanceof RenderUpdateEvent) {
+			renderEvents.offer((RenderUpdateEvent) event);
 		}
 	}
 
 	@Override
 	public boolean supports(Class<? extends Event> aClass) {
 		return supports.contains(aClass);
+	}
+
+	public MaterialManager getMaterialManager() {
+		return materialManager;
+	}
+
+	public MeshManager getMeshManager() {
+		return meshManager;
+	}
+
+	public ModelManager getModelManager() {
+		return modelManager;
+	}
+
+	public HashMap<String, RenderGraph> getRenderGraphs() {
+		return renderGraphs;
 	}
 }

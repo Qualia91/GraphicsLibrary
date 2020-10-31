@@ -3,48 +3,46 @@ package com.nick.wood.graphics_library.objects.render_scene;
 import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 
 import java.util.*;
 
 public class RenderGraph {
 
-	private final long step;
 	private final HashMap<Light, InstanceObject> lights;
-	private final HashMap<MeshObject, ArrayList<InstanceObject>> meshes;
-	private final HashMap<MeshObject, ArrayList<InstanceObject>> waterMeshes;
-	private final HashMap<Terrain, InstanceObject> terrainMeshes;
+	private final HashMap<String, ArrayList<InstanceObject>> meshes;
+	private final HashMap<String, ArrayList<InstanceObject>> textMeshes;
+	private final HashMap<String, InstanceObject> waterMeshes;
+	private final HashMap<String, InstanceObject> terrainMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
-	private MeshObject skybox;
+	private Pair<String, InstanceObject> skybox;
 
-	public RenderGraph(long step) {
-		this.step = step;
+	public RenderGraph() {
 		this.lights = new HashMap<>();
 		this.meshes = new HashMap<>();
+		this.textMeshes = new HashMap<>();
 		this.waterMeshes = new HashMap<>();
 		this.terrainMeshes = new HashMap<>();
 		this.cameras = new HashMap<>();
 		this.skybox = null;
 	}
 
-	public long getStep() {
-		return step;
-	}
-
 	public HashMap<Light, InstanceObject> getLights() {
 		return lights;
 	}
 
-	public HashMap<MeshObject, ArrayList<InstanceObject>> getMeshes() {
+	public HashMap<String, ArrayList<InstanceObject>> getMeshes() {
 		return meshes;
 	}
 
-	public HashMap<MeshObject, ArrayList<InstanceObject>> getWaterMeshes() {
+	public HashMap<String, ArrayList<InstanceObject>> getTextMeshes() {
+		return textMeshes;
+	}
+
+	public HashMap<String, InstanceObject> getWaterMeshes() {
 		return waterMeshes;
 	}
 
-	public HashMap<Terrain, InstanceObject> getTerrainMeshes() {
+	public HashMap<String, InstanceObject> getTerrainMeshes() {
 		return terrainMeshes;
 	}
 
@@ -52,14 +50,7 @@ public class RenderGraph {
 		return cameras;
 	}
 
-	public MeshObject getSkybox() {
+	public Pair<String, InstanceObject> getSkybox() {
 		return skybox;
 	}
-
-	public void setSkybox(MeshObject skybox) {
-		if (!skybox.equals(this.skybox)) {
-			this.skybox = skybox;
-		}
-	}
-
 }

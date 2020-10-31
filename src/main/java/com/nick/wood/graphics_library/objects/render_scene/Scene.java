@@ -10,10 +10,7 @@ import com.nick.wood.graphics_library.lighting.Light;
 import com.nick.wood.graphics_library.materials.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.CameraType;
-import com.nick.wood.graphics_library.objects.TerrainTextureObject;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.MeshObject;
-import com.nick.wood.graphics_library.objects.mesh_objects.Terrain;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
@@ -137,84 +134,84 @@ public class Scene {
 
 		GL11.glViewport(0, 0, screenWidth, screenHeight);
 
-		// update textures that are being rendered via fbos
-		for (Map.Entry<MeshObject, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
-			if (!meshObjectArrayListEntry.getKey().getFboTextureCameraName().isEmpty()) {
-				meshObjectArrayListEntry.getKey().getMesh().getMaterial().setTexturePath(meshObjectArrayListEntry.getKey().getFboTextureCameraName());
-			}
-		}
-
-		if (pickingShader != null && pickingFrameBuffer != null) {
-			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
-				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
-					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
-					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry, renderGraph.getMeshes());
-					pickingFrameBuffer.unbindCurrentFrameBuffer();
-				}
-			}
-		}
+//		// update textures that are being rendered via fbos
+//		for (Map.Entry<String, ArrayList<InstanceObject>> meshObjectArrayListEntry : renderGraph.getMeshes().entrySet()) {
+//			if (!meshObjectArrayListEntry.getKey().getFboTextureCameraName().isEmpty()) {
+//				meshObjectArrayListEntry.getKey().getMesh().getMaterial().setTexturePath(meshObjectArrayListEntry.getKey().getFboTextureCameraName());
+//			}
+//		}
+//
+//		if (pickingShader != null && pickingFrameBuffer != null) {
+//			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
+//				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
+//					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
+//					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry, renderGraph.getMeshes());
+//					pickingFrameBuffer.unbindCurrentFrameBuffer();
+//				}
+//			}
+//		}
 
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.FBO)) {
-				if (mainShader != null) {
-
-					if (!cameraNameToSceneFrameBuffersMap.containsKey(cameraInstanceObjectEntry.getKey().getName())) {
-						cameraNameToSceneFrameBuffersMap.put(
-								cameraInstanceObjectEntry.getKey().getName(),
-								new SceneFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight()));
-					}
-
-					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).bindFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
-					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).unbindCurrentFrameBuffer();
-
-					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).getTexture());
-
-
-				}
-				break;
+//				if (mainShader != null) {
+//
+//					if (!cameraNameToSceneFrameBuffersMap.containsKey(cameraInstanceObjectEntry.getKey().getName())) {
+//						cameraNameToSceneFrameBuffersMap.put(
+//								cameraInstanceObjectEntry.getKey().getName(),
+//								new SceneFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight()));
+//					}
+//
+//					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).bindFrameBuffer();
+//					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, null, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+//					cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).unbindCurrentFrameBuffer();
+//
+//					textureManager.addTexture(cameraInstanceObjectEntry.getKey().getName(), cameraNameToSceneFrameBuffersMap.get(cameraInstanceObjectEntry.getKey().getName()).getTexture());
+//
+//
+//				}
+//				break;
 			}
 
 			else if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 
-				if (waterFrameBuffer != null && waterShader != null && !renderGraph.getWaterMeshes().isEmpty()) {
-
-					Matrix4f newCameraMatrix = backFaceCullFlip.multiply(cameraInstanceObjectEntry.getValue().getTransformation()).multiply(waterCameraReflection);
-					Map.Entry<Camera, InstanceObject> reflectedCamera =
-							new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
-									new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
-					waterFrameBuffer.bindReflectionFrameBuffer();
-					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
-					waterFrameBuffer.bindRefractionFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
-					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
-
-				}
+//				if (waterFrameBuffer != null && waterShader != null && !renderGraph.getWaterMeshes().isEmpty()) {
+//
+//					Matrix4f newCameraMatrix = backFaceCullFlip.multiply(cameraInstanceObjectEntry.getValue().getTransformation()).multiply(waterCameraReflection);
+//					Map.Entry<Camera, InstanceObject> reflectedCamera =
+//							new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
+//									new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
+//					waterFrameBuffer.bindReflectionFrameBuffer();
+//					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+//					waterFrameBuffer.bindRefractionFrameBuffer();
+//					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+//					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
+//
+//				}
 				if (skyboxShader != null && renderGraph.getSkybox() != null) {
 					renderer.renderSkybox(renderGraph.getSkybox(), cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
 				}
-				if (waterShader != null && waterFrameBuffer != null) {
-					renderer.renderWater(renderGraph.getWaterMeshes(),
-							cameraInstanceObjectEntry,
-							renderGraph.getLights(),
-							waterShader,
-							fog,
-							waterFrameBuffer.getReflectionTexture(),
-							waterFrameBuffer.getRefractionTexture(),
-							moveFactor,
-							skyboxAmbientLight);
-				}
+//				if (waterShader != null && waterFrameBuffer != null) {
+//					renderer.renderWater(renderGraph.getWaterMeshes(),
+//							cameraInstanceObjectEntry,
+//							renderGraph.getLights(),
+//							waterShader,
+//							fog,
+//							waterFrameBuffer.getReflectionTexture(),
+//							waterFrameBuffer.getRefractionTexture(),
+//							moveFactor,
+//							skyboxAmbientLight);
+//				}
 
-				if (terrainShader != null) {
-					if (!renderGraph.getTerrainMeshes().isEmpty()) {
-						for (MeshObject meshObject : renderGraph.getTerrainMeshes().keySet()) {
-							Terrain terrain = (Terrain) meshObject;
-							renderer.renderTerrain(renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), terrainShader, ambientLight, fog, null);
-							break;
-						}
-					}
-				}
+//				if (terrainShader != null) {
+//					if (!renderGraph.getTerrainMeshes().isEmpty()) {
+//						for (Mesh meshObject : renderGraph.getTerrainMeshes().keySet()) {
+//							Terrain terrain = (Terrain) meshObject;
+//							renderer.renderTerrain(renderGraph.getTerrainMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), terrainShader, ambientLight, fog, null);
+//							break;
+//						}
+//					}
+//				}
 				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 					renderer.renderScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
@@ -225,16 +222,16 @@ public class Scene {
 
 	}
 
-	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<MeshObject, ArrayList<InstanceObject>> meshes) {
-		renderer.renderPickingScene(meshes, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
+	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<String, ArrayList<InstanceObject>> models) {
+		renderer.renderPickingScene(models, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
 	}
 
 	private void renderSceneToBuffer(Renderer renderer,
 	                                 Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                                 Vec4f clippingPlane,
-	                                 MeshObject skybox,
-	                                 HashMap<MeshObject, ArrayList<InstanceObject>> meshes,
-	                                 HashMap<Terrain, InstanceObject> terrainMeshes,
+	                                 Pair<String,InstanceObject> skybox,
+	                                 HashMap<String, ArrayList<InstanceObject>> models,
+	                                 HashMap<String, InstanceObject> terrainMeshes,
 	                                 HashMap<Light, InstanceObject> lights) {
 		// enable clip planes
 		// this clips everything under the water
@@ -249,7 +246,7 @@ public class Scene {
 		if (terrainShader != null) {
 			renderer.renderTerrain(terrainMeshes, cameraInstanceObjectEntry, lights, terrainShader, ambientLight, fog, clippingPlane);
 		}
-		renderer.renderScene(meshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
+		renderer.renderScene(models, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}
 
 	public void updateScreen(int width, int height) {

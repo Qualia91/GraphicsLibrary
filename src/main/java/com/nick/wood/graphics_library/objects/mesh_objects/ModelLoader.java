@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class ModelLoader {
 
-	public Mesh loadModel(String filePath) throws IOException {
+	public SingleMesh loadModel(String filePath) throws IOException {
 
 		if (!new File(filePath).exists()) {
 			filePath = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
@@ -60,7 +60,7 @@ public class ModelLoader {
 			indexList[i * 3 + 2] = aiFace.mIndices().get(2);
 		}
 
-		return new Mesh(vertexArray, indexList);
+		return new SingleMesh(vertexArray, indexList);
 	}
 
 	private Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {

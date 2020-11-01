@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.communication;
 
 import com.nick.wood.graphics_library.Window;
+import com.nick.wood.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
@@ -42,6 +43,8 @@ public class GeometryCreateEvent implements RenderUpdateEvent<Model> {
 		// if model already exists in render graph, it is already created and so just add instance
 		if (window.getRenderGraphs().get(layerName).getMeshes().containsKey(model.getStringID())) {
 			window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).add(instanceObject);
+			InstanceMesh instanceMesh = (InstanceMesh) window.getMeshManager().getMesh(model.getMeshString());
+			instanceMesh.createTransformArray(window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()));
 		}
 		// if it does not exist, we need to add model to model manager and add map entry
 		else {
@@ -54,6 +57,8 @@ public class GeometryCreateEvent implements RenderUpdateEvent<Model> {
 			ArrayList<InstanceObject> instanceObjects = new ArrayList<>();
 			instanceObjects.add(instanceObject);
 			window.getRenderGraphs().get(layerName).getMeshes().put(model.getStringID(), instanceObjects);
+			InstanceMesh instanceMesh = (InstanceMesh) window.getMeshManager().getMesh(model.getMeshString());
+			instanceMesh.createTransformArray(window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()));
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.communication;
 
 import com.nick.wood.graphics_library.Window;
+import com.nick.wood.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
@@ -46,5 +47,7 @@ public class GeometryRemoveEvent implements RenderUpdateEvent<Model> {
 		// remove will remove instance with same uuid
 		window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).remove(instanceObject);
 
+		InstanceMesh instanceMesh = (InstanceMesh) window.getMeshManager().getMesh(model.getMeshString());
+		instanceMesh.createTransformArray(window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()));
 	}
 }

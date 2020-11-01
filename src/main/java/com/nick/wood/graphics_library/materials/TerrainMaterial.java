@@ -31,7 +31,7 @@ public class TerrainMaterial implements Material {
 	}
 
 	@Override
-	public void render(TextureManager textureManager, Shader shader) {
+	public void initRender(TextureManager textureManager, Shader shader) {
 		for (int i = 0; i < terrainTextureObjects.size(); i++) {
 			// bind texture
 			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
@@ -56,5 +56,10 @@ public class TerrainMaterial implements Material {
 		shader.setUniform("material.reflectance", reflectance);
 		shader.setUniform("material.hasNormalMap", 1);
 
+	}
+
+	@Override
+	public void endRender() {
+		// do something
 	}
 }

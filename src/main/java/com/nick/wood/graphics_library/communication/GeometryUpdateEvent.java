@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.communication;
 
 import com.nick.wood.graphics_library.Window;
+import com.nick.wood.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
@@ -47,7 +48,7 @@ public class GeometryUpdateEvent implements RenderUpdateEvent<Model> {
 				}
 			}
 
-			// if iot masde it here, there is not instance of this, so add it
+			// if it's made it here, there is not instance of this, so add it
 			window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).add(new InstanceObject(uuid, matrix4f));
 		}
 		// if it does not exist, we need to add model to model manager and add map entry

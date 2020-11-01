@@ -43,6 +43,8 @@ public class Renderer {
 
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
+	private DrawVisitor drawVisitor;
+
 	public Renderer(TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
 		this.textureManager = textureManager;
 		this.materialManager = materialManager;
@@ -52,6 +54,7 @@ public class Renderer {
 
 	public void init() {
 		this.modelViewVBO = glGenBuffers();
+		this.drawVisitor = new DrawVisitor(modelViewVBO);
 	}
 
 	public void destroy() {
@@ -63,19 +66,17 @@ public class Renderer {
 		shader.bind();
 
 		Model model = modelManager.getModel(modelID.getKey());
-		Mesh mesh = meshManager.getMesh(model.getMeshString());
+		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
 
-		mesh.initRender();
+		singleMesh.initRender();
 
 		shader.setUniform("ambientLight", ambientLight);
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
-
 		// bind texture
 
-		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
+		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -96,14 +97,14 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		mesh.endRender();
+		singleMesh.endRender();
 
 		shader.unbind();
 
@@ -134,10 +135,9 @@ public class Renderer {
 	private void renderPickingInstance(Map.Entry<String, ArrayList<InstanceObject>> modelArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
 
 		Model model = modelManager.getModel(modelArrayListEntry.getKey());
-		Mesh mesh = meshManager.getMesh(model.getMeshString());
+		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
 
-		mesh.initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
+		singleMesh.initRender();
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -164,7 +164,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
 
 		// clean up
 
@@ -172,7 +172,7 @@ public class Renderer {
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		mesh.endRender();
+		singleMesh.endRender();
 
 	}
 
@@ -229,12 +229,11 @@ public class Renderer {
 	                            Shader shader) {
 
 		Model model = modelManager.getModel(modelArrayListEntry.getKey());
-		Mesh mesh = meshManager.getMesh(model.getMeshString());
+		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
 		
-		mesh.initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
+		singleMesh.initRender();
 
-		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
+		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -254,7 +253,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElements(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		GL31.glDrawElements(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 
@@ -262,7 +261,7 @@ public class Renderer {
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		mesh.endRender();
+		singleMesh.endRender();
 	}
 
 	public void renderScene(HashMap<String, ArrayList<InstanceObject>> meshes,
@@ -321,41 +320,13 @@ public class Renderer {
 		Mesh mesh = meshManager.getMesh(model.getMeshString());
 
 		mesh.initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
 
-		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
+		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		int start = 3;
-		for (int i = 0; i < 4; i++) {
-			glEnableVertexAttribArray(start);
-			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-			glVertexAttribDivisor(start, 1);
-			start++;
-		}
-
-		int index = 0;
-
-		modelViewBuffer = MemoryUtil.memAllocFloat(modelArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
-		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
-
-			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
-			}
-			index++;
-		}
-		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_STATIC_DRAW);
-
-		MemoryUtil.memFree(modelViewBuffer);
-
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
+		mesh.draw(drawVisitor, modelArrayListEntry.getValue());
 
 		// clean up
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		GL13.glDisable(GL11.GL_TEXTURE_2D);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		materialManager.getMaterial(model.getMaterialID()).endRender();
 
 		mesh.endRender();
 
@@ -419,12 +390,11 @@ public class Renderer {
 	private void renderTerrainInstance(Map.Entry<String, InstanceObject> terrainModel, Shader shader) {
 
 		Model model = modelManager.getModel(terrainModel.getKey());
-		Mesh mesh = meshManager.getMesh(model.getMeshString());
+		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
 
-		mesh.initRender();
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, mesh.getIbo());
+		singleMesh.initRender();
 
-		materialManager.getMaterial(model.getMaterialID()).render(textureManager, shader);
+		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 3;
@@ -444,7 +414,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, mesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 
@@ -453,7 +423,7 @@ public class Renderer {
 		GL13.glDisable(GL11.GL_TEXTURE_2D);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		mesh.endRender();
+		singleMesh.endRender();
 
 	}
 

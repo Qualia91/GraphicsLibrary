@@ -1,15 +1,15 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.SingleMesh;
 
 public class MeshInstanceCounter {
 
-	private final Mesh mesh;
+	private final SingleMesh singleMesh;
 	private long stepLastSeen;
 
-	public MeshInstanceCounter(Mesh mesh, long stepLastSeen) {
-		this.mesh = mesh;
-		mesh.create();
+	public MeshInstanceCounter(SingleMesh singleMesh, long stepLastSeen) {
+		this.singleMesh = singleMesh;
+		singleMesh.create();
 		this.stepLastSeen = stepLastSeen;
 	}
 
@@ -17,8 +17,8 @@ public class MeshInstanceCounter {
 		this.stepLastSeen = stepLastSeen;
 	}
 
-	public Mesh getMesh() {
-		return mesh;
+	public SingleMesh getMesh() {
+		return singleMesh;
 	}
 
 	public long getStepLastSeen() {

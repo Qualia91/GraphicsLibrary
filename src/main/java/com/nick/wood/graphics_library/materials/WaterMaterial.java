@@ -32,7 +32,7 @@ public class WaterMaterial implements Material {
 	}
 
 	@Override
-	public void render(TextureManager textureManager, Shader shader) {
+	public void initRender(TextureManager textureManager, Shader shader) {
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId("REFLECTION_TEXTURE"));
@@ -58,5 +58,10 @@ public class WaterMaterial implements Material {
 		} else {
 			shader.setUniform("material.hasNormalMap", 0);
 		}
+	}
+
+	@Override
+	public void endRender() {
+
 	}
 }

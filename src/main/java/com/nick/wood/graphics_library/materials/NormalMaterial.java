@@ -4,8 +4,12 @@ import com.nick.wood.graphics_library.Shader;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL15;
 
 import java.util.UUID;
+
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
 
 public class NormalMaterial implements Material {
 
@@ -32,7 +36,7 @@ public class NormalMaterial implements Material {
 	}
 
 	@Override
-	public void render(TextureManager textureManager, Shader shader) {
+	public void initRender(TextureManager textureManager, Shader shader) {
 
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -53,5 +57,17 @@ public class NormalMaterial implements Material {
 		} else {
 			shader.setUniform("material.hasNormalMap", 0);
 		}
+	}
+
+	@Override
+	public void endRender() {
+
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+		if (normalMap != null) {
+			GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		}
+
+		GL13.glDisable(GL13.GL_TEXTURE0);
 	}
 }

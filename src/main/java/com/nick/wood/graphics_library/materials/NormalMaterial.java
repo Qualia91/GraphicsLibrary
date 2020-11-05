@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL15;
 
 import java.util.UUID;
 
+import static org.lwjgl.opengl.GL11.glGetError;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 
@@ -41,33 +42,20 @@ public class NormalMaterial implements Material {
 		// bind texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(texture));
-		shader.setUniform("tex", 0);
+
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(normalMap));
+		shader.setUniform("normal_text_sampler", 1);
+		shader.setUniform("material.hasNormalMap", 1);
 
 		shader.setUniform("material.diffuse", diffuseColour);
 		shader.setUniform("material.specular", specularColour);
 		shader.setUniform("material.shininess", shininess);
 		shader.setUniform("material.reflectance", reflectance);
-
-		// bind normal map if available
-		if (normalMap != null) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE1);
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, textureManager.getTextureId(normalMap));
-			shader.setUniform("normal_text_sampler", 1);
-			shader.setUniform("material.hasNormalMap", 1);
-		} else {
-			shader.setUniform("material.hasNormalMap", 0);
-		}
 	}
 
 	@Override
 	public void endRender() {
 
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-
-		if (normalMap != null) {
-			GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		}
-
-		GL13.glDisable(GL13.GL_TEXTURE0);
 	}
 }

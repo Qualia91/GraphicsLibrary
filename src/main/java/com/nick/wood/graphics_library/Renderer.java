@@ -97,7 +97,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -164,7 +164,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
 
 		// clean up
 
@@ -253,7 +253,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		GL31.glDrawElements(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		GL31.glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 
@@ -414,7 +414,7 @@ public class Renderer {
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, singleMesh.getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
 

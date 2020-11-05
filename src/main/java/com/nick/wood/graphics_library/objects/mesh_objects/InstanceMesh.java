@@ -21,34 +21,19 @@ public class InstanceMesh implements Mesh {
 	private static final int MATRIX_SIZE_BYTES = MATRIX_SIZE_FLOATS * FLOAT_SIZE_BYTES;
 
 	private final SingleMesh mesh;
-	private float[] transformArray;
 	private FloatBuffer modelViewBuffer;
 	private int modelViewVBO;
+	private ArrayList<InstanceObject> instanceObjects;
 
 	public InstanceMesh(SingleMesh mesh) {
 		this.mesh = mesh;
 	}
 
-	public void createTransformArray(ArrayList<InstanceObject> instanceObjects) {
-
-		transformArray = new float[instanceObjects.size() * MATRIX_SIZE_FLOATS];
-
-		for (int instanceIndex = 0; instanceIndex < instanceObjects.size(); instanceIndex++) {
-
-			for (int transformIndex = 0; transformIndex < instanceObjects.get(instanceIndex).getTransformation().getValues().length; transformIndex++) {
-				transformArray[(instanceIndex * MATRIX_SIZE_FLOATS) + transformIndex] =
-						instanceObjects.get(instanceIndex).getTransformation().getValues()[transformIndex];
-			}
-		}
-
+	public void createTransformArray() {
 
 		glBindVertexArray(mesh.getVao());
 
-		glDeleteBuffers(modelViewVBO);
 		modelViewVBO = glGenBuffers();
-
-		MemoryUtil.memFree(modelViewBuffer);
-		this.modelViewBuffer = MemoryUtil.memAllocFloat(transformArray.length);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 
@@ -60,12 +45,7 @@ public class InstanceMesh implements Mesh {
 			start++;
 		}
 
-		for (int i = 0; i < transformArray.length; i++) {
-			modelViewBuffer.put(i, transformArray[i]);
-		}
-
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
@@ -79,6 +59,9 @@ public class InstanceMesh implements Mesh {
 	@Override
 	public void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> instanceObjects) {
 
+		this.instanceObjects = instanceObjects;
+		float[] transformArray = new float[instanceObjects.size() * MATRIX_SIZE_FLOATS];
+
 		for (int instanceIndex = 0; instanceIndex < instanceObjects.size(); instanceIndex++) {
 
 			for (int transformIndex = 0; transformIndex < instanceObjects.get(instanceIndex).getTransformation().getValues().length; transformIndex++) {
@@ -86,6 +69,9 @@ public class InstanceMesh implements Mesh {
 						instanceObjects.get(instanceIndex).getTransformation().getValues()[transformIndex];
 			}
 		}
+
+		MemoryUtil.memFree(modelViewBuffer);
+		this.modelViewBuffer = MemoryUtil.memAllocFloat(transformArray.length);
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 
@@ -97,6 +83,18 @@ public class InstanceMesh implements Mesh {
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		drawVisitor.draw(this, instanceObjects);
+
+
+	}
+
+	@Override
+	public int size() {
+		return mesh.size();
+	}
+
+	@Override
+	public void create() {
+
 	}
 
 	@Override
@@ -118,17 +116,6 @@ public class InstanceMesh implements Mesh {
 			glEnableVertexAttribArray(start + i);
 		}
 
-
-	}
-
-	@Override
-	public int getIbo() {
-		return mesh.getIbo();
-	}
-
-	@Override
-	public int[] getIndices() {
-		return mesh.getIndices();
 	}
 
 	@Override

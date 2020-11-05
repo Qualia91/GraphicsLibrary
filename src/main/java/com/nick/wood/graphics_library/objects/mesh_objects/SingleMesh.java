@@ -1,7 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.DrawVisitor;
-import com.nick.wood.graphics_library.Vertex;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -12,8 +11,6 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 
 public class SingleMesh implements Mesh {
 
@@ -42,8 +39,6 @@ public class SingleMesh implements Mesh {
 		tabo = GL15.glGenBuffers();
 		btabo = GL15.glGenBuffers();
 		GL30.glBindVertexArray(vao);
-
-
 
 
 		// PBO
@@ -110,20 +105,6 @@ public class SingleMesh implements Mesh {
 		MemoryUtil.memFree(normBuffer);
 
 
-		// IBO
-		IntBuffer buffer = MemoryUtil.memAllocInt(indices.length);
-		buffer.put(indices).flip();
-		// bind to buffer
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
-		// put data in
-		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-		// shader stuff
-		GL20.glVertexAttribPointer(3, 3, GL11.GL_INT, false, 0, 0);
-		// unbind from buffer
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		MemoryUtil.memFree(buffer);
-
-
 
 		// TABO
 		float[] tangentData = new float[vertices.length * 3];
@@ -139,7 +120,7 @@ public class SingleMesh implements Mesh {
 		// put data in
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, tangentBuffer, GL15.GL_STATIC_DRAW);
 		// shader stuff
-		GL20.glVertexAttribPointer(8, 3, GL11.GL_FLOAT, false, 0, 0);
+		GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 0, 0);
 		// unbind from buffer
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		MemoryUtil.memFree(tangentBuffer);
@@ -158,10 +139,24 @@ public class SingleMesh implements Mesh {
 		// put data in
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, bitangentBuffer, GL15.GL_STATIC_DRAW);
 		// shader stuff
-		GL20.glVertexAttribPointer(9, 3, GL11.GL_FLOAT, false, 0, 0);
+		GL20.glVertexAttribPointer(4, 3, GL11.GL_FLOAT, false, 0, 0);
 		// unbind from buffer
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		MemoryUtil.memFree(bitangentBuffer);
+
+
+		// IBO
+		IntBuffer buffer = MemoryUtil.memAllocInt(indices.length);
+		buffer.put(indices).flip();
+		// bind to buffer
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
+		// put data in
+		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+		// shader stuff
+		//GL20.glVertexAttribPointer(5, 3, GL11.GL_INT, false, 0, 0);
+		// unbind from buffer
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		MemoryUtil.memFree(buffer);
 
 
 	}
@@ -177,9 +172,7 @@ public class SingleMesh implements Mesh {
 		// enable index
 		GL30.glEnableVertexAttribArray(3);
 		// enable tangent
-		GL30.glEnableVertexAttribArray(8);
-		// enable bitangent
-		GL30.glEnableVertexAttribArray(9);
+		GL30.glEnableVertexAttribArray(4);
 
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -188,8 +181,7 @@ public class SingleMesh implements Mesh {
 
 	public void endRender() {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-		GL30.glEnableVertexAttribArray(9);
-		GL30.glEnableVertexAttribArray(8);
+		GL30.glEnableVertexAttribArray(4);
 		GL30.glDisableVertexAttribArray(3);
 		GL30.glDisableVertexAttribArray(2);
 		GL30.glDisableVertexAttribArray(1);
@@ -207,6 +199,11 @@ public class SingleMesh implements Mesh {
 		drawVisitor.draw(this, value);
 	}
 
+	@Override
+	public int size() {
+		return indices.length;
+	}
+
 	public void destroy() {
 		GL15.glDeleteBuffers(tabo);
 		GL15.glDeleteBuffers(btabo);
@@ -219,10 +216,6 @@ public class SingleMesh implements Mesh {
 
 	public Vertex[] getVertices() {
 		return vertices;
-	}
-
-	public int[] getIndices() {
-		return indices;
 	}
 
 	public int getVao() {

@@ -5,6 +5,7 @@ import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
@@ -38,6 +39,13 @@ public class Shader {
 
 		glAttachShader(programId, vertexId);
 		glAttachShader(programId, fragmentId);
+
+		GL20.glBindAttribLocation(programId, 0, "position");
+		GL20.glBindAttribLocation(programId, 1, "textureCoord");
+		GL20.glBindAttribLocation(programId, 2, "normal");
+		GL20.glBindAttribLocation(programId, 3, "tangent");
+		GL20.glBindAttribLocation(programId, 4, "bitangent");
+		GL20.glBindAttribLocation(programId, 5, "model");
 
 		glLinkProgram(programId);
 

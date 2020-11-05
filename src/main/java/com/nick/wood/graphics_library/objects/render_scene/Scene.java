@@ -187,9 +187,9 @@ public class Scene {
 //					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 //
 //				}
-				if (skyboxShader != null && renderGraph.getSkybox() != null) {
-					renderer.renderSkybox(renderGraph.getSkybox(), cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
-				}
+//				if (skyboxShader != null && renderGraph.getSkybox() != null) {
+//					renderer.renderSkybox(renderGraph.getSkybox(), cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
+//				}
 //				if (waterShader != null && waterFrameBuffer != null) {
 //					renderer.renderWater(renderGraph.getWaterMeshes(),
 //							cameraInstanceObjectEntry,
@@ -212,7 +212,7 @@ public class Scene {
 //					}
 //				}
 				if (mainShader != null) {
-					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+					//GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 					renderer.renderScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
 				}
 				break;
@@ -220,7 +220,7 @@ public class Scene {
 		}
 
 	}
-
+/*
 	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<String, ArrayList<InstanceObject>> models) {
 		renderer.renderPickingScene(models, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
 	}
@@ -247,7 +247,7 @@ public class Scene {
 		}
 		renderer.renderScene(models, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}
-
+*/
 	public void updateScreen(int width, int height) {
 		screenWidth = width;
 		screenHeight = height;

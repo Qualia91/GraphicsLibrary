@@ -12,13 +12,13 @@ public interface Mesh {
 
 	void initRender();
 
-	int getIbo();
-
-	int[] getIndices();
-
 	void endRender();
 
 	FloatBuffer getModelViewBuffer();
 
 	void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value);
+
+	int size();
+
+	void create();
 }

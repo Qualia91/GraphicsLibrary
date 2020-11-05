@@ -38,6 +38,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL43.GL_DEBUG_SOURCE_API;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -48,10 +49,10 @@ public class Window implements Subscribable {
 
 	private final Set<Class<?>> supports = new HashSet<>();
 	private final ArrayBlockingQueue<ManagementEvent> managementEvents = new ArrayBlockingQueue<>(10);
-	private final ArrayBlockingQueue<RenderUpdateEvent> renderEvents = new ArrayBlockingQueue<>(100000);
+	private final ArrayBlockingQueue<RenderUpdateEvent> renderEvents = new ArrayBlockingQueue<>(100_000);
 
 	private final ArrayList<ManagementEvent> drainedEventList = new ArrayList<>(10);
-	private final ArrayList<RenderUpdateEvent> drainedRenderEventList = new ArrayList<>(100000);
+	private final ArrayList<RenderUpdateEvent> drainedRenderEventList = new ArrayList<>(100_000);
 
 	private final GLInputListener graphicsLibraryInput;
 	private final ArrayList<Scene> sceneLayers;
@@ -181,6 +182,7 @@ public class Window implements Subscribable {
 		// debug
 		if (windowInitialisationParameters.isDebug()) {
 			Callback callback = GLUtil.setupDebugMessageCallback();
+			GL43.nglDebugMessageControl(GL_DEBUG_SOURCE_API, GL43.GL_DEBUG_TYPE_OTHER, GL43.GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, false);
 			glEnable(GL43.GL_DEBUG_OUTPUT);
 			Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 		}
@@ -252,6 +254,7 @@ public class Window implements Subscribable {
 //			LOGGER.getStringBuilder().append("Getting render events, amount: ").append(drainedRenderEventList.size()).append("\n");
 //			LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
 //		}
+
 		STATS.beginGetRenderEvent(System.currentTimeMillis());
 		for (RenderUpdateEvent renderUpdateEvent : drainedRenderEventList) {
 
@@ -278,7 +281,7 @@ public class Window implements Subscribable {
 		}
 
 		// Set the clear color
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 

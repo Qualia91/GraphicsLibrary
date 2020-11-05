@@ -1,9 +1,6 @@
 package com.nick.wood.graphics_library.objects;
 
-import com.nick.wood.graphics_library.objects.mesh_objects.InstanceMesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.SingleMesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.ModelLoader;
+import com.nick.wood.graphics_library.objects.mesh_objects.*;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 
 import java.io.IOException;
@@ -24,10 +21,9 @@ public class MeshManager {
 	}
 
 	public void create(String defaultMesh) throws IOException {
-		SingleMesh singleMesh = meshLoader.loadModel(defaultMesh);
-		singleMesh.create();
-		InstanceMesh instanceMesh = new InstanceMesh(singleMesh);
-		meshStringDescriptorToMeshMap.put("DEFAULT", instanceMesh);
+		Mesh mesh = meshLoader.loadModel(defaultMesh);
+		mesh.create();
+		meshStringDescriptorToMeshMap.put("DEFAULT", mesh);
 	}
 
 	public void destroy() {
@@ -39,9 +35,8 @@ public class MeshManager {
 	public void createMesh(String filePath) throws IOException {
 		// if mesh already made, just continue
 		if (meshStringDescriptorToMeshMap.containsKey(filePath)) return;
-		SingleMesh singleMesh = meshLoader.loadModel(filePath);
-		singleMesh.create();
-		InstanceMesh instanceMesh = new InstanceMesh(singleMesh);
-		meshStringDescriptorToMeshMap.put(filePath, instanceMesh);
+		Mesh mesh = meshLoader.loadModel(filePath);
+		mesh.create();
+		meshStringDescriptorToMeshMap.put(filePath, mesh);
 	}
 }

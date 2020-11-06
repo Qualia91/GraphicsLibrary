@@ -45,7 +45,9 @@ public class GeometryRemoveEvent implements RenderUpdateEvent<Model> {
 		// remove model instance
 		// pretty sure as ive overriden the instance equals and hash method to just look at uuids,
 		// remove will remove instance with same uuid
-		window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).remove(instanceObject);
+		if (window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()) != null) {
+			window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).remove(instanceObject);
+		}
 
 	}
 }

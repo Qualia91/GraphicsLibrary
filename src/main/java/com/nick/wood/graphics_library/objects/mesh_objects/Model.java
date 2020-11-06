@@ -11,7 +11,13 @@ public class Model {
 	public Model(String meshString, UUID materialID) {
 		this.meshString = meshString;
 		this.materialID = materialID;
-		this.modelID = meshString + materialID.toString();
+		String materialIdString;
+		if (materialID == null) {
+			materialIdString = "DEFAULT";
+		} else {
+			materialIdString = materialID.toString();
+		}
+		this.modelID = meshString + materialIdString;
 	}
 
 	public String getMeshString() {

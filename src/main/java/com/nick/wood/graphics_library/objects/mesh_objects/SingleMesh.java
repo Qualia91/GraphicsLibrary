@@ -36,7 +36,6 @@ public class SingleMesh implements Mesh {
 		rendererObject.destroy();
 	}
 
-	@Override
 	public void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value) {
 		drawVisitor.draw(this, value);
 	}

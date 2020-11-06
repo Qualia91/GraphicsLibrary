@@ -62,7 +62,7 @@ public class OpenGlMesh implements RendererObject {
 		// total amount oif bytes per vertex (stride)
 		int vertexFloatSizeInBytes = FLOAT_BYTE_SIZE * Vertex.NUM_OF_FLOATS;
 
-		// now split interleaved data into 5 attribute lists needed for vertex
+		// now split interleaved data into 6 attribute lists needed for vertex
 		glEnableVertexAttribArray(0);
 		GL20.glVertexAttribPointer(0, Vertex.POSITION_FLOAT_COUNT, GL11.GL_FLOAT,
 				false, vertexFloatSizeInBytes, FLOAT_BYTE_SIZE * Vertex.POSITION_OFFSET);
@@ -96,8 +96,6 @@ public class OpenGlMesh implements RendererObject {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
 		// put data in
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-		// shader stuff
-		//GL20.glVertexAttribPointer(5, 3, GL11.GL_INT, false, 0, 0);
 		// unbind from buffer
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		MemoryUtil.memFree(indicesBuffer);
@@ -110,13 +108,9 @@ public class OpenGlMesh implements RendererObject {
 		GL30.glBindVertexArray(vao);
 		// enable position attribute
 		glEnableVertexAttribArray(0);
-		// enable texture attribute
 		glEnableVertexAttribArray(1);
-		// enable normal
 		glEnableVertexAttribArray(2);
-		// enable tangent
 		glEnableVertexAttribArray(3);
-		// enable bitangent
 		glEnableVertexAttribArray(4);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
 	}

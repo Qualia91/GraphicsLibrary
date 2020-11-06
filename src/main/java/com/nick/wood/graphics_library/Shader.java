@@ -45,7 +45,8 @@ public class Shader {
 		GL20.glBindAttribLocation(programId, 2, "normal");
 		GL20.glBindAttribLocation(programId, 3, "tangent");
 		GL20.glBindAttribLocation(programId, 4, "bitangent");
-		GL20.glBindAttribLocation(programId, 5, "model");
+		GL20.glBindAttribLocation(programId, 5, "colour");
+		GL20.glBindAttribLocation(programId, 6, "model");
 
 		glLinkProgram(programId);
 

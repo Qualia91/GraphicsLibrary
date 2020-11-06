@@ -27,6 +27,8 @@ public class DrawVisitor {
 	private final int modelViewVBO;
 	private FloatBuffer modelViewBuffer;
 
+	private static final int MODEL_VIEW_MATRIX_START_POSITION = 6;
+
 	public DrawVisitor(int modelViewVBO) {
 		this.modelViewVBO = modelViewVBO;
 	}
@@ -39,7 +41,7 @@ public class DrawVisitor {
 		for (InstanceObject instanceObject : instanceArray) {
 
 			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-			int start = 5;
+			int start = MODEL_VIEW_MATRIX_START_POSITION;
 			for (int i = 0; i < 4; i++) {
 				glEnableVertexAttribArray(start);
 				glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);

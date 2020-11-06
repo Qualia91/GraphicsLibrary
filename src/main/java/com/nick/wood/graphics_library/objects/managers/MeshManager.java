@@ -2,6 +2,7 @@ package com.nick.wood.graphics_library.objects.managers;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.*;
 import com.nick.wood.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 
 import java.io.IOException;
@@ -60,5 +61,16 @@ public class MeshManager {
 		Mesh mesh = meshLoader.loadModel(filePath, new OpenGlMesh());
 		mesh.create();
 		meshStringDescriptorToMeshMap.put(filePath, mesh);
+	}
+
+	public void createMesh(float[][] grid, double cellSpace, String name) {
+		Mesh mesh = basicMeshCreator.createHeightMap(new OpenGlMesh(), grid, cellSpace);
+		mesh.create();
+		meshStringDescriptorToMeshMap.put(name, mesh);
+	}
+
+	public void destroyMesh(String name) {
+		this.meshStringDescriptorToMeshMap.get(name).destroy();
+		this.meshStringDescriptorToMeshMap.remove(name);
 	}
 }

@@ -15,9 +15,5 @@ public interface Mesh {
 
 	void endRender();
 
-	default void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value) {
-		drawVisitor.draw(this, value);
-	}
-
 	int size();
 }

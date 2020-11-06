@@ -54,7 +54,6 @@ public class InstanceMesh implements Mesh {
 		return modelViewBuffer;
 	}
 
-	@Override
 	public void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> instanceObjects) {
 
 		this.instanceObjects = instanceObjects;

@@ -44,8 +44,12 @@ public class WindowInitialisationParameters {
 		// remove window bar
 		glfwWindowHint(GLFW_DECORATED, decorated ? GLFW_TRUE : GLFW_FALSE);
 
-		// Create the window
-		long windowHandler = glfwCreateWindow(windowWidth, windowHeight, title, NULL, NULL);
+		long windowHandler;
+		if (fullScreen) {
+			windowHandler = glfwCreateWindow(windowWidth, windowHeight, "Title", glfwGetPrimaryMonitor(), NULL);
+		} else {
+			windowHandler = glfwCreateWindow(windowWidth, windowHeight, title, NULL, NULL);
+		}
 
 		// this locks cursor to center so can always look about
 		org.lwjgl.glfw.GLFW.glfwSetInputMode(windowHandler, GLFW_CURSOR, lockCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);

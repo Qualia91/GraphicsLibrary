@@ -207,4 +207,5 @@ void main() {
     {
         outColour = calcFog(cameraPos - passVertexPos, outColour, fog);
     }
+
 }

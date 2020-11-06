@@ -9,11 +9,13 @@ import com.nick.wood.graphics_library.objects.managers.MeshManager;
 import com.nick.wood.graphics_library.objects.managers.ModelManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
+import com.nick.wood.graphics_library.objects.mesh_objects.Vertex;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.Pair;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
@@ -30,6 +32,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
+	private static final int MODEL_VIEW_MATRIX_START_POSITION = 6;
 	private final MaterialManager materialManager;
 	private final TextureManager textureManager;
 	private final MeshManager meshManager;
@@ -46,6 +49,7 @@ public class Renderer {
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
 	private DrawVisitor drawVisitor;
+	private int colourVBO;
 
 	public Renderer(TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
 		this.textureManager = textureManager;
@@ -82,7 +86,7 @@ public class Renderer {
 		Matrix4f matrix4f = skyboxModel.getValue().getTransformation().multiply(Matrix4f.Translation(cameraPosition)).transpose();
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		int start = 5;
+		int start = 6;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
 			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
@@ -324,7 +328,30 @@ public class Renderer {
 
 		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
-		mesh.draw(drawVisitor, modelArrayListEntry.getValue());
+		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
+
+			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+			int start = MODEL_VIEW_MATRIX_START_POSITION;
+			for (int i = 0; i < 4; i++) {
+				glEnableVertexAttribArray(start);
+				glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+				glVertexAttribDivisor(start, 1);
+				start++;
+			}
+
+			modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+
+			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
+				modelViewBuffer.put(i, instanceObject.getTransformation().getValues()[i]);
+			}
+
+			glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
+			MemoryUtil.memFree(modelViewBuffer);
+
+			glDrawElements(GL11.GL_TRIANGLES, mesh.size(), GL11.GL_UNSIGNED_INT, 0);
+
+		}
 
 		// clean up
 		materialManager.getMaterial(model.getMaterialID()).endRender();

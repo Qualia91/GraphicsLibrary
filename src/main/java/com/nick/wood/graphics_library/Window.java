@@ -115,6 +115,9 @@ public class Window implements Subscribable {
 
 		this.supports.add(SkyboxCreateEvent.class);
 		this.supports.add(SkyboxRemoveEvent.class);
+
+		this.supports.add(HeightMapMeshCreateEvent.class);
+		this.supports.add(HeightMapMeshRemoveEvent.class);
 	}
 
 	public boolean shouldClose() {

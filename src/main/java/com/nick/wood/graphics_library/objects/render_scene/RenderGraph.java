@@ -1,6 +1,6 @@
 package com.nick.wood.graphics_library.objects.render_scene;
 
-import com.nick.wood.graphics_library.lighting.Light;
+import com.nick.wood.graphics_library.objects.lighting.Light;
 import com.nick.wood.graphics_library.objects.Camera;
 
 import java.util.*;
@@ -51,5 +51,9 @@ public class RenderGraph {
 
 	public Pair<String, InstanceObject> getSkybox() {
 		return skybox;
+	}
+
+	public void setSkybox(Pair<String, InstanceObject> skybox) {
+		this.skybox = skybox;
 	}
 }

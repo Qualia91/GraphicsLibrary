@@ -1,10 +1,12 @@
-package com.nick.wood.graphics_library.materials;
+package com.nick.wood.graphics_library.objects.managers;
 
+import com.nick.wood.graphics_library.objects.materials.FboTexture;
+import com.nick.wood.graphics_library.objects.materials.LoadedTexture;
+import com.nick.wood.graphics_library.objects.materials.Texture;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class TextureManager {
 

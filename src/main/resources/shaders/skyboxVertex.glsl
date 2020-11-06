@@ -1,11 +1,11 @@
 #version 460 core
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 textureCoord;
-layout (location = 2) in vec3 normal;
-layout (location = 3) in mat4 model;
-layout (location = 8) in vec3 tangent;
-layout (location = 9) in vec3 bitangent;
+in vec3 position;
+in vec2 textureCoord;
+in vec3 normal;
+in vec3 tangent;
+in vec3 bitangent;
+in mat4 model;
 
 out vec2 passTextureCoord;
 

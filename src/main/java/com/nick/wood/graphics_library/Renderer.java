@@ -1,10 +1,12 @@
 package com.nick.wood.graphics_library;
 
-import com.nick.wood.graphics_library.lighting.*;
-import com.nick.wood.graphics_library.materials.*;
+import com.nick.wood.graphics_library.objects.DrawVisitor;
+import com.nick.wood.graphics_library.objects.lighting.*;
+import com.nick.wood.graphics_library.objects.managers.MaterialManager;
+import com.nick.wood.graphics_library.objects.managers.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
-import com.nick.wood.graphics_library.objects.MeshManager;
-import com.nick.wood.graphics_library.objects.ModelManager;
+import com.nick.wood.graphics_library.objects.managers.MeshManager;
+import com.nick.wood.graphics_library.objects.managers.ModelManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
@@ -61,25 +63,26 @@ public class Renderer {
 		glDeleteBuffers(modelViewVBO);
 	}
 
-	public void renderSkybox(Pair<String, InstanceObject> modelID, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
+	public void renderSkybox(Pair<String, InstanceObject> skyboxModel, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
 
 		shader.bind();
 
-		Model model = modelManager.getModel(modelID.getKey());
-		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
+		Model model = modelManager.getModel(skyboxModel.getKey());
+		Mesh mesh = meshManager.getMesh(model.getMeshString());
 
-		singleMesh.initRender();
-
-		shader.setUniform("ambientLight", ambientLight);
+		mesh.initRender();
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
-		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
-
-		// bind texture
+		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformationInverse());
+		shader.setUniform("ambientLight", ambientLight);
 
 		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
+		Vec3f cameraPosition = cameraInstanceObjectEntry.getValue().getTransformation().getTranslation();
+
+		Matrix4f matrix4f = skyboxModel.getValue().getTransformation().multiply(Matrix4f.Translation(cameraPosition)).transpose();
+
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		int start = 3;
+		int start = 5;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
 			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
@@ -89,22 +92,20 @@ public class Renderer {
 
 		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
 
-		for (int i = 0; i < modelID.getValue().getTransformation().transpose().getValues().length; i++) {
-			modelViewBuffer.put(i, modelID.getValue().getTransformation().transpose().getValues()[i]);
+		for (int i = 0; i < matrix4f.getValues().length; i++) {
+			modelViewBuffer.put(i, matrix4f.getValues()[i]);
 		}
 
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
 
-		glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
+		glDrawElements(GL11.GL_TRIANGLES, mesh.size(), GL11.GL_UNSIGNED_INT, 0);
 
 		// clean up
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		materialManager.getMaterial(model.getMaterialID()).endRender();
 
-		singleMesh.endRender();
+		mesh.endRender();
 
 		shader.unbind();
 

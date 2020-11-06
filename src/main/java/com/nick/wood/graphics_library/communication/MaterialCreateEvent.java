@@ -1,14 +1,8 @@
 package com.nick.wood.graphics_library.communication;
 
 import com.nick.wood.graphics_library.Window;
-import com.nick.wood.graphics_library.materials.Material;
-import com.nick.wood.graphics_library.materials.NormalMaterial;
-import com.nick.wood.graphics_library.objects.mesh_objects.Model;
-import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
-import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
+import com.nick.wood.graphics_library.objects.materials.Material;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class MaterialCreateEvent implements RenderUpdateEvent<Material> {

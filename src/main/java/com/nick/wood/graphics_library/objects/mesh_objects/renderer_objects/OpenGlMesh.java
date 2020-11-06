@@ -1,7 +1,6 @@
-package com.nick.wood.graphics_library.objects.mesh_objects;
+package com.nick.wood.graphics_library.objects.mesh_objects.renderer_objects;
 
-import com.nick.wood.graphics_library.DrawVisitor;
-import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
+import com.nick.wood.graphics_library.objects.mesh_objects.Vertex;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -9,29 +8,32 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
-public class InterleavedMesh implements Mesh {
+public class OpenGlMesh implements RendererObject {
 
 	private static final int FLOAT_BYTE_SIZE = 4;
 
-	private Vertex[] vertices;
-	private int[] indices;
 	private int vao;
 	private int vbo;
 	private int ibo;
 
-	public InterleavedMesh(Vertex[] vertices, int[] indices) {
-		this.vertices = vertices;
-		this.indices = indices;
+	public int getVao() {
+		return vao;
 	}
 
-	public void create() {
+	public int getVbo() {
+		return vbo;
+	}
+
+	public int getIbo() {
+		return ibo;
+	}
+
+	public void create(Vertex[] vertices, int[] indices) {
 
 		FloatBuffer interleavedBuffer = BufferUtils.createFloatBuffer(vertices.length * Vertex.NUM_OF_FLOATS);
 
@@ -102,8 +104,6 @@ public class InterleavedMesh implements Mesh {
 
 		// unbind
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
 	}
 
 	public void initRender() {
@@ -119,8 +119,6 @@ public class InterleavedMesh implements Mesh {
 		// enable bitangent
 		glEnableVertexAttribArray(4);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-
 	}
 
 	public void endRender() {
@@ -133,34 +131,9 @@ public class InterleavedMesh implements Mesh {
 		GL30.glBindVertexArray(0);
 	}
 
-	@Override
-	public FloatBuffer getModelViewBuffer() {
-		return null;
-	}
-
-	@Override
-	public void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value) {
-		drawVisitor.draw(this, value);
-	}
-
-	@Override
-	public int size() {
-		return indices.length;
-	}
-
 	public void destroy() {
 		GL30.glDeleteVertexArrays(vao);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL15.glDeleteBuffers(vbo);
 	}
-
-	public Vertex[] getVertices() {
-		return vertices;
-	}
-
-	public int getVertexCount() {
-		return indices.length;
-	}
-
-
 }

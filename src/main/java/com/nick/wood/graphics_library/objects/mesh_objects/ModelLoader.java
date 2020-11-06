@@ -1,5 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
+import com.nick.wood.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
 import com.nick.wood.maths.objects.vector.Vec2f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.assimp.*;
@@ -9,7 +10,7 @@ import java.io.IOException;
 
 public class ModelLoader {
 
-	public Mesh loadModel(String filePath) throws IOException {
+	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException {
 
 		if (!new File(filePath).exists()) {
 			filePath = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
@@ -59,7 +60,7 @@ public class ModelLoader {
 			indexList[i * 3 + 2] = aiFace.mIndices().get(2);
 		}
 
-		return new InterleavedMesh(vertexArray, indexList);
+		return new SingleMesh(vertexArray, indexList, rendererObject);
 	}
 
 	private Vec3f getVecFromData(AIVector3D.Buffer buffer, int i) {

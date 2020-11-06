@@ -1,16 +1,12 @@
-package com.nick.wood.graphics_library.materials;
+package com.nick.wood.graphics_library.objects.materials;
 
 import com.nick.wood.graphics_library.Shader;
+import com.nick.wood.graphics_library.objects.managers.TextureManager;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL15;
 
 import java.util.UUID;
-
-import static org.lwjgl.opengl.GL11.glGetError;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
 
 public class NormalMaterial implements Material {
 

@@ -1,4 +1,7 @@
-package com.nick.wood.graphics_library.materials;
+package com.nick.wood.graphics_library.objects.managers;
+
+import com.nick.wood.graphics_library.objects.materials.BasicMaterial;
+import com.nick.wood.graphics_library.objects.materials.Material;
 
 import java.util.HashMap;
 import java.util.UUID;

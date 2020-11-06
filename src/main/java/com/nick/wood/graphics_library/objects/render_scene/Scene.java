@@ -5,17 +5,14 @@ import com.nick.wood.graphics_library.Shader;
 import com.nick.wood.graphics_library.frame_buffers.PickingFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.SceneFrameBuffer;
 import com.nick.wood.graphics_library.frame_buffers.WaterFrameBuffer;
-import com.nick.wood.graphics_library.lighting.Fog;
-import com.nick.wood.graphics_library.lighting.Light;
-import com.nick.wood.graphics_library.materials.TextureManager;
+import com.nick.wood.graphics_library.objects.lighting.Fog;
+import com.nick.wood.graphics_library.objects.managers.TextureManager;
 import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.CameraType;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 import com.nick.wood.maths.objects.vector.Vec3f;
 import com.nick.wood.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 
 import java.util.*;
 
@@ -187,9 +184,9 @@ public class Scene {
 //					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 //
 //				}
-//				if (skyboxShader != null && renderGraph.getSkybox() != null) {
-//					renderer.renderSkybox(renderGraph.getSkybox(), cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
-//				}
+				if (skyboxShader != null && renderGraph.getSkybox() != null) {
+					renderer.renderSkybox(renderGraph.getSkybox(), cameraInstanceObjectEntry, skyboxShader, skyboxAmbientLight);
+				}
 //				if (waterShader != null && waterFrameBuffer != null) {
 //					renderer.renderWater(renderGraph.getWaterMeshes(),
 //							cameraInstanceObjectEntry,

@@ -1,8 +1,7 @@
-package com.nick.wood.graphics_library;
+package com.nick.wood.graphics_library.objects;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.InstanceMesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.InterleavedMesh;
-import com.nick.wood.graphics_library.objects.mesh_objects.SingleMesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
@@ -36,7 +35,7 @@ public class DrawVisitor {
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, instanceMesh.size(), GL11.GL_UNSIGNED_INT, 0, instanceArray.size());
 	}
 
-	public void draw(SingleMesh singleMesh, ArrayList<InstanceObject> instanceArray) {
+	public void draw(Mesh mesh, ArrayList<InstanceObject> instanceArray) {
 		for (InstanceObject instanceObject : instanceArray) {
 
 			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
@@ -58,35 +57,7 @@ public class DrawVisitor {
 
 			MemoryUtil.memFree(modelViewBuffer);
 
-			glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
-
-		}
-	}
-
-	public void draw(InterleavedMesh interleavedMesh, ArrayList<InstanceObject> instanceArray) {
-
-		for (InstanceObject instanceObject : instanceArray) {
-
-			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-			int start = 5;
-			for (int i = 0; i < 4; i++) {
-				glEnableVertexAttribArray(start);
-				glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-				glVertexAttribDivisor(start, 1);
-				start++;
-			}
-
-			modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
-
-			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
-				modelViewBuffer.put(i, instanceObject.getTransformation().getValues()[i]);
-			}
-
-			glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
-
-			MemoryUtil.memFree(modelViewBuffer);
-
-			glDrawElements(GL11.GL_TRIANGLES, interleavedMesh.size(), GL11.GL_UNSIGNED_INT, 0);
+			glDrawElements(GL11.GL_TRIANGLES, mesh.size(), GL11.GL_UNSIGNED_INT, 0);
 
 		}
 	}

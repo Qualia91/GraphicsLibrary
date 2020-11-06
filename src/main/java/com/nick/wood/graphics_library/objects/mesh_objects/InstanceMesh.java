@@ -1,7 +1,6 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.graphics_library.DrawVisitor;
-import com.nick.wood.graphics_library.Renderer;
+import com.nick.wood.graphics_library.objects.DrawVisitor;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import org.lwjgl.system.MemoryUtil;
 
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class InstanceMesh implements Mesh {
@@ -31,7 +29,7 @@ public class InstanceMesh implements Mesh {
 
 	public void createTransformArray() {
 
-		glBindVertexArray(mesh.getVao());
+		//glBindVertexArray(mesh.getVao());
 
 		modelViewVBO = glGenBuffers();
 
@@ -48,7 +46,7 @@ public class InstanceMesh implements Mesh {
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		//glBindVertexArray(0);
 
 	}
 

@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library.objects;
+package com.nick.wood.graphics_library.objects.managers;
 
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 

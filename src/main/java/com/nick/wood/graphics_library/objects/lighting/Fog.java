@@ -1,4 +1,4 @@
-package com.nick.wood.graphics_library.lighting;
+package com.nick.wood.graphics_library.objects.lighting;
 
 import com.nick.wood.maths.objects.vector.Vec3f;
 

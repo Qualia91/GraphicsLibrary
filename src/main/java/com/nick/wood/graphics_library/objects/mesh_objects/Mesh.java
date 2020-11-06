@@ -1,12 +1,13 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
-import com.nick.wood.graphics_library.DrawVisitor;
+import com.nick.wood.graphics_library.objects.DrawVisitor;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public interface Mesh {
+
+	void create();
 
 	void destroy();
 
@@ -14,11 +15,9 @@ public interface Mesh {
 
 	void endRender();
 
-	FloatBuffer getModelViewBuffer();
-
-	void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value);
+	default void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value) {
+		drawVisitor.draw(this, value);
+	}
 
 	int size();
-
-	void create();
 }

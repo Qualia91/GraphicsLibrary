@@ -10,10 +10,10 @@ import com.nick.wood.graphics_library.input.GLInputListener;
 import com.nick.wood.graphics_library.logging.Logger;
 import com.nick.wood.graphics_library.logging.Stats;
 import com.nick.wood.graphics_library.logging.StatsCalc;
-import com.nick.wood.graphics_library.materials.MaterialManager;
-import com.nick.wood.graphics_library.materials.TextureManager;
-import com.nick.wood.graphics_library.objects.MeshManager;
-import com.nick.wood.graphics_library.objects.ModelManager;
+import com.nick.wood.graphics_library.objects.managers.MaterialManager;
+import com.nick.wood.graphics_library.objects.managers.TextureManager;
+import com.nick.wood.graphics_library.objects.managers.MeshManager;
+import com.nick.wood.graphics_library.objects.managers.ModelManager;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.graphics_library.objects.render_scene.Scene;
 import org.lwjgl.Version;
@@ -108,6 +108,13 @@ public class Window implements Subscribable {
 		this.supports.add(CameraCreateEvent.class);
 		this.supports.add(CameraUpdateEvent.class);
 		//this.supports.add(CameraRemoveEvent.class);
+
+		this.supports.add(LightCreateEvent.class);
+		this.supports.add(LightUpdateEvent.class);
+		//this.supports.add(LightRemoveEvent.class);
+
+		this.supports.add(SkyboxCreateEvent.class);
+		this.supports.add(SkyboxRemoveEvent.class);
 	}
 
 	public boolean shouldClose() {
@@ -188,9 +195,9 @@ public class Window implements Subscribable {
 		}
 
 		UUID defaultMaterialId = UUID.randomUUID();
-		textureManager.create("/textures/red.png");
-		materialManager.create("/textures/red.png", defaultMaterialId);
-		meshManager.create("/models/sphere.obj");
+		textureManager.create("/textures/no_texture.png");
+		materialManager.create("/textures/no_texture.png", defaultMaterialId);
+		meshManager.create();
 		modelManager.create(defaultMaterialId);
 
 		// cull back faces

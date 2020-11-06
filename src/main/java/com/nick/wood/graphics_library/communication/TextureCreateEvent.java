@@ -1,10 +1,8 @@
 package com.nick.wood.graphics_library.communication;
 
 import com.nick.wood.graphics_library.Window;
-import com.nick.wood.graphics_library.materials.Material;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class TextureCreateEvent implements RenderUpdateEvent<String> {
 

@@ -78,7 +78,6 @@ public class Renderer {
 		mesh.initRender();
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformationInverse());
-		shader.setUniform("ambientLight", ambientLight);
 
 		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 

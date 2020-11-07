@@ -62,8 +62,7 @@ public class Scene {
 	             Shader pickingShader,
 	             Shader terrainShader,
 	             Fog fog,
-	             Vec3f ambientLight,
-	             Vec3f skyboxAmbientLight) {
+	             Vec3f ambientLight) {
 
 		this.name = name;
 
@@ -75,7 +74,6 @@ public class Scene {
 
 		this.fog = fog;
 		this.ambientLight = ambientLight;
-		this.skyboxAmbientLight = skyboxAmbientLight;
 
 		this.waterCameraReflection = createReflectionMatrix(reflectionClippingPlane);
 	}

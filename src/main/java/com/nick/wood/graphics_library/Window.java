@@ -49,10 +49,10 @@ public class Window implements Subscribable {
 
 	private final Set<Class<?>> supports = new HashSet<>();
 	private final ArrayBlockingQueue<ManagementEvent> managementEvents = new ArrayBlockingQueue<>(10);
-	private final ArrayBlockingQueue<RenderUpdateEvent> renderEvents = new ArrayBlockingQueue<>(100_000);
+	private final ArrayBlockingQueue<RenderUpdateEvent> renderEvents = new ArrayBlockingQueue<>(1_000_000);
 
 	private final ArrayList<ManagementEvent> drainedEventList = new ArrayList<>(10);
-	private final ArrayList<RenderUpdateEvent> drainedRenderEventList = new ArrayList<>(100_000);
+	private final ArrayList<RenderUpdateEvent> drainedRenderEventList = new ArrayList<>(1_000_000);
 
 	private final GLInputListener graphicsLibraryInput;
 	private final ArrayList<Scene> sceneLayers;

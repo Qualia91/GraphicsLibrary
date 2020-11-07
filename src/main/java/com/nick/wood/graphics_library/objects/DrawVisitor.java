@@ -38,6 +38,7 @@ public class DrawVisitor {
 	}
 
 	public void draw(Mesh mesh, ArrayList<InstanceObject> instanceArray) {
+
 		for (InstanceObject instanceObject : instanceArray) {
 
 			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);

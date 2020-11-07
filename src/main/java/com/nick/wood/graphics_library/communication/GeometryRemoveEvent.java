@@ -1,52 +1,62 @@
 package com.nick.wood.graphics_library.communication;
 
+import com.nick.wood.graphics_library.Renderer;
 import com.nick.wood.graphics_library.Window;
 import com.nick.wood.graphics_library.objects.mesh_objects.InstanceMesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.UUID;
 
-public class GeometryRemoveEvent implements RenderUpdateEvent<Model> {
+public class GeometryRemoveEvent implements RenderUpdateEvent<String> {
 
-	private final InstanceObject instanceObject;
-	private final Model model;
+	private final HashSet<UUID> uuids;
+	private final String modelString;
 	private final String layerName;
 
 
-	public GeometryRemoveEvent(InstanceObject instanceObject, Model model, String layerName) {
-		this.instanceObject = instanceObject;
-		this.model = model;
+	public GeometryRemoveEvent(HashSet<UUID> uuids, String modelString, String layerName) {
+		this.uuids = uuids;
+		this.modelString = modelString;
 		this.layerName = layerName;
 	}
 
-	public InstanceObject getInstanceObject() {
-		return instanceObject;
-	}
-
 	@Override
-	public Model getData() {
-		return model;
+	public String getData() {
+		return modelString;
 	}
 
 	@Override
 	public RenderInstanceEventType getType() {
-		return RenderInstanceEventType.CREATE;
+		return RenderInstanceEventType.DESTROY;
 	}
 
 	public void applyToGraphicsEngine(Window window) {
 		// if the layer does not exist, just ignore this as its clearly not being rendered (or something has gone wrong)
 		if (window.getRenderGraphs().get(layerName) == null) {
-			System.err.println("Geometry " + getData().getMeshString() + " cannot ben removed as layer " + layerName + " does not exist");
+			System.err.println("Geometry " + modelString + " cannot ben removed as layer " + layerName + " does not exist");
 			return;
 		}
 
 		// remove model instance
-		// pretty sure as ive overriden the instance equals and hash method to just look at uuids,
-		// remove will remove instance with same uuid
-		if (window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()) != null) {
-			window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).remove(instanceObject);
+		if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString) != null) {
+			for (UUID uuid : uuids) {
+				window.getRenderGraphs().get(layerName).getMeshes().get(modelString).removeIf(ins -> ins.getUuid().equals(uuid));
+			}
+		}
+
+		if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString) != null) {
+			// now check if mesh needs to be converted to instanced model
+			if (window.getMeshManager().getMesh(window.getModelManager().getModel(modelString).getMeshString()).getType().equals(MeshType.INSTANCED)) {
+				// if instance array is over size limit, convert to an instanced mesh to improve performance
+				if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString).size() < Renderer.INSTANCE_ARRAY_SIZE_LIMIT) {
+					window.getMeshManager().convertToSingleMesh(window.getModelManager().getModel(modelString).getMeshString());
+				}
+			}
 		}
 
 	}

@@ -13,7 +13,11 @@ public interface Mesh {
 
 	void initRender();
 
+	void draw(DrawVisitor drawVisitor, ArrayList<InstanceObject> value);
+
 	void endRender();
 
 	int size();
+
+	MeshType getType();
 }

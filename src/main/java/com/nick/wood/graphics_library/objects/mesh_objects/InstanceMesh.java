@@ -1,6 +1,7 @@
 package com.nick.wood.graphics_library.objects.mesh_objects;
 
 import com.nick.wood.graphics_library.objects.DrawVisitor;
+import com.nick.wood.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import org.lwjgl.system.MemoryUtil;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class InstanceMesh implements Mesh {
@@ -23,19 +25,19 @@ public class InstanceMesh implements Mesh {
 	private int modelViewVBO;
 	private ArrayList<InstanceObject> instanceObjects;
 
-	public InstanceMesh(SingleMesh mesh) {
-		this.mesh = mesh;
+	public InstanceMesh(Mesh mesh) {
+		this.mesh = (SingleMesh) mesh;
 	}
 
 	public void createTransformArray() {
 
-		//glBindVertexArray(mesh.getVao());
+		glBindVertexArray(((OpenGlMesh) mesh.getRendererObject()).getVao());
 
 		modelViewVBO = glGenBuffers();
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 
-		int start = 3;
+		int start = 6;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
 			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
@@ -46,7 +48,7 @@ public class InstanceMesh implements Mesh {
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//glBindVertexArray(0);
+		glBindVertexArray(0);
 
 	}
 
@@ -90,8 +92,18 @@ public class InstanceMesh implements Mesh {
 	}
 
 	@Override
+	public MeshType getType() {
+		return MeshType.INSTANCED;
+	}
+
+	@Override
 	public void create() {
 
+	}
+
+	public void destroyInstancing() {
+		glDeleteBuffers(modelViewVBO);
+		MemoryUtil.memFree(modelViewBuffer);
 	}
 
 	@Override
@@ -107,7 +119,7 @@ public class InstanceMesh implements Mesh {
 	public void initRender() {
 		mesh.initRender();
 
-		int start = 3;
+		int start = 6;
 		int numElements = 4 * 2;
 		for (int i = 0; i < numElements; i++) {
 			glEnableVertexAttribArray(start + i);
@@ -120,5 +132,9 @@ public class InstanceMesh implements Mesh {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		mesh.endRender();
+	}
+
+	public Mesh getSingleMesh() {
+		return mesh;
 	}
 }

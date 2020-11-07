@@ -8,6 +8,7 @@ import com.nick.wood.graphics_library.objects.Camera;
 import com.nick.wood.graphics_library.objects.managers.MeshManager;
 import com.nick.wood.graphics_library.objects.managers.ModelManager;
 import com.nick.wood.graphics_library.objects.mesh_objects.Mesh;
+import com.nick.wood.graphics_library.objects.mesh_objects.MeshType;
 import com.nick.wood.graphics_library.objects.mesh_objects.Model;
 import com.nick.wood.graphics_library.objects.mesh_objects.Vertex;
 import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
@@ -32,7 +33,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	private static final int MODEL_VIEW_MATRIX_START_POSITION = 6;
+	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 10000;
 	private final MaterialManager materialManager;
 	private final TextureManager textureManager;
 	private final MeshManager meshManager;
@@ -328,30 +329,7 @@ public class Renderer {
 
 		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
-		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
-
-			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-			int start = MODEL_VIEW_MATRIX_START_POSITION;
-			for (int i = 0; i < 4; i++) {
-				glEnableVertexAttribArray(start);
-				glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-				glVertexAttribDivisor(start, 1);
-				start++;
-			}
-
-			modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
-
-			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
-				modelViewBuffer.put(i, instanceObject.getTransformation().getValues()[i]);
-			}
-
-			glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
-
-			MemoryUtil.memFree(modelViewBuffer);
-
-			glDrawElements(GL11.GL_TRIANGLES, mesh.size(), GL11.GL_UNSIGNED_INT, 0);
-
-		}
+		mesh.draw(drawVisitor, modelArrayListEntry.getValue());
 
 		// clean up
 		materialManager.getMaterial(model.getMaterialID()).endRender();

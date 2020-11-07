@@ -45,4 +45,13 @@ public class SingleMesh implements Mesh {
 		return indices.length;
 	}
 
+	@Override
+	public MeshType getType() {
+		return MeshType.SINGLE;
+	}
+
+
+	public RendererObject getRendererObject() {
+		return rendererObject;
+	}
 }

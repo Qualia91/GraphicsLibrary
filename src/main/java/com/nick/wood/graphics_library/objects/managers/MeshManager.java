@@ -73,4 +73,18 @@ public class MeshManager {
 		this.meshStringDescriptorToMeshMap.get(name).destroy();
 		this.meshStringDescriptorToMeshMap.remove(name);
 	}
+
+	public void convertToInstancedMesh(String meshString) {
+		InstanceMesh instanceMesh = new InstanceMesh(meshStringDescriptorToMeshMap.get(meshString));
+		instanceMesh.createTransformArray();
+		System.out.println("Converting " + meshString + " to instanced mesh");
+		meshStringDescriptorToMeshMap.put(meshString, instanceMesh);
+	}
+
+	public void convertToSingleMesh(String meshString) {
+		InstanceMesh instanceMesh = (InstanceMesh) meshStringDescriptorToMeshMap.get(meshString);
+		instanceMesh.destroyInstancing();
+		System.out.println("Converting " + meshString + " to single mesh");
+		meshStringDescriptorToMeshMap.put(meshString, instanceMesh.getSingleMesh());
+	}
 }

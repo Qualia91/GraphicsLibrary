@@ -7,32 +7,29 @@ import com.nick.wood.graphics_library.objects.render_scene.InstanceObject;
 import com.nick.wood.graphics_library.objects.render_scene.RenderGraph;
 import com.nick.wood.maths.objects.matrix.Matrix4f;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 
-public class GeometryUpdateEvent implements RenderUpdateEvent<Model> {
+public class GeometryUpdateEvent implements RenderUpdateEvent<String> {
 
-	private final UUID uuid;
-	private final Model model;
+
+	private final String geometryStringId;
+	private final HashSet<InstanceObject> instanceObjects;
 	private final String layerName;
-	private final Matrix4f matrix4f;
 
-
-	public GeometryUpdateEvent(UUID uuid, Model model, String layerName, Matrix4f matrix4f) {
-		this.uuid = uuid;
-		this.model = model;
+	public GeometryUpdateEvent(String geometryStringId, HashSet<InstanceObject> instanceObjects, String layerName) {
+		this.geometryStringId = geometryStringId;
+		this.instanceObjects = instanceObjects;
 		this.layerName = layerName;
-		this.matrix4f = matrix4f;
 	}
 
 	@Override
-	public Model getData() {
-		return model;
+	public String getData() {
+		return geometryStringId;
 	}
 
 	@Override
 	public RenderInstanceEventType getType() {
-		return RenderInstanceEventType.CREATE;
+		return RenderInstanceEventType.TRANSFORM_UPDATE;
 	}
 
 	public void applyToGraphicsEngine(Window window) {
@@ -40,23 +37,18 @@ public class GeometryUpdateEvent implements RenderUpdateEvent<Model> {
 			window.getRenderGraphs().put(layerName, new RenderGraph());
 		}
 		// if model already exists in render graph, find its instance via uuid and update transforms
-		if (window.getRenderGraphs().get(layerName).getMeshes().containsKey(model.getStringID())) {
-			for (InstanceObject instanceObject : window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID())) {
-				if (instanceObject.getUuid().equals(uuid)) {
-					instanceObject.setTransformation(matrix4f);
-					return;
+		if (window.getRenderGraphs().get(layerName).getMeshes().containsKey(geometryStringId)) {
+
+			for (InstanceObject instanceObject : instanceObjects) {
+				if (window.getRenderGraphs().get(layerName).getMeshes().get(geometryStringId).contains(instanceObject)) {
+					window.getRenderGraphs().get(layerName).getMeshes().get(geometryStringId).remove(instanceObject);
+					window.getRenderGraphs().get(layerName).getMeshes().get(geometryStringId).add(instanceObject);
 				}
 			}
-
-			// if it's made it here, there is not instance of this, so add it
-			window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).add(new InstanceObject(uuid, matrix4f));
 		}
-		// if it does not exist, we need to add model to model manager and add map entry
+		// if it does not exist, print something because it should exist already
 		else {
-			window.getModelManager().addModel(model);
-			ArrayList<InstanceObject> instanceObjects = new ArrayList<>();
-			instanceObjects.add(new InstanceObject(uuid, matrix4f));
-			window.getRenderGraphs().get(layerName).getMeshes().put(model.getStringID(), instanceObjects);
+			System.out.println("No model with id name " + geometryStringId + " found. Look into this in GeometryUpdateEvent");
 		}
 	}
 }

@@ -21,6 +21,8 @@ public class MeshManager {
 	}
 
 	public Mesh getMesh(String stringDescriptor) {
+//		System.out.println("Mesh: " + meshStringDescriptorToMeshMap.size());
+//		meshStringDescriptorToMeshMap.forEach((s, mesh) -> System.out.println(s + " " + mesh));
 		return meshStringDescriptorToMeshMap.getOrDefault(stringDescriptor, meshStringDescriptorToMeshMap.get("DEFAULT"));
 	}
 

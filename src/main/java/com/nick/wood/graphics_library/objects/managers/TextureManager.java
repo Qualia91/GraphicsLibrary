@@ -17,7 +17,8 @@ public class TextureManager {
 	}
 
 	public int getTextureId(String texturePath) {
-
+//		System.out.println("Textures: " + texturePathLoadedTextureHashMap.size());
+//		texturePathLoadedTextureHashMap.forEach((s, texture) -> System.out.println(s + " " + texture.getId()));
 		return texturePathLoadedTextureHashMap.getOrDefault(texturePath, texturePathLoadedTextureHashMap.get("DEFAULT")).getId();
 
 	}

@@ -12,6 +12,8 @@ public class MaterialManager {
 	private Material defaultMaterial;
 
 	public Material getMaterial(UUID materialID) {
+//		System.out.println("Materials: " + idToMaterialMap.size());
+//		idToMaterialMap.forEach((uuid, material) -> System.out.println(uuid + " " + material));
 		return idToMaterialMap.getOrDefault(materialID, defaultMaterial);
 	}
 

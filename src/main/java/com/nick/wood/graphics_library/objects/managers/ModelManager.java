@@ -14,6 +14,8 @@ public class ModelManager {
 	}
 
 	public Model getModel(String stringDescriptor) {
+//		System.out.println("Model: " + modelStringDescriptorToMeshMap.size());
+//		modelStringDescriptorToMeshMap.forEach((s, model) -> System.out.println(s + " " + model.getStringID()));
 		return modelStringDescriptorToMeshMap.getOrDefault(stringDescriptor, modelStringDescriptorToMeshMap.get("DEFAULT"));
 	}
 

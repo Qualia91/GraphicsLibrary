@@ -7,13 +7,14 @@ public class Camera {
 	private final String name;
 	private final float near;
 	private final float far;
+	private final ProjectionType projectionType;
 	private CameraType cameraType;
 	private int width;
 	private int height;
 	private float fov;
 	private Matrix4f projectionMatrix = null;
 
-	public Camera(String name, CameraType cameraType, int width, int height, float fov, float near, float far) {
+	public Camera(String name, CameraType cameraType, ProjectionType projectionType, int width, int height, float fov, float near, float far) {
 		this.name = name;
 		this.cameraType = cameraType;
 		this.width = width;
@@ -21,14 +22,20 @@ public class Camera {
 		this.fov = fov;
 		this.near = near;
 		this.far = far;
-		this.projectionMatrix = Matrix4f.Projection((float) width / (float) height, fov, near, far);
+		this.projectionType = projectionType;
+		if (projectionType.equals(ProjectionType.PERSPECTIVE)) {
+			this.projectionMatrix = Matrix4f.PerspectiveProjection((float) width / (float) height, fov, near, far);
+		} else {
+			this.projectionMatrix = Matrix4f.OrthographicProjection(width, height, near, far);
+		}
 	}
 
-	public Camera(String name, float fov, float near, float far) {
+	public Camera(String name, float fov, float near, float far, ProjectionType projectionType) {
 		this.name = name;
 		this.fov = fov;
 		this.near = near;
 		this.far = far;
+		this.projectionType = projectionType;
 		this.cameraType = CameraType.PRIMARY;
 	}
 
@@ -72,9 +79,18 @@ public class Camera {
 		this.width = screenWidth;
 		this.height = screenHeight;
 		if (projectionMatrix == null) {
-			projectionMatrix = Matrix4f.Projection((float) width / (float) height, fov, near, far);
+			if (projectionType.equals(ProjectionType.PERSPECTIVE)) {
+				projectionMatrix = Matrix4f.PerspectiveProjection((float) width / (float) height, fov, near, far);
+			} else {
+				this.projectionMatrix = Matrix4f.OrthographicProjection(width, height, near, far);
+			}
+
 		} else {
-			projectionMatrix = projectionMatrix.updateProjection((float) width / (float) height, fov);
+			if (projectionType.equals(ProjectionType.PERSPECTIVE)) {
+				projectionMatrix = projectionMatrix.updatePerspectiveProjection((float) width / (float) height, fov);
+			} else {
+				this.projectionMatrix = Matrix4f.OrthographicProjection(width, height, near, far);
+			}
 		}
 	}
 

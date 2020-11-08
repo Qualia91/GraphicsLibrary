@@ -33,7 +33,7 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 50;
+	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 10;
 	private final MaterialManager materialManager;
 	private final TextureManager textureManager;
 	private final MeshManager meshManager;

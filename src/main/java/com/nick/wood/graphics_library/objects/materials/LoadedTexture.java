@@ -1,5 +1,6 @@
 package com.nick.wood.graphics_library.objects.materials;
 
+import com.nick.wood.graphics_library.Window;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -7,6 +8,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
@@ -15,6 +17,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
@@ -85,7 +88,8 @@ public class LoadedTexture implements Texture {
 
 	public void create() throws IOException {
 		String imagePath = texturePath.split("[.]")[1];
-		InputStream resourceAsStream = LoadedTexture.class.getResourceAsStream(texturePath);
+
+        InputStream resourceAsStream = getClass().getResourceAsStream(texturePath);
 
 		if (resourceAsStream == null) {
 			// try to find it in the user input folder via environment variable

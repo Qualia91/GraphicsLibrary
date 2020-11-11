@@ -42,9 +42,6 @@ public class GeometryRemoveEvent implements RenderUpdateEvent<String> {
 			for (UUID uuid : uuids) {
 				window.getRenderGraphs().get(layerName).getMeshes().get(modelString).removeIf(ins -> ins.getUuid().equals(uuid));
 			}
-		}
-
-		if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString) != null) {
 			// now check if mesh needs to be converted to instanced model
 			if (window.getMeshManager().getMesh(window.getModelManager().getModel(modelString).getMeshString()).getType().equals(MeshType.INSTANCED)) {
 				// if instance array is over size limit, convert to an instanced mesh to improve performance

@@ -27,7 +27,7 @@ public class DrawVisitor {
 	private final int modelViewVBO;
 	private FloatBuffer modelViewBuffer;
 
-	private static final int MODEL_VIEW_MATRIX_START_POSITION = 6;
+	private static final int MODEL_VIEW_MATRIX_START_POSITION = 5;
 
 	public DrawVisitor(int modelViewVBO) {
 		this.modelViewVBO = modelViewVBO;

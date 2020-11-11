@@ -7,17 +7,23 @@ import org.lwjgl.assimp.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class ModelLoader {
 
 	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException {
 
-		if (!new File(filePath).exists()) {
-			filePath = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
+
+		String lib_data_file_path = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
+		String default_data_file_path = new File(getClass().getResource("/" + filePath).getFile()).getAbsolutePath();
+
+		if (!new File(lib_data_file_path).exists()) {
+			lib_data_file_path = default_data_file_path;
 		}
 
 		// load 3d model data
-		AIScene aiScene = Assimp.aiImportFile(filePath, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
+		AIScene aiScene = Assimp.aiImportFile(lib_data_file_path, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
 
 		if (aiScene == null) {
 			throw new IOException(Assimp.aiGetErrorString());

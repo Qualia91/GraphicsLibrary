@@ -37,7 +37,7 @@ public class InstanceMesh implements Mesh {
 
 		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 
-		int start = 6;
+		int start = 5;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
 			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);

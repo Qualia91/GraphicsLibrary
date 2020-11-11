@@ -49,9 +49,9 @@ struct DirectionalLight
 
 struct Material
 {
-    vec4 diffuse;
-    vec4 specular;
-    vec4 shininess;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
     float reflectance;
     int hasNormalMap;
 };

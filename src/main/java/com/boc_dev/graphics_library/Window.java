@@ -119,6 +119,10 @@ public class Window implements Subscribable {
 
 		this.supports.add(HeightMapMeshCreateEvent.class);
 		this.supports.add(HeightMapMeshRemoveEvent.class);
+
+		this.supports.add(WaterCreateEvent.class);
+//		this.supports.add(WaterRemoveEvent.class);
+//		this.supports.add(WaterUpdateEvent.class);
 	}
 
 	public boolean shouldClose() {

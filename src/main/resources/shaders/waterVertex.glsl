@@ -3,6 +3,8 @@
 in vec3 position;
 in vec2 textureCoord;
 in vec3 normal;
+in vec3 tangent;
+in vec3 bitangent;
 in mat4 model;
 
 out vec2 passTextureCoord;
@@ -15,7 +17,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 cameraPos;
 
-const float tiling = 5.0;
+const float tiling = 50.0;
 
 void main() {
     vec4 worldPos = model * vec4(position, 1.0);

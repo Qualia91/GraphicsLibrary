@@ -29,7 +29,14 @@ public class TextureManager {
 		Texture texture = new LoadedTexture(defaultTexturePath, GL11.GL_LINEAR);
 		texture.create();
 
+		Texture dudv = new LoadedTexture("/textures/waterDuDvMap.jpg", GL11.GL_LINEAR);
+		dudv.create();
+		Texture waterNormal = new LoadedTexture("/normalMaps/waterNormalMap.jpg", GL11.GL_LINEAR);
+		dudv.create();
+
 		this.texturePathLoadedTextureHashMap.put("DEFAULT", texture);
+		this.texturePathLoadedTextureHashMap.put("/textures/waterDuDvMap.jpg", dudv);
+		this.texturePathLoadedTextureHashMap.put("/normalMaps/waterNormalMap.jpg", waterNormal);
 	}
 
 	public void destroy() {
@@ -41,8 +48,8 @@ public class TextureManager {
 	public void addTexture(String name, int textureId) {
 		// if texture is already in there, change the texture id in the texture. If not, create a new fboTexture
 		if (texturePathLoadedTextureHashMap.containsKey(name)) {
-			System.out.println("What is happening here? A texture is already there");
-//			texturePathLoadedTextureHashMap.get(name).setId(textureId);
+			// this is for overwriting textures with new id's (think fbos and shit)
+			texturePathLoadedTextureHashMap.get(name).setId(textureId);
 		} else {
 			texturePathLoadedTextureHashMap.put(name, new FboTexture(textureId));
 		}

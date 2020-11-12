@@ -13,8 +13,12 @@ import com.boc_dev.maths.objects.matrix.Matrix4f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 import com.boc_dev.maths.objects.vector.Vec4f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.util.*;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 public class Scene {
 
@@ -135,15 +139,29 @@ public class Scene {
 //			}
 //		}
 //
-//		if (pickingShader != null && pickingFrameBuffer != null) {
-//			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
-//				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
-//					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
-//					renderSceneToPickingBuffer(renderer, cameraInstanceObjectEntry, renderGraph.getMeshes());
-//					pickingFrameBuffer.unbindCurrentFrameBuffer();
-//				}
-//			}
-//		}
+		if (pickingShader != null && pickingFrameBuffer != null) {
+			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
+				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
+
+
+					// Set the clear color
+					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+
+					//pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
+					//renderer.renderPickingScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
+					//pickingFrameBuffer.unbindCurrentFrameBuffer();
+				}
+			}
+		}
+
+		// Set the clear color
+		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+
+		GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 
@@ -216,9 +234,6 @@ public class Scene {
 
 	}
 /*
-	public void renderSceneToPickingBuffer(Renderer renderer, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, HashMap<String, ArrayList<InstanceObject>> models) {
-		renderer.renderPickingScene(models, cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
-	}
 
 	private void renderSceneToBuffer(Renderer renderer,
 	                                 Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,

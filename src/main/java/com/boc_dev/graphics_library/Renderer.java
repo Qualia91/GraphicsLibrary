@@ -7,6 +7,8 @@ import com.boc_dev.graphics_library.objects.managers.MaterialManager;
 import com.boc_dev.graphics_library.objects.managers.MeshManager;
 import com.boc_dev.graphics_library.objects.managers.ModelManager;
 import com.boc_dev.graphics_library.objects.managers.TextureManager;
+import com.boc_dev.graphics_library.objects.mesh_objects.InstanceMesh;
+import com.boc_dev.graphics_library.objects.mesh_objects.SingleMesh;
 import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 import com.boc_dev.graphics_library.objects.render_scene.Pair;
 import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
@@ -30,14 +32,12 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
+//	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 5000;
 	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 10;
 	private final MaterialManager materialManager;
 	private final TextureManager textureManager;
 	private final MeshManager meshManager;
 	private final ModelManager modelManager;
-	private int modelViewVBO;
-
-	private FloatBuffer modelViewBuffer;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
@@ -57,12 +57,11 @@ public class Renderer {
 	}
 
 	public void init() {
-		this.modelViewVBO = glGenBuffers();
-		this.drawVisitor = new DrawVisitor(modelViewVBO);
+		this.drawVisitor = new DrawVisitor();
 	}
 
 	public void destroy() {
-		glDeleteBuffers(modelViewVBO);
+
 	}
 
 	public void renderSkybox(Pair<String, InstanceObject> skyboxModel, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, Vec3f ambientLight) {
@@ -72,17 +71,16 @@ public class Renderer {
 		Model model = modelManager.getModel(skyboxModel.getKey());
 		Mesh mesh = meshManager.getMesh(model.getMeshString());
 
+		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
+
 		mesh.initRender();
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformationInverse());
-
-		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
 
 		Vec3f cameraPosition = cameraInstanceObjectEntry.getValue().getTransformation().getTranslation();
 
 		Matrix4f matrix4f = skyboxModel.getValue().getTransformation().multiply(Matrix4f.Translation(cameraPosition)).transpose();
 
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 		int start = 5;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
@@ -91,7 +89,7 @@ public class Renderer {
 			start++;
 		}
 
-		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
 
 		for (int i = 0; i < matrix4f.getValues().length; i++) {
 			modelViewBuffer.put(i, matrix4f.getValues()[i]);
@@ -128,6 +126,7 @@ public class Renderer {
 
 			shader.setUniform("inInstanceColourID", modelTypeId);
 			renderPickingInstance(modelArrayListEntry, indexToUUIDMap.get(modelTypeId));
+
 			modelTypeId++;
 		}
 
@@ -141,8 +140,10 @@ public class Renderer {
 
 		singleMesh.initRender();
 
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		int start = 3;
+		// todo this doesnt work for some reason
+		//drawVisitor.draw(singleMesh, modelArrayListEntry.getValue());
+
+		int start = 5;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
 			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
@@ -150,113 +151,18 @@ public class Renderer {
 			start++;
 		}
 
+		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(modelArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		int index = 0;
-
-		modelViewBuffer = MemoryUtil.memAllocFloat(modelArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
 			integerUUIDHashMap.put(index, instanceObject.getUuid());
-
-			for (int i = 0; i < instanceObject.getTransformation().getValues().length; i++) {
-				modelViewBuffer.put(index * 16 + i, instanceObject.getTransformation().getValues()[i]);
-			}
-
 			index++;
 		}
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
-		MemoryUtil.memFree(modelViewBuffer);
-
 		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
 
-		// clean up
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		singleMesh.endRender();
-
-	}
-
-	public void renderWater(HashMap<String, InstanceObject> models,
-	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
-	                        HashMap<Light, InstanceObject> lights, Shader shader,
-	                        Fog fog,
-	                        float moveFactor,
-	                        Vec3f ambientLight) {
-
-		shader.bind();
-
-		int pointLightIndex = 0;
-		int spotLightIndex = 0;
-		int directionalLightIndex = 0;
-
-		for (Map.Entry<Light, InstanceObject> lightInstanceObjectEntry : lights.entrySet()) {
-
-			Light light = lightInstanceObjectEntry.getKey();
-			Matrix4f transform = lightInstanceObjectEntry.getValue().getTransformation();
-
-			switch (light.getType()) {
-				case POINT:
-					createPointLight("", (PointLight) light, pointLightIndex++, transform, shader);
-					break;
-				case SPOT:
-					createSpotLight((SpotLight) light, spotLightIndex++, transform, shader);
-					break;
-				case DIRECTIONAL:
-					createDirectionalLight((DirectionalLight) light, directionalLightIndex++, transform, shader);
-					break;
-				default:
-					break;
-			}
-
-		}
-
-		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
-
-		shader.setUniform("moveFactor", moveFactor);
-
-		createFog(fog, shader);
-
-		for (Map.Entry<String, InstanceObject> modelArrayListEntry : models.entrySet()) {
-			renderWaterMesh(modelArrayListEntry, shader);
-		}
-
-
-		shader.unbind();
-
-	}
-
-	public void renderWaterMesh(Map.Entry<String, InstanceObject> modelArrayListEntry,
-	                            Shader shader) {
-
-		Model model = modelManager.getModel(modelArrayListEntry.getKey());
-		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
-		
-		singleMesh.initRender();
-
-		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
-
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		int start = 3;
-		for (int i = 0; i < 4; i++) {
-			glEnableVertexAttribArray(start);
-			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-			glVertexAttribDivisor(start, 1);
-			start++;
-		}
-
-		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
-		for (int i = 0; i < modelArrayListEntry.getValue().getTransformation().getValues().length; i++) {
-			modelViewBuffer.put(i, modelArrayListEntry.getValue().getTransformation().getValues()[i]);
-		}
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
 		MemoryUtil.memFree(modelViewBuffer);
-
-		GL31.glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
-
 		// clean up
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -264,7 +170,96 @@ public class Renderer {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		singleMesh.endRender();
+
 	}
+
+//	public void renderWater(HashMap<String, InstanceObject> models,
+//	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
+//	                        HashMap<Light, InstanceObject> lights, Shader shader,
+//	                        Fog fog,
+//	                        float moveFactor,
+//	                        Vec3f ambientLight) {
+//
+//		shader.bind();
+//
+//		int pointLightIndex = 0;
+//		int spotLightIndex = 0;
+//		int directionalLightIndex = 0;
+//
+//		for (Map.Entry<Light, InstanceObject> lightInstanceObjectEntry : lights.entrySet()) {
+//
+//			Light light = lightInstanceObjectEntry.getKey();
+//			Matrix4f transform = lightInstanceObjectEntry.getValue().getTransformation();
+//
+//			switch (light.getType()) {
+//				case POINT:
+//					createPointLight("", (PointLight) light, pointLightIndex++, transform, shader);
+//					break;
+//				case SPOT:
+//					createSpotLight((SpotLight) light, spotLightIndex++, transform, shader);
+//					break;
+//				case DIRECTIONAL:
+//					createDirectionalLight((DirectionalLight) light, directionalLightIndex++, transform, shader);
+//					break;
+//				default:
+//					break;
+//			}
+//
+//		}
+//
+//		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
+//
+//		shader.setUniform("moveFactor", moveFactor);
+//
+//		createFog(fog, shader);
+//
+//		for (Map.Entry<String, InstanceObject> modelArrayListEntry : models.entrySet()) {
+//			renderWaterMesh(modelArrayListEntry, shader);
+//		}
+//
+//
+//		shader.unbind();
+//
+//	}
+//
+//	public void renderWaterMesh(Map.Entry<String, InstanceObject> modelArrayListEntry,
+//	                            Shader shader) {
+//
+//		Model model = modelManager.getModel(modelArrayListEntry.getKey());
+//		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
+//
+//		singleMesh.initRender();
+//
+//		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
+//
+//		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+//		int start = 3;
+//		for (int i = 0; i < 4; i++) {
+//			glEnableVertexAttribArray(start);
+//			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+//			glVertexAttribDivisor(start, 1);
+//			start++;
+//		}
+//
+//		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+//		for (int i = 0; i < modelArrayListEntry.getValue().getTransformation().getValues().length; i++) {
+//			modelViewBuffer.put(i, modelArrayListEntry.getValue().getTransformation().getValues()[i]);
+//		}
+//		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+//		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+//
+//		MemoryUtil.memFree(modelViewBuffer);
+//
+//		GL31.glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
+//
+//		// clean up
+//
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+//		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//		singleMesh.endRender();
+//	}
 
 	public void renderScene(HashMap<String, ArrayList<InstanceObject>> meshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
@@ -327,107 +322,106 @@ public class Renderer {
 
 		mesh.draw(drawVisitor, modelArrayListEntry.getValue());
 
-		// clean up
 		materialManager.getMaterial(model.getMaterialID()).endRender();
 
 		mesh.endRender();
 
 	}
 
-	public void renderTerrain(HashMap<String, InstanceObject> terrainModels,
-	                          Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
-	                          HashMap<Light, InstanceObject> lights,
-	                          Shader shader,
-	                          Vec3f ambientLight,
-	                          Fog fog,
-	                          Vec4f clippingPlane) {
-
-		shader.bind();
-
-		int pointLightIndex = 0;
-		int spotLightIndex = 0;
-		int directionalLightIndex = 0;
-
-		for (Map.Entry<Light, InstanceObject> lightInstanceObjectEntry : lights.entrySet()) {
-
-			Light light = lightInstanceObjectEntry.getKey();
-			Matrix4f transform = lightInstanceObjectEntry.getValue().getTransformation();
-
-			switch (light.getType()) {
-				case POINT:
-					createPointLight("", (PointLight) light, pointLightIndex++, transform, shader);
-					break;
-				case SPOT:
-					createSpotLight((SpotLight) light, spotLightIndex++, transform, shader);
-					break;
-				case DIRECTIONAL:
-					createDirectionalLight((DirectionalLight) light, directionalLightIndex++, transform, shader);
-					break;
-				default:
-					break;
-			}
-
-		}
-
-		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
-
-		if (clippingPlane != null) {
-			shader.setUniform("clippingPlane", clippingPlane);
-		} else {
-			shader.setUniform("clippingPlane", Vec4f.ZERO);
-		}
-
-		createFog(fog, shader);
-
-		for (Map.Entry<String, InstanceObject> modelInstanceObjectEntry : terrainModels.entrySet()) {
-
-			renderTerrainInstance(modelInstanceObjectEntry, shader);
-
-		}
-
-		shader.unbind();
-
-	}
-
-	private void renderTerrainInstance(Map.Entry<String, InstanceObject> terrainModel, Shader shader) {
-
-		Model model = modelManager.getModel(terrainModel.getKey());
-		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
-
-		singleMesh.initRender();
-
-		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
-
-		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
-		int start = 3;
-		for (int i = 0; i < 4; i++) {
-			glEnableVertexAttribArray(start);
-			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
-			glVertexAttribDivisor(start, 1);
-			start++;
-		}
-
-		modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
-		for (int i = 0; i < Matrix4f.Identity.getValues().length; i++) {
-			modelViewBuffer.put(i, terrainModel.getValue().getTransformation().getValues()[i]);
-		}
-
-		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
-
-		MemoryUtil.memFree(modelViewBuffer);
-
-		glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
-
-		// clean up
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		GL13.glDisable(GL11.GL_TEXTURE_2D);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		singleMesh.endRender();
-
-	}
+//	public void renderTerrain(HashMap<String, InstanceObject> terrainModels,
+//	                          Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
+//	                          HashMap<Light, InstanceObject> lights,
+//	                          Shader shader,
+//	                          Vec3f ambientLight,
+//	                          Fog fog,
+//	                          Vec4f clippingPlane) {
+//
+//		shader.bind();
+//
+//		int pointLightIndex = 0;
+//		int spotLightIndex = 0;
+//		int directionalLightIndex = 0;
+//
+//		for (Map.Entry<Light, InstanceObject> lightInstanceObjectEntry : lights.entrySet()) {
+//
+//			Light light = lightInstanceObjectEntry.getKey();
+//			Matrix4f transform = lightInstanceObjectEntry.getValue().getTransformation();
+//
+//			switch (light.getType()) {
+//				case POINT:
+//					createPointLight("", (PointLight) light, pointLightIndex++, transform, shader);
+//					break;
+//				case SPOT:
+//					createSpotLight((SpotLight) light, spotLightIndex++, transform, shader);
+//					break;
+//				case DIRECTIONAL:
+//					createDirectionalLight((DirectionalLight) light, directionalLightIndex++, transform, shader);
+//					break;
+//				default:
+//					break;
+//			}
+//
+//		}
+//
+//		createBasic(shader, ambientLight, 0.5f, cameraInstanceObjectEntry.getKey(), cameraInstanceObjectEntry.getValue());
+//
+//		if (clippingPlane != null) {
+//			shader.setUniform("clippingPlane", clippingPlane);
+//		} else {
+//			shader.setUniform("clippingPlane", Vec4f.ZERO);
+//		}
+//
+//		createFog(fog, shader);
+//
+//		for (Map.Entry<String, InstanceObject> modelInstanceObjectEntry : terrainModels.entrySet()) {
+//
+//			renderTerrainInstance(modelInstanceObjectEntry, shader);
+//
+//		}
+//
+//		shader.unbind();
+//
+//	}
+//
+//	private void renderTerrainInstance(Map.Entry<String, InstanceObject> terrainModel, Shader shader) {
+//
+//		Model model = modelManager.getModel(terrainModel.getKey());
+//		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
+//
+//		singleMesh.initRender();
+//
+//		materialManager.getMaterial(model.getMaterialID()).initRender(textureManager, shader);
+//
+//		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
+//		int start = 3;
+//		for (int i = 0; i < 4; i++) {
+//			glEnableVertexAttribArray(start);
+//			glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+//			glVertexAttribDivisor(start, 1);
+//			start++;
+//		}
+//
+//		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+//		for (int i = 0; i < Matrix4f.Identity.getValues().length; i++) {
+//			modelViewBuffer.put(i, terrainModel.getValue().getTransformation().getValues()[i]);
+//		}
+//
+//		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+//
+//		MemoryUtil.memFree(modelViewBuffer);
+//
+//		glDrawElements(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0);
+//
+//		// clean up
+//
+//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+//		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+//		GL13.glDisable(GL11.GL_TEXTURE_2D);
+//		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//		singleMesh.endRender();
+//
+//	}
 
 	private void createBasic(Shader shader, Vec3f ambientLight, float specularPower, Camera camera, InstanceObject cameraInstance) {
 		shader.setUniform("ambientLight", ambientLight);

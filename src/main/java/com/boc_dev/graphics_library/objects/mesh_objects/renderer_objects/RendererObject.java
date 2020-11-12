@@ -10,4 +10,5 @@ public interface RendererObject {
 	void endRender();
 
 	void destroy();
+
 }

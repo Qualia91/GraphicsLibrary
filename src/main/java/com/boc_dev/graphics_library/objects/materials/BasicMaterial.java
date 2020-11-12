@@ -28,5 +28,6 @@ public class BasicMaterial implements Material {
 
 	@Override
 	public void endRender() {
+		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 	}
 }

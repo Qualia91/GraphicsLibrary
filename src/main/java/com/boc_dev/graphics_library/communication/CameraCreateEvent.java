@@ -5,6 +5,8 @@ import com.boc_dev.graphics_library.Window;
 import com.boc_dev.graphics_library.objects.Camera;
 import com.boc_dev.graphics_library.objects.render_scene.RenderGraph;
 
+import java.util.Map;
+
 public class CameraCreateEvent implements RenderUpdateEvent<Camera> {
 
 	private final InstanceObject instanceObject;
@@ -36,6 +38,7 @@ public class CameraCreateEvent implements RenderUpdateEvent<Camera> {
 		if (window.getRenderGraphs().get(layerName) == null) {
 			window.getRenderGraphs().put(layerName, new RenderGraph());
 		}
+
 		window.getRenderGraphs().get(layerName).getCameras().put(camera, instanceObject);
 	}
 }

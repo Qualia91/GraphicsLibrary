@@ -1,4 +1,4 @@
-package com.boc_dev.graphics_library;
+package com.boc_dev.graphics_library.input;
 
 import com.boc_dev.event_bus.event_data.MoveEventData;
 import com.boc_dev.event_bus.event_data.PickingResponseEventData;
@@ -58,7 +58,9 @@ public class Picking implements Subscribable {
 							if (scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).containsKey(Math.round(rgb.get(1)))) {
 								bus.dispatch(
 										new PickingEvent(
-												new PickingResponseEventData(scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1)))),
+												new PickingResponseEventData(
+														scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1))),
+														scene.getName()),
 												PickingEventType.RESPONSE));
 							}
 						}

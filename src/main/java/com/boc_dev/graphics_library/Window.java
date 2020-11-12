@@ -6,6 +6,7 @@ import com.boc_dev.event_bus.interfaces.Bus;
 import com.boc_dev.event_bus.interfaces.Event;
 import com.boc_dev.event_bus.interfaces.Subscribable;
 import com.boc_dev.graphics_library.communication.*;
+import com.boc_dev.graphics_library.input.Picking;
 import com.boc_dev.graphics_library.logging.Logger;
 import com.boc_dev.graphics_library.logging.Stats;
 import com.boc_dev.graphics_library.logging.StatsCalc;
@@ -289,11 +290,6 @@ public class Window implements Subscribable {
 			glfwSetWindowTitle(windowHandler, title);
 			titleChanged = false;
 		}
-
-		// Set the clear color
-		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.

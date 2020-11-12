@@ -2,8 +2,12 @@ package com.boc_dev.graphics_library.objects;
 
 import com.boc_dev.maths.objects.matrix.Matrix4f;
 
+import java.util.Objects;
+import java.util.UUID;
+
 public class Camera {
 
+	private final UUID uuid;
 	private final String name;
 	private final float near;
 	private final float far;
@@ -14,7 +18,8 @@ public class Camera {
 	private float fov;
 	private Matrix4f projectionMatrix = null;
 
-	public Camera(String name, CameraType cameraType, ProjectionType projectionType, int width, int height, float fov, float near, float far) {
+	public Camera(UUID uuid, String name, CameraType cameraType, ProjectionType projectionType, int width, int height, float fov, float near, float far) {
+		this.uuid = uuid;
 		this.name = name;
 		this.cameraType = cameraType;
 		this.width = width;
@@ -30,13 +35,18 @@ public class Camera {
 		}
 	}
 
-	public Camera(String name, float fov, float near, float far, ProjectionType projectionType) {
+	public Camera(UUID uuid, String name, float fov, float near, float far, ProjectionType projectionType) {
+		this.uuid = uuid;
 		this.name = name;
 		this.fov = fov;
 		this.near = near;
 		this.far = far;
 		this.projectionType = projectionType;
 		this.cameraType = CameraType.PRIMARY;
+	}
+
+	public UUID getUuid() {
+		return uuid;
 	}
 
 	public float getNear() {
@@ -94,5 +104,18 @@ public class Camera {
 
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Camera camera = (Camera) o;
+		return Objects.equals(uuid, camera.uuid);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(uuid);
 	}
 }

@@ -11,6 +11,8 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 public class OpenGlMesh implements RendererObject {
@@ -20,6 +22,7 @@ public class OpenGlMesh implements RendererObject {
 	private int vao;
 	private int vbo;
 	private int ibo;
+	private int modelViewVBO;
 
 	public int getVao() {
 		return vao;
@@ -102,6 +105,12 @@ public class OpenGlMesh implements RendererObject {
 
 		// unbind
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		modelViewVBO = GL15.glGenBuffers();
+	}
+
+	public int getModelViewVBO() {
+		return modelViewVBO;
 	}
 
 	public void initRender() {
@@ -113,6 +122,7 @@ public class OpenGlMesh implements RendererObject {
 		glEnableVertexAttribArray(3);
 		glEnableVertexAttribArray(4);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 	}
 
 	public void endRender() {
@@ -129,5 +139,6 @@ public class OpenGlMesh implements RendererObject {
 		GL30.glDeleteVertexArrays(vao);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL15.glDeleteBuffers(vbo);
+		GL15.glDeleteBuffers(modelViewVBO);
 	}
 }

@@ -1,5 +1,6 @@
 package com.boc_dev.graphics_library.objects;
 
+import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
 import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 import com.boc_dev.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
@@ -24,13 +25,11 @@ public class DrawVisitor {
 	private static final int VECTOR4F_SIZE_BYTES = 4 * FLOAT_SIZE_BYTES;
 	private static final int MATRIX_SIZE_BYTES = MATRIX_SIZE_FLOATS * FLOAT_SIZE_BYTES;
 
-	private final int modelViewVBO;
 	private FloatBuffer modelViewBuffer;
 
 	private static final int MODEL_VIEW_MATRIX_START_POSITION = 5;
 
-	public DrawVisitor(int modelViewVBO) {
-		this.modelViewVBO = modelViewVBO;
+	public DrawVisitor() {
 	}
 
 	public void draw(InstanceMesh instanceMesh, ArrayList<InstanceObject> instanceArray) {
@@ -41,7 +40,6 @@ public class DrawVisitor {
 
 		for (InstanceObject instanceObject : instanceArray) {
 
-			glBindBuffer(GL_ARRAY_BUFFER, modelViewVBO);
 			int start = MODEL_VIEW_MATRIX_START_POSITION;
 			for (int i = 0; i < 4; i++) {
 				glEnableVertexAttribArray(start);

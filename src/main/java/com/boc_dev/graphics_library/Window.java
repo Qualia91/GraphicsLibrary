@@ -98,6 +98,10 @@ public class Window implements Subscribable {
 		this.supports.add(GeometryUpdateEvent.class);
 		this.supports.add(GeometryRemoveEvent.class);
 
+		this.supports.add(PickingCreateEvent.class);
+//		this.supports.add(PickingUpdateEvent.class);
+//		this.supports.add(PickingRemoveEvent.class);
+
 		this.supports.add(MaterialCreateEvent.class);
 		//this.supports.add(MaterialUpdateEvent.class);
 		//this.supports.add(MaterialRemoveEvent.class);

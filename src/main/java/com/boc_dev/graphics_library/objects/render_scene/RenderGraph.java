@@ -9,6 +9,7 @@ public class RenderGraph {
 
 	private final HashMap<Light, InstanceObject> lights;
 	private final HashMap<String, ArrayList<InstanceObject>> meshes;
+	private final HashMap<String, ArrayList<InstanceObject>> pickingMeshes;
 	private final HashMap<String, ArrayList<InstanceObject>> textMeshes;
 	private final HashMap<String, InstanceObject> waterMeshes;
 	private final HashMap<String, InstanceObject> terrainMeshes;
@@ -18,6 +19,7 @@ public class RenderGraph {
 	public RenderGraph() {
 		this.lights = new HashMap<>();
 		this.meshes = new HashMap<>();
+		this.pickingMeshes = new HashMap<>();
 		this.textMeshes = new HashMap<>();
 		this.waterMeshes = new HashMap<>();
 		this.terrainMeshes = new HashMap<>();
@@ -31,6 +33,10 @@ public class RenderGraph {
 
 	public HashMap<String, ArrayList<InstanceObject>> getMeshes() {
 		return meshes;
+	}
+
+	public HashMap<String, ArrayList<InstanceObject>> getPickingMeshes() {
+		return pickingMeshes;
 	}
 
 	public HashMap<String, ArrayList<InstanceObject>> getTextMeshes() {

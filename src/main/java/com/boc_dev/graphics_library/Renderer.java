@@ -110,7 +110,7 @@ public class Renderer {
 
 	}
 
-	public void renderPickingScene(HashMap<String, ArrayList<InstanceObject>> models, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap) {
+	public void renderPickingScene(HashMap<String, ArrayList<InstanceObject>> meshes, Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry, Shader shader, HashMap<Integer, HashMap<Integer, UUID>> indexToUUIDMap) {
 		shader.bind();
 
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
@@ -118,14 +118,14 @@ public class Renderer {
 		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
 
 		int modelTypeId = 1;
-		for (Map.Entry<String, ArrayList<InstanceObject>> modelArrayListEntry : models.entrySet()) {
+		for (Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry : meshes.entrySet()) {
 
 			if (!indexToUUIDMap.containsKey(modelTypeId)) {
 				indexToUUIDMap.put(modelTypeId, new HashMap<>());
 			}
 
 			shader.setUniform("inInstanceColourID", modelTypeId);
-			renderPickingInstance(modelArrayListEntry, indexToUUIDMap.get(modelTypeId));
+			renderPickingInstance(meshArrayListEntry, indexToUUIDMap.get(modelTypeId));
 
 			modelTypeId++;
 		}
@@ -133,10 +133,9 @@ public class Renderer {
 		shader.unbind();
 	}
 
-	private void renderPickingInstance(Map.Entry<String, ArrayList<InstanceObject>> modelArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
+	private void renderPickingInstance(Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
 
-		Model model = modelManager.getModel(modelArrayListEntry.getKey());
-		Mesh singleMesh = meshManager.getMesh(model.getMeshString());
+		Mesh singleMesh = meshManager.getMesh(meshArrayListEntry.getKey());
 
 		singleMesh.initRender();
 
@@ -151,15 +150,15 @@ public class Renderer {
 			start++;
 		}
 
-		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(modelArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
 		int index = 0;
-		for (InstanceObject instanceObject : modelArrayListEntry.getValue()) {
+		for (InstanceObject instanceObject : meshArrayListEntry.getValue()) {
 			integerUUIDHashMap.put(index, instanceObject.getUuid());
 			index++;
 		}
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0, modelArrayListEntry.getValue().size());
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0, meshArrayListEntry.getValue().size());
 
 
 		MemoryUtil.memFree(modelViewBuffer);

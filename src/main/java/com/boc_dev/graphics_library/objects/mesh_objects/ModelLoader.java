@@ -16,7 +16,15 @@ public class ModelLoader {
 
 
 		String lib_data_file_path = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
-		String default_data_file_path = new File(getClass().getResource("/" + filePath).getFile()).getAbsolutePath();
+
+		String default_data_file_path = "";
+		if (getClass().getResource("/" + filePath) != null) {
+			File file = new File(getClass().getResource("/" + filePath).getFile());
+
+			if (file.exists()) {
+				default_data_file_path = file.getAbsolutePath();
+			}
+		}
 
 		if (!new File(lib_data_file_path).exists()) {
 			lib_data_file_path = default_data_file_path;

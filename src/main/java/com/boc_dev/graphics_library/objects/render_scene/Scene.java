@@ -146,28 +146,27 @@ public class Scene {
 //			}
 //		}
 //
+
+
+		// Set the clear color
+		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+
+		GL11.glViewport(0, 0, screenWidth, screenHeight);
+
 		if (pickingShader != null && pickingFrameBuffer != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 				if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 
+					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
 					// Set the clear color
 					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-					pickingFrameBuffer.bindFrameBuffer(cameraInstanceObjectEntry.getKey().getWidth(), cameraInstanceObjectEntry.getKey().getHeight());
 					renderer.renderPickingScene(renderGraph.getPickingMeshes(), cameraInstanceObjectEntry, pickingShader, indexToUUIDMap);
 					pickingFrameBuffer.unbindCurrentFrameBuffer();
 				}
 			}
 		}
-
-		// Set the clear color
-		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-		GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
 

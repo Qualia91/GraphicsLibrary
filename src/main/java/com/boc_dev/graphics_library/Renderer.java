@@ -115,7 +115,7 @@ public class Renderer {
 
 		shader.setUniform("projection", cameraInstanceObjectEntry.getKey().getProjectionMatrix());
 		shader.setUniform("cameraPos", cameraInstanceObjectEntry.getValue().getTransformation().getTranslation());
-		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformation().invert());
+		shader.setUniform("view", cameraInstanceObjectEntry.getValue().getTransformationInverse());
 
 		int modelTypeId = 1;
 		for (Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry : meshes.entrySet()) {
@@ -135,13 +135,19 @@ public class Renderer {
 
 	private void renderPickingInstance(Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry, HashMap<Integer, UUID> integerUUIDHashMap) {
 
-		Mesh singleMesh = meshManager.getMesh(meshArrayListEntry.getKey());
+		InstanceMesh instanceMesh = (InstanceMesh) meshManager.getMesh(meshArrayListEntry.getKey());
 
-		singleMesh.initRender();
+		instanceMesh.getSingleMesh().initRender();
+
+//		int index = 0;
+//		for (InstanceObject instanceObject : meshArrayListEntry.getValue()) {
+//			integerUUIDHashMap.put(index, instanceObject.getUuid());
+//			index++;
+//		}
 
 		// todo this doesnt work for some reason
-		//drawVisitor.draw(singleMesh, modelArrayListEntry.getValue());
-
+		//drawVisitor.draw(singleMesh, meshArrayListEntry.getValue());
+		instanceMesh.getSingleMesh().initRender();
 		int start = 5;
 		for (int i = 0; i < 4; i++) {
 			glEnableVertexAttribArray(start);
@@ -151,24 +157,29 @@ public class Renderer {
 		}
 
 		FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+
+		float[] transformArray = new float[meshArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS];
+
 		int index = 0;
 		for (InstanceObject instanceObject : meshArrayListEntry.getValue()) {
 			integerUUIDHashMap.put(index, instanceObject.getUuid());
+
+			for (int transformIndex = 0; transformIndex < instanceObject.getTransformation().getValues().length; transformIndex++) {
+				transformArray[(index * MATRIX_SIZE_FLOATS) + transformIndex] =
+						instanceObject.getTransformation().getValues()[transformIndex];
+			}
 			index++;
+		}
+		for (int i = 0; i < transformArray.length; i++) {
+			modelViewBuffer.put(i, transformArray[i]);
 		}
 		glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
 
-		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0, meshArrayListEntry.getValue().size());
-
+		GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, instanceMesh.size(), GL11.GL_UNSIGNED_INT, 0, meshArrayListEntry.getValue().size());
 
 		MemoryUtil.memFree(modelViewBuffer);
-		// clean up
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		GL13.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		singleMesh.endRender();
+		instanceMesh.endRender();
 
 	}
 

@@ -227,7 +227,6 @@ public class Window implements Subscribable {
 
 		this.renderer.init();
 
-
 	}
 
 	private void createCallbacks() {

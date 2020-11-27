@@ -62,7 +62,23 @@ public class Picking implements Subscribable {
 														scene.getIndexToUUIDMap().get(Math.round(rgb.get(0))).get(Math.round(rgb.get(1))),
 														scene.getName()),
 												PickingEventType.RESPONSE));
+							} else {
+								// if nothing is picked, but picking still happened, send a message with a null uuid so selection can be cleared
+								bus.dispatch(
+										new PickingEvent(
+												new PickingResponseEventData(
+														PickingResponseEventData.NO_DATA_SELECTED,
+														scene.getName()),
+												PickingEventType.RESPONSE));
 							}
+						} else {
+							// if nothing is picked, but picking still happened, send a message with a null uuid so selection can be cleared
+							bus.dispatch(
+									new PickingEvent(
+											new PickingResponseEventData(
+													PickingResponseEventData.NO_DATA_SELECTED,
+													scene.getName()),
+											PickingEventType.RESPONSE));
 						}
 						glReadBuffer(GL_NONE);
 						glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);

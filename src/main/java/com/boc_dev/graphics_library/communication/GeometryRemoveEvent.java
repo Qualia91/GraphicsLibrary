@@ -3,8 +3,11 @@ package com.boc_dev.graphics_library.communication;
 import com.boc_dev.graphics_library.Renderer;
 import com.boc_dev.graphics_library.Window;
 import com.boc_dev.graphics_library.objects.mesh_objects.MeshType;
+import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class GeometryRemoveEvent implements RenderUpdateEvent<String> {
@@ -37,17 +40,32 @@ public class GeometryRemoveEvent implements RenderUpdateEvent<String> {
 			return;
 		}
 
-		// remove model instance
-		if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString) != null) {
-			for (UUID uuid : uuids) {
-				window.getRenderGraphs().get(layerName).getMeshes().get(modelString).removeIf(ins -> ins.getUuid().equals(uuid));
-			}
-			// now check if mesh needs to be converted to instanced model
-			if (window.getMeshManager().getMesh(window.getModelManager().getModel(modelString).getMeshString()).getType().equals(MeshType.INSTANCED)) {
-				// if instance array is over size limit, convert to an instanced mesh to improve performance
-				if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString).size() < Renderer.INSTANCE_ARRAY_SIZE_LIMIT) {
-					window.getMeshManager().convertToSingleMesh(window.getModelManager().getModel(modelString).getMeshString());
+		// while i would have liked to only delete meshes using the modelString id, because of the auto instancing using
+		// mesh and material, if material is changed, this will not be correct
+		// Therefore i have to iterate over all the mesh lists and remove it
+
+		for (UUID uuid : uuids) {
+
+			Iterator<ArrayList<InstanceObject>> iterator = window.getRenderGraphs().get(layerName).getMeshes().values().iterator();
+
+			while (iterator.hasNext()) {
+
+				ArrayList<InstanceObject> next = iterator.next();
+
+				next.removeIf(ins -> ins.getUuid().equals(uuid));
+
+				if (next.isEmpty()) {
+					iterator.remove();
 				}
+
+			}
+
+		}
+		// now check if mesh needs to be converted to instanced model
+		if (window.getMeshManager().getMesh(window.getModelManager().getModel(modelString).getMeshString()).getType().equals(MeshType.INSTANCED)) {
+			// if instance array is over size limit, convert to an instanced mesh to improve performance
+			if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString).size() < Renderer.INSTANCE_ARRAY_SIZE_LIMIT) {
+				window.getMeshManager().convertToSingleMesh(window.getModelManager().getModel(modelString).getMeshString());
 			}
 		}
 

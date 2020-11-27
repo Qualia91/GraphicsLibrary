@@ -119,7 +119,7 @@ public class Scene {
 				0, 0, 0, 1);
 	}
 
-	public void render(Renderer renderer, RenderGraph renderGraph, TextureManager textureManager, long step) {
+	public void render(Renderer renderer, RenderGraph renderGraph, TextureManager textureManager) {
 
 		// update camera projection matrices if need be
 		for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {
@@ -151,8 +151,6 @@ public class Scene {
 		// Set the clear color
 		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-		GL11.glViewport(0, 0, screenWidth, screenHeight);
 
 		if (pickingShader != null && pickingFrameBuffer != null) {
 			for (Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry : renderGraph.getCameras().entrySet()) {

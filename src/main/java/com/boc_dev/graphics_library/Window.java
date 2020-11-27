@@ -312,7 +312,7 @@ public class Window implements Subscribable {
 			RenderGraph renderGraph = this.renderGraphs.get(sceneLayer.getName());
 
 			if (renderGraph != null) {
-				sceneLayer.render(renderer, renderGraph, textureManager, step);
+				sceneLayer.render(renderer, renderGraph, textureManager);
 				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}

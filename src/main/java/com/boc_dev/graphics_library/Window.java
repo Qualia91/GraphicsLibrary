@@ -112,11 +112,11 @@ public class Window implements Subscribable {
 
 		this.supports.add(CameraCreateEvent.class);
 		this.supports.add(CameraUpdateEvent.class);
-		//this.supports.add(CameraRemoveEvent.class);
+		this.supports.add(CameraRemoveEvent.class);
 
 		this.supports.add(LightCreateEvent.class);
 		this.supports.add(LightUpdateEvent.class);
-		//this.supports.add(LightRemoveEvent.class);
+		this.supports.add(LightRemoveEvent.class);
 
 		this.supports.add(SkyboxCreateEvent.class);
 		this.supports.add(SkyboxRemoveEvent.class);
@@ -297,6 +297,9 @@ public class Window implements Subscribable {
 			glfwSetWindowTitle(windowHandler, title);
 			titleChanged = false;
 		}
+
+		// anti aliasing?
+		//glfwWindowHint(GLFW_SAMPLES, 4);
 
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.

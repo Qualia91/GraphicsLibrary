@@ -85,7 +85,9 @@ public class Camera {
 		this.projectionMatrix = projectionMatrix;
 	}
 
-	public void updateProjectionMatrix() {
+	public void updateProjectionMatrix(int screenWidth, int screenHeight) {
+		this.width = screenWidth;
+		this.height = screenHeight;
 		if (projectionMatrix == null) {
 			if (projectionType.equals(ProjectionType.PERSPECTIVE)) {
 				projectionMatrix = Matrix4f.PerspectiveProjection((float) width / (float) height, fov, near, far);

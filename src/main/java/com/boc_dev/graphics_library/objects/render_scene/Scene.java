@@ -126,7 +126,7 @@ public class Scene {
 			if (cameraInstanceObjectEntry.getKey().getCameraType().equals(CameraType.PRIMARY)) {
 				// see if projection matrix needs updating
 				if (updateProjectionMatrices || cameraInstanceObjectEntry.getKey().getProjectionMatrix() == null) {
-					cameraInstanceObjectEntry.getKey().updateProjectionMatrix();
+					cameraInstanceObjectEntry.getKey().updateProjectionMatrix(screenWidth, screenHeight);
 					updateProjectionMatrices = false;
 					break;
 				}

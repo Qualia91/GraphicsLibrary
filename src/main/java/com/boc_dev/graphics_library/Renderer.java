@@ -183,7 +183,7 @@ public class Renderer {
 
 			instanceMesh.endRender();
 		} else {
-			System.out.println("wut");
+			System.out.println("Picking shader, not instanced");
 		}
 
 	}

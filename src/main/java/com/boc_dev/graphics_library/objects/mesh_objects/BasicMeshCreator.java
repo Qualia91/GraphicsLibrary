@@ -1,5 +1,6 @@
 package com.boc_dev.graphics_library.objects.mesh_objects;
 
+import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
 import com.boc_dev.maths.objects.vector.Vec2f;
 import com.boc_dev.maths.objects.vector.Vec3f;
@@ -267,5 +268,26 @@ public class BasicMeshCreator {
 		Vec3f ac = c.subtract(a);
 		// normal is cross prod
 		return ab.cross(ac);
+	}
+
+	public Mesh createHeightMap(OpenGlMesh openGlMesh, Vec3f[] vertexPositions) {
+		// set up data for mesh
+		Vertex[] vertex = new Vertex[vertexPositions.length];
+		int[] indices = new int[vertexPositions.length];
+
+		// make all vertex's
+		for (int x = 0; x < vertexPositions.length; x++) {
+			vertex[x] =
+					new Vertex(
+							vertexPositions[x],
+							new Vec2f(1, 1),
+							Vec3f.Z,
+							Vec3f.Z,
+							Vec3f.Z);
+
+			indices[x] = x;
+		}
+
+		return new SingleMesh(vertex, indices, openGlMesh);
 	}
 }

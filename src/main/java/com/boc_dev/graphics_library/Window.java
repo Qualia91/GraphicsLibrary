@@ -127,6 +127,8 @@ public class Window implements Subscribable {
 		this.supports.add(WaterCreateEvent.class);
 //		this.supports.add(WaterRemoveEvent.class);
 //		this.supports.add(WaterUpdateEvent.class);
+
+		this.supports.add(ChunkMeshCreateEvent.class);
 	}
 
 	public boolean shouldClose() {

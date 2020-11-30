@@ -5,6 +5,7 @@ import com.boc_dev.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.ModelLoader;
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
+import com.boc_dev.maths.objects.vector.Vec3f;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -89,5 +90,11 @@ public class MeshManager {
 		instanceMesh.destroyInstancing();
 		System.out.println("Converting " + meshString + " to single mesh");
 		meshStringDescriptorToMeshMap.put(meshString, instanceMesh.getSingleMesh());
+	}
+
+	public void createMesh(Vec3f[] vertex, String name) {
+		Mesh mesh = basicMeshCreator.createHeightMap(new OpenGlMesh(), vertex);
+		mesh.create();
+		meshStringDescriptorToMeshMap.put(name, mesh);
 	}
 }

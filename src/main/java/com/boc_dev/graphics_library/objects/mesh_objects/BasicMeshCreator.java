@@ -137,10 +137,10 @@ public class BasicMeshCreator {
 	}
 
 	public Mesh createSquare(RendererObject rendererObject) {
-		Vertex[] vertices = new Vertex[] {
-				new Vertex(new Vec3f(0.0f, -0.5f,  0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
-				new Vertex(new Vec3f(0.0f,  0.5f,  0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
-				new Vertex(new Vec3f(0.0f,  0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+		Vertex[] vertices = new Vertex[]{
+				new Vertex(new Vec3f(0.0f, -0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f, 0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f, 0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
 				new Vertex(new Vec3f(0.0f, -0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg())};
 		int[] indices = new int[]{
 				0, 1, 2,
@@ -150,7 +150,7 @@ public class BasicMeshCreator {
 	}
 
 
-	public Mesh createHeightMap(RendererObject rendererObject, float[][] terrainHeightMap, double cellSpace) {
+	public Mesh createMarchingMeshMap(RendererObject rendererObject, float[][] terrainHeightMap, double cellSpace) {
 
 		// set up data for mesh
 		int width = terrainHeightMap.length;
@@ -168,7 +168,7 @@ public class BasicMeshCreator {
 				vertex[y * width + x] =
 						new Vertex(
 								new Vec3f((float) cellSpace * x, (float) cellSpace * y, terrainHeightMap[x][y]),
-								new Vec2f(1 - ((float)y/terrainHeightMap[y].length), 1 - ((float)x/terrainHeightMap.length)),
+								new Vec2f(1 - ((float) y / terrainHeightMap[y].length), 1 - ((float) x / terrainHeightMap.length)),
 								Vec3f.Z,
 								Vec3f.Z,
 								Vec3f.Z);
@@ -236,22 +236,22 @@ public class BasicMeshCreator {
 
 				// by each square
 				// top left vertex
-				indices[indexCount++] = (y*width) + x;
+				indices[indexCount++] = (y * width) + x;
 
 				// top right
-				indices[indexCount++] = (y*width) + x + 1;
+				indices[indexCount++] = (y * width) + x + 1;
 
 				// bottom left
-				indices[indexCount++] = ((y+1)*width) + x;
+				indices[indexCount++] = ((y + 1) * width) + x;
 
 				// top right
-				indices[indexCount++] = (y*width) + x + 1;
+				indices[indexCount++] = (y * width) + x + 1;
 
 				// bottom right
-				indices[indexCount++] = ((y+1)*width) + x + 1;
+				indices[indexCount++] = ((y + 1) * width) + x + 1;
 
 				// bottom left
-				indices[indexCount++] = ((y+1)*width) + x;
+				indices[indexCount++] = ((y + 1) * width) + x;
 
 			}
 		}
@@ -270,7 +270,7 @@ public class BasicMeshCreator {
 		return ab.cross(ac);
 	}
 
-	public Mesh createHeightMap(OpenGlMesh openGlMesh, Vec3f[] vertexPositions) {
+	public Mesh createMarchingMeshMap(OpenGlMesh openGlMesh, Vec3f[] vertexPositions) {
 		// set up data for mesh
 		Vertex[] vertex = new Vertex[vertexPositions.length];
 		int[] indices = new int[vertexPositions.length];
@@ -280,7 +280,7 @@ public class BasicMeshCreator {
 			vertex[x] =
 					new Vertex(
 							vertexPositions[x],
-							new Vec2f(1, 1),
+							new Vec2f(0, 0),
 							Vec3f.Z,
 							Vec3f.Z,
 							Vec3f.Z);
@@ -288,6 +288,44 @@ public class BasicMeshCreator {
 			indices[x] = x;
 		}
 
+		// the normals
+		// vertex's are in order. every 3 makes up a traingle
+		// therefore, get every 3 vertex's and calc all the normals together
+		for (int x = 0; x < vertexPositions.length; x+=6) {
+
+			build(vertex, x, new Vec2f(0, 0), new Vec2f(0, 1), new Vec2f(1, 1));
+			build(vertex, x + 3, new Vec2f(0, 0), new Vec2f(0, 1), new Vec2f(1, 1));
+
+		}
+
 		return new SingleMesh(vertex, indices, openGlMesh);
+	}
+
+	private void build(Vertex[] vertex, int x, Vec2f texCoordA, Vec2f texCoordB, Vec2f texCoordC) {
+		// one
+		Vec3f up = vertex[x].getPos();
+
+		// two
+		Vec3f down = vertex[x + 1].getPos();
+
+		// three
+		Vec3f left = vertex[x + 2].getPos();
+
+		Vec3f normal = normalOfTriangle(up, down, left);
+
+		vertex[x].setNormal(normal);
+		vertex[x + 1].setNormal(normal);
+		vertex[x + 2].setNormal(normal);
+		vertex[x].setBitangent(up);
+		vertex[x + 1].setBitangent(up);
+		vertex[x + 2].setBitangent(up);
+		vertex[x].setTangent(left);
+		vertex[x + 1].setTangent(left);
+		vertex[x + 2].setTangent(left);
+
+
+		vertex[x].setTextureCoord(texCoordA);
+		vertex[x + 1].setTextureCoord(texCoordB);
+		vertex[x + 2].setTextureCoord(texCoordC);
 	}
 }

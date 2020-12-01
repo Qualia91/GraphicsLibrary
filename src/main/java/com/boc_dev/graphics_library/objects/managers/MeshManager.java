@@ -68,7 +68,7 @@ public class MeshManager {
 	}
 
 	public void createMesh(float[][] grid, double cellSpace, String name) {
-		Mesh mesh = basicMeshCreator.createHeightMap(new OpenGlMesh(), grid, cellSpace);
+		Mesh mesh = basicMeshCreator.createMarchingMeshMap(new OpenGlMesh(), grid, cellSpace);
 		mesh.create();
 		meshStringDescriptorToMeshMap.put(name, mesh);
 	}
@@ -93,7 +93,7 @@ public class MeshManager {
 	}
 
 	public void createMesh(Vec3f[] vertex, String name) {
-		Mesh mesh = basicMeshCreator.createHeightMap(new OpenGlMesh(), vertex);
+		Mesh mesh = basicMeshCreator.createMarchingMeshMap(new OpenGlMesh(), vertex);
 		mesh.create();
 		meshStringDescriptorToMeshMap.put(name, mesh);
 	}

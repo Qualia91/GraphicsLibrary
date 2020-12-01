@@ -2,11 +2,11 @@ package com.boc_dev.graphics_library.communication;
 
 import com.boc_dev.graphics_library.Window;
 
-public class HeightMapMeshRemoveEvent implements RenderUpdateEvent<String> {
+public class ChunkMeshRemoveEvent implements RenderUpdateEvent<String> {
 
 	private final String name;
 
-	public HeightMapMeshRemoveEvent(String name) {
+	public ChunkMeshRemoveEvent(String name) {
 		this.name = name;
 	}
 

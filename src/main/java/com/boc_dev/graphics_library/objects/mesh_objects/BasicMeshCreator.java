@@ -291,9 +291,14 @@ public class BasicMeshCreator {
 		// the normals
 		// vertex's are in order. every 3 makes up a traingle
 		// therefore, get every 3 vertex's and calc all the normals together
-		for (int x = 0; x < vertexPositions.length; x+=6) {
+		for (int x = 0; x < vertexPositions.length - 3; x+=6) {
 
 			build(vertex, x, new Vec2f(0, 0), new Vec2f(0, 1), new Vec2f(1, 1));
+
+			if (x + 3 > vertexPositions.length) {
+				continue;
+			}
+
 			build(vertex, x + 3, new Vec2f(0, 0), new Vec2f(0, 1), new Vec2f(1, 1));
 
 		}

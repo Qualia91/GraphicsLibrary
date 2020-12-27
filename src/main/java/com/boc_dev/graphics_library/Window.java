@@ -76,6 +76,7 @@ public class Window implements Subscribable {
 	private final ModelManager modelManager;
 
 	private final HashMap<String, RenderGraph> renderGraphs;
+	private WindowInitialisationParameters windowInitialisationParameters;
 
 	public Window(ArrayList<Scene> sceneLayers, Bus bus) {
 		this.sceneLayers = sceneLayers;
@@ -137,7 +138,9 @@ public class Window implements Subscribable {
 
 	public void init(WindowInitialisationParameters windowInitialisationParameters) throws IOException {
 
-		renderer = new Renderer(this.textureManager, this.materialManager, this.meshManager, this.modelManager);
+		this.windowInitialisationParameters = windowInitialisationParameters;
+
+		renderer = new Renderer(windowInitialisationParameters.getInstanceArraySizeLimit(), this.textureManager, this.materialManager, this.meshManager, this.modelManager);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
@@ -405,5 +408,9 @@ public class Window implements Subscribable {
 
 	public HashMap<String, RenderGraph> getRenderGraphs() {
 		return renderGraphs;
+	}
+
+	public WindowInitialisationParameters getWindowInitialisationParameters() {
+		return windowInitialisationParameters;
 	}
 }

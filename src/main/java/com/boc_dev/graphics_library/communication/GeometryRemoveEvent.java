@@ -66,7 +66,7 @@ public class GeometryRemoveEvent implements RenderUpdateEvent<String> {
 			// if instance array is over size limit, convert to an instanced mesh to improve performance
 			// todo wut is happening here?
 			if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString) != null) {
-				if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString).size() < Renderer.INSTANCE_ARRAY_SIZE_LIMIT) {
+				if (window.getRenderGraphs().get(layerName).getMeshes().get(modelString).size() < window.getWindowInitialisationParameters().getInstanceArraySizeLimit()) {
 					window.getMeshManager().convertToSingleMesh(window.getModelManager().getModel(modelString).getMeshString());
 				}
 			}

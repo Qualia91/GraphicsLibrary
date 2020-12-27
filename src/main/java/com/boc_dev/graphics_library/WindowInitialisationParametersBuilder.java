@@ -12,6 +12,7 @@ public class WindowInitialisationParametersBuilder {
 	private String title = "Window";
 	private boolean debug = false;
 	private long cullStepSize = 100;
+	private int instanceArraySizeLimit = 10;
 
 	public WindowInitialisationParameters build() {
 		return new WindowInitialisationParameters(
@@ -23,6 +24,7 @@ public class WindowInitialisationParametersBuilder {
 				windowHeight,
 				title,
 				cullStepSize,
+				instanceArraySizeLimit,
 				debug
 		);
 	}
@@ -69,6 +71,11 @@ public class WindowInitialisationParametersBuilder {
 
 	public WindowInitialisationParametersBuilder setTitle(String title) {
 		this.title = title;
+		return this;
+	}
+
+	public WindowInitialisationParametersBuilder setInstanceArraySizeLimit(int instanceArraySizeLimit) {
+		this.instanceArraySizeLimit = instanceArraySizeLimit;
 		return this;
 	}
 }

@@ -32,8 +32,8 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class Renderer {
 
-	//	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 5000;
-	public static final int INSTANCE_ARRAY_SIZE_LIMIT = 10;
+	public final int instanceArraySizeLimit;
+
 	private final MaterialManager materialManager;
 	private final TextureManager textureManager;
 	private final MeshManager meshManager;
@@ -49,7 +49,8 @@ public class Renderer {
 	private DrawVisitor drawVisitor;
 	private int colourVBO;
 
-	public Renderer(TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
+	public Renderer(int instanceArraySizeLimit, TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
+		this.instanceArraySizeLimit = instanceArraySizeLimit;
 		this.textureManager = textureManager;
 		this.materialManager = materialManager;
 		this.meshManager = meshManager;

@@ -14,6 +14,7 @@ public class WindowInitialisationParameters {
 	private final String title;
 	private boolean debug;
 	private long cullStepSize;
+	private int instanceArraySizeLimit;
 
 	public WindowInitialisationParameters(boolean resizable,
 	                                      boolean decorated,
@@ -23,6 +24,7 @@ public class WindowInitialisationParameters {
 	                                      int windowHeight,
 	                                      String title,
 	                                      long cullStepSize,
+	                                      int instanceArraySizeLimit,
 	                                      boolean debug) {
 		this.resizable = resizable;
 		this.decorated = decorated;
@@ -32,6 +34,7 @@ public class WindowInitialisationParameters {
 		this.windowHeight = windowHeight;
 		this.title = title;
 		this.cullStepSize = cullStepSize;
+		this.instanceArraySizeLimit = instanceArraySizeLimit;
 		this.debug = debug;
 	}
 
@@ -68,5 +71,9 @@ public class WindowInitialisationParameters {
 
 	public long getCullStepSize() {
 		return cullStepSize;
+	}
+
+	public int getInstanceArraySizeLimit() {
+		return this.instanceArraySizeLimit;
 	}
 }

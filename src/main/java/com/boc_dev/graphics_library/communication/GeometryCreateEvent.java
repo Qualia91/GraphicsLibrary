@@ -54,7 +54,7 @@ public class GeometryCreateEvent implements RenderUpdateEvent<Model> {
 		// now check if mesh needs to be converted to instanced model
 		if (window.getMeshManager().getMesh(model.getMeshString()).getType().equals(MeshType.SINGLE)) {
 			// if instance array is over size limit, convert to an instanced mesh to improve performance
-			if (window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).size() > Renderer.INSTANCE_ARRAY_SIZE_LIMIT) {
+			if (window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).size() > window.getWindowInitialisationParameters().getInstanceArraySizeLimit()) {
 				window.getMeshManager().convertToInstancedMesh(model.getMeshString());
 			}
 		}

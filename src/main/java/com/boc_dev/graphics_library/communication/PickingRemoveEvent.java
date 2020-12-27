@@ -45,7 +45,7 @@ public class PickingRemoveEvent implements RenderUpdateEvent<String> {
 			// now check if mesh needs to be converted to instanced model
 			if (window.getMeshManager().getMesh(meshString).getType().equals(MeshType.INSTANCED)) {
 				// if instance array is over size limit, convert to an instanced mesh to improve performance
-				if (window.getRenderGraphs().get(layerName).getPickingMeshes().get(meshString).size() < Renderer.INSTANCE_ARRAY_SIZE_LIMIT) {
+				if (window.getRenderGraphs().get(layerName).getPickingMeshes().get(meshString).size() < window.getWindowInitialisationParameters().getInstanceArraySizeLimit()) {
 					window.getMeshManager().convertToSingleMesh(meshString);
 				}
 			}

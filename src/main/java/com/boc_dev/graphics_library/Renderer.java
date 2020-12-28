@@ -150,7 +150,7 @@ public class Renderer {
 
 			// todo this doesnt work for some reason
 			//drawVisitor.draw(singleMesh, meshArrayListEntry.getValue());
-			instanceMesh.getSingleMesh().initRender();
+
 			int start = 5;
 			for (int i = 0; i < 4; i++) {
 				glEnableVertexAttribArray(start);
@@ -184,7 +184,51 @@ public class Renderer {
 
 			instanceMesh.endRender();
 		} else {
-			System.out.println("Picking shader, not instanced");
+			SingleMesh singleMesh = (SingleMesh) meshManager.getMesh(meshArrayListEntry.getKey());
+
+			singleMesh.initRender();
+
+//		int index = 0;
+//		for (InstanceObject instanceObject : meshArrayListEntry.getValue()) {
+//			integerUUIDHashMap.put(index, instanceObject.getUuid());
+//			index++;
+//		}
+
+			// todo this doesnt work for some reason
+			//drawVisitor.draw(singleMesh, meshArrayListEntry.getValue());
+
+			int start = 5;
+			for (int i = 0; i < 4; i++) {
+				glEnableVertexAttribArray(start);
+				glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+				glVertexAttribDivisor(start, 1);
+				start++;
+			}
+
+			FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(meshArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS);
+
+			float[] transformArray = new float[meshArrayListEntry.getValue().size() * MATRIX_SIZE_FLOATS];
+
+			int index = 0;
+			for (InstanceObject instanceObject : meshArrayListEntry.getValue()) {
+				integerUUIDHashMap.put(index, instanceObject.getUuid());
+
+				for (int transformIndex = 0; transformIndex < instanceObject.getTransformation().getValues().length; transformIndex++) {
+					transformArray[(index * MATRIX_SIZE_FLOATS) + transformIndex] =
+							instanceObject.getTransformation().getValues()[transformIndex];
+				}
+				index++;
+			}
+			for (int i = 0; i < transformArray.length; i++) {
+				modelViewBuffer.put(i, transformArray[i]);
+			}
+			glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
+			GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, singleMesh.size(), GL11.GL_UNSIGNED_INT, 0, meshArrayListEntry.getValue().size());
+
+			MemoryUtil.memFree(modelViewBuffer);
+
+			singleMesh.endRender();
 		}
 
 	}

@@ -45,7 +45,7 @@ public class PickingUpdateEvent implements RenderUpdateEvent<String> {
 		}
 		// if it does not exist, print something because it should exist already
 		else {
-			System.out.println("No model with id name " + meshStringId + " found. Look into this in GeometryUpdateEvent");
+			System.out.println("No model with id name " + meshStringId + " found. Look into this in PickingUpdateEvent");
 		}
 	}
 }

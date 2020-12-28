@@ -45,7 +45,7 @@ public class GeometryUpdateEvent implements RenderUpdateEvent<String> {
 		}
 		// if it does not exist, print something because it should exist already
 		else {
-			System.out.println("No model with id name " + geometryStringId + " found. Look into this in GeometryUpdateEvent");
+			System.out.println("No model with id name " + geometryStringId + " found in layer " + layerName + ". Look into this in GeometryUpdateEvent");
 		}
 	}
 }

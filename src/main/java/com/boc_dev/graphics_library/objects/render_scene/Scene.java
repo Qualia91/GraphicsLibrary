@@ -9,13 +9,7 @@ import com.boc_dev.graphics_library.Renderer;
 import com.boc_dev.graphics_library.Shader;
 import com.boc_dev.graphics_library.objects.lighting.Fog;
 import com.boc_dev.graphics_library.objects.lighting.Light;
-import com.boc_dev.graphics_library.objects.managers.MaterialManager;
-import com.boc_dev.graphics_library.objects.managers.ModelManager;
 import com.boc_dev.graphics_library.objects.managers.TextureManager;
-import com.boc_dev.graphics_library.objects.materials.Material;
-import com.boc_dev.graphics_library.objects.materials.WaterMaterial;
-import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
-import com.boc_dev.graphics_library.objects.mesh_objects.Model;
 import com.boc_dev.maths.objects.matrix.Matrix4f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 import com.boc_dev.maths.objects.vector.Vec4f;
@@ -197,9 +191,9 @@ public class Scene {
 							new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
 									new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
 					waterFrameBuffer.bindReflectionFrameBuffer();
-					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					waterFrameBuffer.bindRefractionFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 
 					textureManager.addTexture("REFLECTION_TEXTURE", waterFrameBuffer.getReflectionTexture());
@@ -231,7 +225,7 @@ public class Scene {
 //				}
 				if (mainShader != null) {
 					GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-					renderer.renderScene(renderGraph.getMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
+					renderer.renderScene(renderGraph.getMeshes(), renderGraph.getTextMeshes(), cameraInstanceObjectEntry, renderGraph.getLights(), mainShader, ambientLight, fog, null);
 				}
 				break;
 			}
@@ -244,6 +238,7 @@ public class Scene {
 	                                 Vec4f clippingPlane,
 	                                 Pair<String,InstanceObject> skybox,
 	                                 HashMap<String, ArrayList<InstanceObject>> models,
+	                                 HashMap<String, ArrayList<InstanceObject>> textMeshes,
 	                                 HashMap<String, InstanceObject> terrainMeshes,
 	                                 HashMap<Light, InstanceObject> lights) {
 		// enable clip planes
@@ -259,7 +254,7 @@ public class Scene {
 //		if (terrainShader != null) {
 //			renderer.renderTerrain(terrainMeshes, cameraInstanceObjectEntry, lights, terrainShader, ambientLight, fog, clippingPlane);
 //		}
-		renderer.renderScene(models, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
+		renderer.renderScene(models, textMeshes, cameraInstanceObjectEntry, lights, mainShader, ambientLight, fog, clippingPlane);
 	}
 
 	public void updateScreen(int width, int height) {

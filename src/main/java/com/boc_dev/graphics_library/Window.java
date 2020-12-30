@@ -192,6 +192,8 @@ public class Window implements Subscribable {
 		// Enable v-sync
 		glfwSwapInterval(1);
 
+		glfwWindowHint(GLFW_SAMPLES, 4);
+
 		// Make the window visible
 		glfwShowWindow(windowHandler);
 
@@ -221,6 +223,7 @@ public class Window implements Subscribable {
 		GL11.glEnable(GLES20.GL_CULL_FACE);
 		GL11.glCullFace(GLES20.GL_BACK);
 		GL11.glEnable(GL_DEPTH_TEST);
+		GL11.glEnable(GL_STENCIL_TEST);
 
 		// support for transparencies
 		glEnable(GL_BLEND);
@@ -229,6 +232,8 @@ public class Window implements Subscribable {
 		for (Scene sceneLayer : sceneLayers) {
 			sceneLayer.init(width, height);
 		}
+
+		
 
 		this.renderer.init();
 
@@ -252,7 +257,7 @@ public class Window implements Subscribable {
 
 	}
 
-	public void render(long step) {
+	public void render() {
 
 		Stats STATS = new Stats();
 //		LOGGER.getStringBuilder().append("Start step ").append(step).append("\n");
@@ -303,9 +308,6 @@ public class Window implements Subscribable {
 			titleChanged = false;
 		}
 
-		// anti aliasing?
-		//glfwWindowHint(GLFW_SAMPLES, 4);
-
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.
 		glfwPollEvents();
@@ -321,7 +323,7 @@ public class Window implements Subscribable {
 			if (renderGraph != null) {
 				sceneLayer.render(renderer, renderGraph, textureManager);
 				// this makes sure next scene is on top of last scene
-				glClear(GL_DEPTH_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			}
 
 		}

@@ -2,6 +2,7 @@ package com.boc_dev.graphics_library.objects.mesh_objects;
 
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
+import com.boc_dev.graphics_library.text.CharacterData;
 import com.boc_dev.maths.objects.vector.Vec2f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 
@@ -137,6 +138,29 @@ public class BasicMeshCreator {
 	}
 
 	public Mesh createSquare(RendererObject rendererObject) {
+		Vertex[] vertices = new Vertex[]{
+				new Vertex(new Vec3f(0.0f, -0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f, 0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f, 0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
+				new Vertex(new Vec3f(0.0f, -0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg())};
+		int[] indices = new int[]{
+				0, 1, 2,
+				3, 0, 2
+		};
+		return new SingleMesh(vertices, indices, rendererObject);
+	}
+
+	public Mesh createText(RendererObject rendererObject, String text, CharacterData characterData) {
+
+		// loop over letters
+		char[] chars = text.toCharArray();
+
+		for (char letter : chars) {
+
+			characterData.getCharacter(letter);
+
+		}
+
 		Vertex[] vertices = new Vertex[]{
 				new Vertex(new Vec3f(0.0f, -0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
 				new Vertex(new Vec3f(0.0f, 0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),

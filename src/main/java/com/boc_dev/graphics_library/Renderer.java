@@ -47,7 +47,6 @@ public class Renderer {
 	private Matrix4f lightViewMatrix = Matrix4f.Identity;
 
 	private DrawVisitor drawVisitor;
-	private int colourVBO;
 
 	public Renderer(int instanceArraySizeLimit, TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
 		this.instanceArraySizeLimit = instanceArraySizeLimit;
@@ -321,6 +320,7 @@ public class Renderer {
 	}
 
 	public void renderScene(HashMap<String, ArrayList<InstanceObject>> meshes,
+	                        HashMap<String, ArrayList<InstanceObject>> textMeshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                        HashMap<Light, InstanceObject> lights,
 	                        Shader shader,
@@ -362,6 +362,11 @@ public class Renderer {
 		createFog(fog, shader);
 
 		for (Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry : meshes.entrySet()) {
+			renderInstance(meshArrayListEntry, shader);
+		}
+
+		// do text after so alpha works properly
+		for (Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry : textMeshes.entrySet()) {
 			renderInstance(meshArrayListEntry, shader);
 		}
 

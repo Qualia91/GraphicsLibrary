@@ -4,6 +4,7 @@ import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGl
 import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 import com.boc_dev.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
+import com.boc_dev.graphics_library.objects.text.TextInstance;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.system.MemoryUtil;

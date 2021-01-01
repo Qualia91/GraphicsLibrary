@@ -11,6 +11,7 @@ import java.util.UUID;
 public class MaterialManager {
 
 	public static final UUID WATER_MATERIAL = UUID.randomUUID();
+	public static final UUID TEXT_MATERIAL = UUID.randomUUID();
 	private final HashMap<UUID, Material> idToMaterialMap = new HashMap<>();
 	private Material defaultMaterial;
 	private WaterMaterial waterMaterial = new WaterMaterial(

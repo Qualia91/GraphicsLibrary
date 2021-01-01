@@ -10,10 +10,7 @@ import com.boc_dev.graphics_library.input.Picking;
 import com.boc_dev.graphics_library.logging.Logger;
 import com.boc_dev.graphics_library.logging.Stats;
 import com.boc_dev.graphics_library.logging.StatsCalc;
-import com.boc_dev.graphics_library.objects.managers.MaterialManager;
-import com.boc_dev.graphics_library.objects.managers.MeshManager;
-import com.boc_dev.graphics_library.objects.managers.ModelManager;
-import com.boc_dev.graphics_library.objects.managers.TextureManager;
+import com.boc_dev.graphics_library.objects.managers.*;
 import com.boc_dev.graphics_library.objects.render_scene.RenderGraph;
 import com.boc_dev.graphics_library.objects.render_scene.Scene;
 import com.boc_dev.graphics_library.input.GLInputListener;
@@ -74,9 +71,13 @@ public class Window implements Subscribable {
 	private final MaterialManager materialManager;
 	private final MeshManager meshManager;
 	private final ModelManager modelManager;
+	private final FontManager fontManager;
 
 	private final HashMap<String, RenderGraph> renderGraphs;
 	private WindowInitialisationParameters windowInitialisationParameters;
+
+	// todo temp
+	private boolean added = false;
 
 	public Window(ArrayList<Scene> sceneLayers, Bus bus) {
 		this.sceneLayers = sceneLayers;
@@ -85,6 +86,7 @@ public class Window implements Subscribable {
 		this.materialManager = new MaterialManager();
 		this.meshManager = new MeshManager();
 		this.modelManager = new ModelManager();
+		this.fontManager = new FontManager();
 		renderGraphs = new HashMap<>();
 		for (Scene sceneLayer : sceneLayers) {
 			renderGraphs.put(sceneLayer.getName(), null);
@@ -129,6 +131,10 @@ public class Window implements Subscribable {
 //		this.supports.add(WaterRemoveEvent.class);
 //		this.supports.add(WaterUpdateEvent.class);
 
+		this.supports.add(TextCreateEvent.class);
+//		this.supports.add(TextRemoveEvent.class);
+//		this.supports.add(TextUpdateEvent.class);
+
 		this.supports.add(ChunkMeshCreateEvent.class);
 	}
 
@@ -140,7 +146,7 @@ public class Window implements Subscribable {
 
 		this.windowInitialisationParameters = windowInitialisationParameters;
 
-		renderer = new Renderer(windowInitialisationParameters.getInstanceArraySizeLimit(), this.textureManager, this.materialManager, this.meshManager, this.modelManager);
+		renderer = new Renderer(windowInitialisationParameters.getInstanceArraySizeLimit(), this.textureManager, this.materialManager, this.meshManager, this.modelManager, this.fontManager);
 
 		System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
@@ -218,6 +224,7 @@ public class Window implements Subscribable {
 		materialManager.create("/textures/no_texture.png", defaultMaterialId);
 		meshManager.create();
 		modelManager.create(defaultMaterialId);
+		fontManager.create("montserrat_light");
 
 		// cull back faces
 		GL11.glEnable(GLES20.GL_CULL_FACE);
@@ -321,6 +328,7 @@ public class Window implements Subscribable {
 			RenderGraph renderGraph = this.renderGraphs.get(sceneLayer.getName());
 
 			if (renderGraph != null) {
+
 				sceneLayer.render(renderer, renderGraph, textureManager);
 				// this makes sure next scene is on top of last scene
 				glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -414,5 +422,9 @@ public class Window implements Subscribable {
 
 	public WindowInitialisationParameters getWindowInitialisationParameters() {
 		return windowInitialisationParameters;
+	}
+
+	public FontManager getFontManager() {
+		return fontManager;
 	}
 }

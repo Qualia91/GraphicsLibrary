@@ -1,4 +1,4 @@
-package com.boc_dev.graphics_library.text;
+package com.boc_dev.graphics_library.objects.text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +19,7 @@ public class CharacterData {
 	private static final int DESIRED_PADDING = 3;
 	private static final String SPLITTER = " ";
 	private static final String NUMBER_SEPARATOR = ",";
+	private final File textDescriptionFile;
 
 	// padding values from file
 	private int[] padding = new int[4];
@@ -29,7 +30,12 @@ public class CharacterData {
 	private final Map<String, String> values = new HashMap<>();
 	private int spaceWidth;
 
-	public CharacterData() {
+	public CharacterData(File textDescriptionFile) {
+
+		this.textDescriptionFile = textDescriptionFile;
+
+		openFile(textDescriptionFile);
+
 		// load first line and get the padding values
 		getPadding();
 
@@ -74,12 +80,12 @@ public class CharacterData {
 			this.spaceWidth = (getValueOfVariable("xadvance") - paddingWidth);
 			return null;
 		}
-		int xTex = (getValueOfVariable("x") + (padding[PAD_LEFT] - DESIRED_PADDING)) / imageSize;
-		int yTex = (getValueOfVariable("y") + (padding[PAD_TOP] - DESIRED_PADDING)) / imageSize;
+		float xTex = ((float)(getValueOfVariable("x") + (padding[PAD_LEFT] - DESIRED_PADDING))) / imageSize;
+		float yTex = ((float)(getValueOfVariable("y") + (padding[PAD_TOP] - DESIRED_PADDING))) / imageSize;
 		int width = getValueOfVariable("width") - (paddingWidth - (2 * DESIRED_PADDING));
 		int height = getValueOfVariable("height") - ((paddingHeight) - (2 * DESIRED_PADDING));
-		int xTexSize = width / imageSize;
-		int yTexSize = height / imageSize;
+		float xTexSize = ((float) width) / imageSize;
+		float yTexSize = ((float) height) / imageSize;
 		int xOff = (getValueOfVariable("xoffset") + padding[PAD_LEFT] - DESIRED_PADDING);
 		int yOff = (getValueOfVariable("yoffset") + (padding[PAD_TOP] - DESIRED_PADDING));
 		int xAdvance = (getValueOfVariable("xadvance") - paddingWidth);
@@ -169,5 +175,9 @@ public class CharacterData {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public String getStringDescriptor() {
+		return textDescriptionFile.toString();
 	}
 }

@@ -1,29 +1,30 @@
 package com.boc_dev.graphics_library.communication;
 
 import com.boc_dev.graphics_library.Window;
-import com.boc_dev.graphics_library.objects.mesh_objects.MeshType;
 import com.boc_dev.graphics_library.objects.mesh_objects.Model;
 import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 import com.boc_dev.graphics_library.objects.render_scene.RenderGraph;
+import com.boc_dev.graphics_library.objects.text.CharacterData;
+import com.boc_dev.graphics_library.objects.text.TextInstance;
+import com.boc_dev.maths.objects.matrix.Matrix4f;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-public class TextCreateEvent implements RenderUpdateEvent<Model> {
+public class TextCreateEvent implements RenderUpdateEvent<TextInstance> {
 
-	private final ArrayList<InstanceObject> instanceObjects;
-	private final Model model;
+	private final TextInstance textInstance;
 	private final String layerName;
+	private String fontName;
 
-	public TextCreateEvent(ArrayList<InstanceObject> instanceObjects, Model model, String layerName) {
-		this.instanceObjects = instanceObjects;
-		this.model = model;
+	public TextCreateEvent(TextInstance textInstance, String layerName, String fontName)  {
+		this.textInstance = textInstance;
+		this.fontName = fontName;
 		this.layerName = layerName;
 	}
 
 	@Override
-	public Model getData() {
-		return model;
+	public TextInstance getData() {
+		return textInstance;
 	}
 
 	@Override
@@ -35,28 +36,20 @@ public class TextCreateEvent implements RenderUpdateEvent<Model> {
 		if (window.getRenderGraphs().get(layerName) == null) {
 			window.getRenderGraphs().put(layerName, new RenderGraph());
 		}
-		// if model already exists in render graph, it is already created and so just add instance
-		if (window.getRenderGraphs().get(layerName).getMeshes().containsKey(model.getStringID())) {
-			window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).addAll(instanceObjects);
+
+		// check if font exists, add text instance it to array
+		if (window.getRenderGraphs().get(layerName).getTextMeshes().containsKey(fontName)) {
+			window.getRenderGraphs().get(layerName).getTextMeshes().get(fontName).add(textInstance);
 		}
-		// if it does not exist, we need to add model to model manager and add map entry
+		// if it does not exist, we need to font
 		else {
-			try {
-				window.getMeshManager().createMesh(model.getMeshString());
-			} catch (IOException e) {
-				System.err.println("Mesh " + model.getMeshString() + " not found, using default for model " + model.getStringID());
-			}
-			window.getModelManager().addModel(model);
-			window.getRenderGraphs().get(layerName).getMeshes().put(model.getStringID(), instanceObjects);
+			window.getFontManager().addFont(fontName);
+			ArrayList<TextInstance> instanceObjects = new ArrayList<>();
+			instanceObjects.add(textInstance);
+			window.getRenderGraphs().get(layerName).getTextMeshes().put(fontName, instanceObjects);
 		}
 
-		// now check if mesh needs to be converted to instanced model
-		if (window.getMeshManager().getMesh(model.getMeshString()).getType().equals(MeshType.SINGLE)) {
-			// if instance array is over size limit, convert to an instanced mesh to improve performance
-			if (window.getRenderGraphs().get(layerName).getMeshes().get(model.getStringID()).size() > window.getWindowInitialisationParameters().getInstanceArraySizeLimit()) {
-				window.getMeshManager().convertToInstancedMesh(model.getMeshString());
-			}
-		}
+		window.getMeshManager().createText(textInstance.getText(), window.getFontManager().getFont(fontName).getCharacterData());
 
 	}
 }

@@ -19,4 +19,5 @@ module com.boc_dev.graphics_library {
 	exports com.boc_dev.graphics_library.frame_buffers;
 	exports com.boc_dev.graphics_library.objects.materials;
 	exports com.boc_dev.graphics_library.communication;
+	exports com.boc_dev.graphics_library.objects.text;
 }

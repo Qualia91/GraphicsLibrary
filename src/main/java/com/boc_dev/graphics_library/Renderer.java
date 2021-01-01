@@ -3,16 +3,14 @@ package com.boc_dev.graphics_library;
 import com.boc_dev.graphics_library.objects.Camera;
 import com.boc_dev.graphics_library.objects.DrawVisitor;
 import com.boc_dev.graphics_library.objects.lighting.*;
-import com.boc_dev.graphics_library.objects.managers.MaterialManager;
-import com.boc_dev.graphics_library.objects.managers.MeshManager;
-import com.boc_dev.graphics_library.objects.managers.ModelManager;
-import com.boc_dev.graphics_library.objects.managers.TextureManager;
+import com.boc_dev.graphics_library.objects.managers.*;
 import com.boc_dev.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.SingleMesh;
 import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 import com.boc_dev.graphics_library.objects.render_scene.Pair;
 import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.Model;
+import com.boc_dev.graphics_library.objects.text.TextInstance;
 import com.boc_dev.maths.objects.matrix.Matrix4f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 import com.boc_dev.maths.objects.vector.Vec4f;
@@ -38,7 +36,9 @@ public class Renderer {
 	private final TextureManager textureManager;
 	private final MeshManager meshManager;
 	private final ModelManager modelManager;
+	private final FontManager fontManager;
 
+	private static final int MODEL_VIEW_MATRIX_START_POSITION = 5;
 	private static final int FLOAT_SIZE_BYTES = 4;
 	private static final int MATRIX_SIZE_FLOATS = 4 * 4;
 	private static final int VECTOR4F_SIZE_BYTES = 4 * Renderer.FLOAT_SIZE_BYTES;
@@ -48,12 +48,13 @@ public class Renderer {
 
 	private DrawVisitor drawVisitor;
 
-	public Renderer(int instanceArraySizeLimit, TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager) {
+	public Renderer(int instanceArraySizeLimit, TextureManager textureManager, MaterialManager materialManager, MeshManager meshManager, ModelManager modelManager, FontManager fontManager) {
 		this.instanceArraySizeLimit = instanceArraySizeLimit;
 		this.textureManager = textureManager;
 		this.materialManager = materialManager;
 		this.meshManager = meshManager;
 		this.modelManager = modelManager;
+		this.fontManager = fontManager;
 	}
 
 	public void init() {
@@ -320,7 +321,7 @@ public class Renderer {
 	}
 
 	public void renderScene(HashMap<String, ArrayList<InstanceObject>> meshes,
-	                        HashMap<String, ArrayList<InstanceObject>> textMeshes,
+	                        HashMap<String, ArrayList<TextInstance>> textMeshes,
 	                        Map.Entry<Camera, InstanceObject> cameraInstanceObjectEntry,
 	                        HashMap<Light, InstanceObject> lights,
 	                        Shader shader,
@@ -366,12 +367,48 @@ public class Renderer {
 		}
 
 		// do text after so alpha works properly
-		for (Map.Entry<String, ArrayList<InstanceObject>> meshArrayListEntry : textMeshes.entrySet()) {
-			renderInstance(meshArrayListEntry, shader);
+		for (Map.Entry<String, ArrayList<TextInstance>> meshArrayListEntry : textMeshes.entrySet()) {
+			renderText(meshArrayListEntry, shader);
 		}
 
 
 		shader.unbind();
+
+	}
+
+	private void renderText(Map.Entry<String, ArrayList<TextInstance>> fontTextInstanceMap, Shader shader) {
+
+		for (TextInstance textInstance : fontTextInstanceMap.getValue()) {
+
+			Mesh mesh = meshManager.getMesh(textInstance.getText());
+			mesh.initRender();
+
+			fontManager.getFont(fontTextInstanceMap.getKey()).initRender(shader);
+
+			int start = MODEL_VIEW_MATRIX_START_POSITION;
+			for (int i = 0; i < 4; i++) {
+				glEnableVertexAttribArray(start);
+				glVertexAttribPointer(start, 4, GL_FLOAT, false, MATRIX_SIZE_BYTES, i * VECTOR4F_SIZE_BYTES);
+				glVertexAttribDivisor(start, 1);
+				start++;
+			}
+
+			FloatBuffer modelViewBuffer = MemoryUtil.memAllocFloat(MATRIX_SIZE_FLOATS);
+
+			for (int i = 0; i < textInstance.getTransformation().getValues().length; i++) {
+				modelViewBuffer.put(i, textInstance.getTransformation().getValues()[i]);
+			}
+
+			glBufferData(GL_ARRAY_BUFFER, modelViewBuffer, GL_DYNAMIC_DRAW);
+
+			MemoryUtil.memFree(modelViewBuffer);
+
+			glDrawElements(GL11.GL_TRIANGLES, mesh.size(), GL11.GL_UNSIGNED_INT, 0);
+
+			fontManager.getFont(fontTextInstanceMap.getKey()).endRender();
+
+			mesh.endRender();
+		}
 
 	}
 

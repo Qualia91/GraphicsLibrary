@@ -5,6 +5,7 @@ import com.boc_dev.graphics_library.objects.mesh_objects.InstanceMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.ModelLoader;
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
+import com.boc_dev.graphics_library.objects.text.CharacterData;
 import com.boc_dev.maths.objects.vector.Vec3f;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class MeshManager {
 	}
 
 	public void create() throws IOException {
+
 		// create basic meshes as default
 		Mesh circle = basicMeshCreator.createCircle(50, new OpenGlMesh());
 		Mesh cube = basicMeshCreator.createCube(false, new OpenGlMesh());
@@ -57,6 +59,15 @@ public class MeshManager {
 		for (Mesh mesh : this.meshStringDescriptorToMeshMap.values()) {
 			mesh.destroy();
 		}
+	}
+
+	public void createText(String text, CharacterData characterData) {
+		// if mesh already made, just continue
+		if (meshStringDescriptorToMeshMap.containsKey(text)) return;
+
+		Mesh textMesh = basicMeshCreator.createText(new OpenGlMesh(), text, characterData);
+		textMesh.create();
+		meshStringDescriptorToMeshMap.put(text, textMesh);
 	}
 
 	public void createMesh(String filePath) throws IOException {

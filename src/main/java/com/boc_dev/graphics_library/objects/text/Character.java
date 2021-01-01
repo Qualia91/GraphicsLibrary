@@ -1,11 +1,11 @@
-package com.boc_dev.graphics_library.text;
+package com.boc_dev.graphics_library.objects.text;
 
 public class Character {
 	private int id;
-	private int xTextureCoord;
-	private int yTextureCoord;
-	private int xMaxTextureCoord;
-	private int yMaxTextureCoord;
+	private float xTextureCoord;
+	private float yTextureCoord;
+	private float xMaxTextureCoord;
+	private float yMaxTextureCoord;
 	private int xOffset;
 	private int yOffset;
 	private int sizeX;
@@ -13,12 +13,12 @@ public class Character {
 	private int xAdvance;
 
 
-	public Character(int id, int xTextureCoord, int yTextureCoord, int xMaxTextureCoord, int yMaxTextureCoord, int xOffset, int yOffset, int sizeX, int sizeY, int xAdvance) {
+	public Character(int id, float xTextureCoord, float yTextureCoord, float xTexSize, float yTexSize, int xOffset, int yOffset, int sizeX, int sizeY, int xAdvance) {
 		this.id = id;
 		this.xTextureCoord = xTextureCoord;
 		this.yTextureCoord = yTextureCoord;
-		this.xMaxTextureCoord = xMaxTextureCoord;
-		this.yMaxTextureCoord = yMaxTextureCoord;
+		this.xMaxTextureCoord = xTextureCoord + xTexSize;
+		this.yMaxTextureCoord = yTextureCoord + yTexSize;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 		this.sizeX = sizeX;
@@ -34,35 +34,35 @@ public class Character {
 		this.id = id;
 	}
 
-	public int getxTextureCoord() {
+	public float getxTextureCoord() {
 		return xTextureCoord;
 	}
 
-	public void setxTextureCoord(int xTextureCoord) {
+	public void setxTextureCoord(float xTextureCoord) {
 		this.xTextureCoord = xTextureCoord;
 	}
 
-	public int getyTextureCoord() {
+	public float getyTextureCoord() {
 		return yTextureCoord;
 	}
 
-	public void setyTextureCoord(int yTextureCoord) {
+	public void setyTextureCoord(float yTextureCoord) {
 		this.yTextureCoord = yTextureCoord;
 	}
 
-	public int getxMaxTextureCoord() {
+	public float getxMaxTextureCoord() {
 		return xMaxTextureCoord;
 	}
 
-	public void setxMaxTextureCoord(int xMaxTextureCoord) {
+	public void setxMaxTextureCoord(float xMaxTextureCoord) {
 		this.xMaxTextureCoord = xMaxTextureCoord;
 	}
 
-	public int getyMaxTextureCoord() {
+	public float getyMaxTextureCoord() {
 		return yMaxTextureCoord;
 	}
 
-	public void setyMaxTextureCoord(int yMaxTextureCoord) {
+	public void setyMaxTextureCoord(float yMaxTextureCoord) {
 		this.yMaxTextureCoord = yMaxTextureCoord;
 	}
 

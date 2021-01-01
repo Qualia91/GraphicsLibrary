@@ -2,6 +2,7 @@ package com.boc_dev.graphics_library.objects.render_scene;
 
 import com.boc_dev.graphics_library.objects.Camera;
 import com.boc_dev.graphics_library.objects.lighting.Light;
+import com.boc_dev.graphics_library.objects.text.TextInstance;
 
 import java.util.*;
 
@@ -10,7 +11,8 @@ public class RenderGraph {
 	private final HashMap<Light, InstanceObject> lights;
 	private final HashMap<String, ArrayList<InstanceObject>> meshes;
 	private final HashMap<String, ArrayList<InstanceObject>> pickingMeshes;
-	private final HashMap<String, ArrayList<InstanceObject>> textMeshes;
+	// font name then array of text using font
+	private final HashMap<String, ArrayList<TextInstance>> textMeshes;
 	private final HashMap<String, InstanceObject> waterMeshes;
 	private final HashMap<String, InstanceObject> terrainMeshes;
 	private final HashMap<Camera, InstanceObject> cameras;
@@ -39,7 +41,7 @@ public class RenderGraph {
 		return pickingMeshes;
 	}
 
-	public HashMap<String, ArrayList<InstanceObject>> getTextMeshes() {
+	public HashMap<String, ArrayList<TextInstance>> getTextMeshes() {
 		return textMeshes;
 	}
 

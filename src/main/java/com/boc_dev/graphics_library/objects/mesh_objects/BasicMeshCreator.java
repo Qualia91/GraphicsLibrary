@@ -2,7 +2,8 @@ package com.boc_dev.graphics_library.objects.mesh_objects;
 
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
-import com.boc_dev.graphics_library.text.CharacterData;
+import com.boc_dev.graphics_library.objects.text.Character;
+import com.boc_dev.graphics_library.objects.text.CharacterData;
 import com.boc_dev.maths.objects.vector.Vec2f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 
@@ -152,24 +153,63 @@ public class BasicMeshCreator {
 
 	public Mesh createText(RendererObject rendererObject, String text, CharacterData characterData) {
 
+		int cursorX = 0;
+		int cursorY = 0;
+
 		// loop over letters
 		char[] chars = text.toCharArray();
 
+		Vertex[] vertices = new Vertex[chars.length * 4];
+		int[] indices = new int[chars.length * 6];
+
+		int vertexStartNum = 0;
+		int indexStartNum = 0;
+
 		for (char letter : chars) {
 
-			characterData.getCharacter(letter);
+			Character character = characterData.getCharacter(letter);
+
+			if (character == null) {
+				character = characterData.getCharacter(35);
+			}
+
+			int x = cursorX + character.getxOffset();
+			int y = cursorY + character.getyOffset();
+			int maxX = x + character.getSizeX();
+			int maxY = y + character.getSizeY();
+
+			// now center the values
+			float properX = (2 * x) - 1;
+			float properY = (-2 * y) + 1;
+			float properMaxX = (2 * maxX) - 1;
+			float properMaxY = (-2 * maxY) + 1;
+
+			// texture coords
+			float xTex = character.getxTextureCoord();
+			float yTex = character.getyTextureCoord();
+			float maxXTex = character.getxMaxTextureCoord();
+			float maxYTex = character.getyMaxTextureCoord();
+
+			vertices[vertexStartNum + 0] = new Vertex(new Vec3f(0.0f, -properX, -properY), new Vec2f(xTex, yTex), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg());
+			vertices[vertexStartNum + 1] = new Vertex(new Vec3f(0.0f, -properX, -properMaxY), new Vec2f(xTex, maxYTex), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg());
+			vertices[vertexStartNum + 2] = new Vertex(new Vec3f(0.0f, -properMaxX, -properMaxY), new Vec2f(maxXTex, maxYTex), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg());
+			vertices[vertexStartNum + 3] = new Vertex(new Vec3f(0.0f, -properMaxX, -properY), new Vec2f(maxXTex, yTex), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg());
+
+			indices[indexStartNum + 0] = 0 + vertexStartNum;
+			indices[indexStartNum + 1] = 1 + vertexStartNum;
+			indices[indexStartNum + 2] = 2 + vertexStartNum;
+			indices[indexStartNum + 3] = 2 + vertexStartNum;
+			indices[indexStartNum + 4] = 3 + vertexStartNum;
+			indices[indexStartNum + 5] = 0 + vertexStartNum;
+
+			vertexStartNum += 4;
+			indexStartNum += 6;
+			cursorX += character.getxAdvance();
 
 		}
 
-		Vertex[] vertices = new Vertex[]{
-				new Vertex(new Vec3f(0.0f, -0.5f, 0.5f), new Vec2f(1.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
-				new Vertex(new Vec3f(0.0f, 0.5f, 0.5f), new Vec2f(0.0f, 0.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
-				new Vertex(new Vec3f(0.0f, 0.5f, -0.5f), new Vec2f(0.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg()),
-				new Vertex(new Vec3f(0.0f, -0.5f, -0.5f), new Vec2f(1.0f, 1.0f), Vec3f.X.neg(), Vec3f.Y.neg(), Vec3f.Z.neg())};
-		int[] indices = new int[]{
-				0, 1, 2,
-				3, 0, 2
-		};
+
+
 		return new SingleMesh(vertices, indices, rendererObject);
 	}
 

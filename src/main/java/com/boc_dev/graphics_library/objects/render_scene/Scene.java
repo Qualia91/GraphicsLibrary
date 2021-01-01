@@ -10,6 +10,7 @@ import com.boc_dev.graphics_library.Shader;
 import com.boc_dev.graphics_library.objects.lighting.Fog;
 import com.boc_dev.graphics_library.objects.lighting.Light;
 import com.boc_dev.graphics_library.objects.managers.TextureManager;
+import com.boc_dev.graphics_library.objects.text.TextInstance;
 import com.boc_dev.maths.objects.matrix.Matrix4f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 import com.boc_dev.maths.objects.vector.Vec4f;
@@ -191,9 +192,9 @@ public class Scene {
 							new AbstractMap.SimpleEntry<>(cameraInstanceObjectEntry.getKey(),
 									new InstanceObject(cameraInstanceObjectEntry.getValue().getUuid(), newCameraMatrix));
 					waterFrameBuffer.bindReflectionFrameBuffer();
-					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, reflectedCamera, reflectionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTextMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					waterFrameBuffer.bindRefractionFrameBuffer();
-					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
+					renderSceneToBuffer(renderer, cameraInstanceObjectEntry, refractionClippingPlane, renderGraph.getSkybox(), renderGraph.getMeshes(), renderGraph.getTextMeshes(), renderGraph.getTerrainMeshes(), renderGraph.getLights());
 					waterFrameBuffer.unbindCurrentFrameBuffer(screenWidth, screenHeight);
 
 					textureManager.addTexture("REFLECTION_TEXTURE", waterFrameBuffer.getReflectionTexture());
@@ -238,7 +239,7 @@ public class Scene {
 	                                 Vec4f clippingPlane,
 	                                 Pair<String,InstanceObject> skybox,
 	                                 HashMap<String, ArrayList<InstanceObject>> models,
-	                                 HashMap<String, ArrayList<InstanceObject>> textMeshes,
+	                                 HashMap<String, ArrayList<TextInstance>> textMeshes,
 	                                 HashMap<String, InstanceObject> terrainMeshes,
 	                                 HashMap<Light, InstanceObject> lights) {
 		// enable clip planes

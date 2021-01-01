@@ -133,7 +133,7 @@ public class Window implements Subscribable {
 
 		this.supports.add(TextCreateEvent.class);
 		this.supports.add(TextRemoveEvent.class);
-//		this.supports.add(TextUpdateEvent.class);
+		this.supports.add(TextUpdateEvent.class);
 
 		this.supports.add(ChunkMeshCreateEvent.class);
 	}

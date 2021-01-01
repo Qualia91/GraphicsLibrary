@@ -4,6 +4,7 @@ import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGl
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
 import com.boc_dev.graphics_library.objects.text.Character;
 import com.boc_dev.graphics_library.objects.text.CharacterData;
+import com.boc_dev.graphics_library.objects.text.FontAlignment;
 import com.boc_dev.maths.objects.vector.Vec2f;
 import com.boc_dev.maths.objects.vector.Vec3f;
 
@@ -151,7 +152,7 @@ public class BasicMeshCreator {
 		return new SingleMesh(vertices, indices, rendererObject);
 	}
 
-	public Mesh createText(RendererObject rendererObject, String text, CharacterData characterData) {
+	public Mesh createText(RendererObject rendererObject, String text, CharacterData characterData, float fontSize, FontAlignment fontAlignment) {
 
 		int cursorX = 0;
 		int cursorY = 0;
@@ -165,6 +166,9 @@ public class BasicMeshCreator {
 		int vertexStartNum = 0;
 		int indexStartNum = 0;
 
+		float base = 1;
+		float textWidth = 0;
+
 		for (char letter : chars) {
 
 			Character character = characterData.getCharacter(letter);
@@ -173,15 +177,17 @@ public class BasicMeshCreator {
 				character = characterData.getCharacter(35);
 			}
 
+			base = character.getBase();
+
 			float x = cursorX + character.getxOffset();
 			float y = cursorY + character.getyOffset();
 			float maxX = x + character.getSizeX();
 			float maxY = y + character.getSizeY();
 
-			x /= character.getBase();
-			y /= character.getBase();
-			maxX /= character.getBase();
-			maxY /= character.getBase();
+			x *= fontSize/character.getBase();
+			y *= fontSize/character.getBase();
+			maxX *= fontSize/character.getBase();
+			maxY *= fontSize/character.getBase();
 
 			// now center the values
 			float properX = (2 * x) - 1;
@@ -211,8 +217,33 @@ public class BasicMeshCreator {
 			indexStartNum += 6;
 			cursorX += character.getxAdvance();
 
+			textWidth = properMaxX;
 		}
 
+		// alignment
+		float startPos;
+		switch (fontAlignment) {
+			case END:
+
+				for (Vertex vertex : vertices) {
+					vertex.setPos(new Vec3f(
+							vertex.getPos().getX(),
+							vertex.getPos().getY() + textWidth,
+							vertex.getPos().getZ()));
+				}
+				break;
+			case CENTER:
+
+				for (Vertex vertex : vertices) {
+					vertex.setPos(new Vec3f(
+							vertex.getPos().getX(),
+							vertex.getPos().getY() + (textWidth/2.0f),
+							vertex.getPos().getZ()));
+				}
+				break;
+			default:
+				break;
+		}
 
 		return new SingleMesh(vertices, indices, rendererObject);
 	}

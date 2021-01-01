@@ -9,7 +9,7 @@ public class TextInstance {
 
 	private final UUID uuid;
 	private final String text;
-	private final Matrix4f transform;
+	private Matrix4f transform;
 
 	public TextInstance(UUID uuid, String text, Matrix4f transform) {
 		this.uuid = uuid;
@@ -29,4 +29,7 @@ public class TextInstance {
 		return transform;
 	}
 
+	public void setTransform(Matrix4f matrix4f) {
+		this.transform = matrix4f;
+	}
 }

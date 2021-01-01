@@ -6,6 +6,7 @@ import com.boc_dev.graphics_library.objects.mesh_objects.Mesh;
 import com.boc_dev.graphics_library.objects.mesh_objects.ModelLoader;
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.OpenGlMesh;
 import com.boc_dev.graphics_library.objects.text.CharacterData;
+import com.boc_dev.graphics_library.objects.text.FontAlignment;
 import com.boc_dev.maths.objects.vector.Vec3f;
 
 import java.io.IOException;
@@ -61,11 +62,11 @@ public class MeshManager {
 		}
 	}
 
-	public void createText(String stringId, String text, CharacterData characterData) {
+	public void createText(String stringId, String text, CharacterData characterData, float fontSize, FontAlignment fontAlignment) {
 		// if mesh already made, just continue
 		if (meshStringDescriptorToMeshMap.containsKey(stringId)) return;
 
-		Mesh textMesh = basicMeshCreator.createText(new OpenGlMesh(), text, characterData);
+		Mesh textMesh = basicMeshCreator.createText(new OpenGlMesh(), text, characterData, fontSize, fontAlignment);
 		textMesh.create();
 		meshStringDescriptorToMeshMap.put(stringId, textMesh);
 	}

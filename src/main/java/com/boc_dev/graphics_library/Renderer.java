@@ -380,7 +380,7 @@ public class Renderer {
 
 		for (TextInstance textInstance : fontTextInstanceMap.getValue()) {
 
-			Mesh mesh = meshManager.getMesh(textInstance.getText());
+			Mesh mesh = meshManager.getMesh(textInstance.getUuid().toString());
 			mesh.initRender();
 
 			fontManager.getFont(fontTextInstanceMap.getKey()).initRender(shader);

@@ -61,13 +61,21 @@ public class MeshManager {
 		}
 	}
 
-	public void createText(String text, CharacterData characterData) {
+	public void createText(String stringId, String text, CharacterData characterData) {
 		// if mesh already made, just continue
-		if (meshStringDescriptorToMeshMap.containsKey(text)) return;
+		if (meshStringDescriptorToMeshMap.containsKey(stringId)) return;
 
 		Mesh textMesh = basicMeshCreator.createText(new OpenGlMesh(), text, characterData);
 		textMesh.create();
-		meshStringDescriptorToMeshMap.put(text, textMesh);
+		meshStringDescriptorToMeshMap.put(stringId, textMesh);
+	}
+
+	public void removeTextMesh(String stringId) {
+		if (!meshStringDescriptorToMeshMap.containsKey(stringId)) return;
+
+		Mesh mesh = meshStringDescriptorToMeshMap.get(stringId);
+		mesh.destroy();
+		meshStringDescriptorToMeshMap.remove(stringId);
 	}
 
 	public void createMesh(String filePath) throws IOException {

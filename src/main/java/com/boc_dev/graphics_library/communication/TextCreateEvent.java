@@ -49,7 +49,7 @@ public class TextCreateEvent implements RenderUpdateEvent<TextInstance> {
 			window.getRenderGraphs().get(layerName).getTextMeshes().put(fontName, instanceObjects);
 		}
 
-		window.getMeshManager().createText(textInstance.getText(), window.getFontManager().getFont(fontName).getCharacterData());
+		window.getMeshManager().createText(textInstance.getUuid().toString(), textInstance.getText(), window.getFontManager().getFont(fontName).getCharacterData());
 
 	}
 }

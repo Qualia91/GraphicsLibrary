@@ -1,19 +1,30 @@
 package com.boc_dev.graphics_library.objects.text;
 
 public class Character {
+
 	private int id;
 	private float xTextureCoord;
 	private float yTextureCoord;
 	private float xMaxTextureCoord;
 	private float yMaxTextureCoord;
-	private int xOffset;
-	private int yOffset;
-	private int sizeX;
-	private int sizeY;
-	private int xAdvance;
+	private float xOffset;
+	private float yOffset;
+	private float sizeX;
+	private float sizeY;
+	private float xAdvance;
+	private final float base;
 
-
-	public Character(int id, float xTextureCoord, float yTextureCoord, float xTexSize, float yTexSize, int xOffset, int yOffset, int sizeX, int sizeY, int xAdvance) {
+	public Character(int id,
+	                 float xTextureCoord,
+	                 float yTextureCoord,
+	                 float xTexSize,
+	                 float yTexSize,
+	                 float xOffset,
+	                 float yOffset,
+	                 float sizeX,
+	                 float sizeY,
+	                 float xAdvance,
+	                 float base) {
 		this.id = id;
 		this.xTextureCoord = xTextureCoord;
 		this.yTextureCoord = yTextureCoord;
@@ -24,6 +35,11 @@ public class Character {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.xAdvance = xAdvance;
+		this.base = base;
+	}
+
+	public float getBase() {
+		return base;
 	}
 
 	public int getId() {
@@ -66,43 +82,43 @@ public class Character {
 		this.yMaxTextureCoord = yMaxTextureCoord;
 	}
 
-	public int getxOffset() {
+	public float getxOffset() {
 		return xOffset;
 	}
 
-	public void setxOffset(int xOffset) {
+	public void setxOffset(float xOffset) {
 		this.xOffset = xOffset;
 	}
 
-	public int getyOffset() {
+	public float getyOffset() {
 		return yOffset;
 	}
 
-	public void setyOffset(int yOffset) {
+	public void setyOffset(float yOffset) {
 		this.yOffset = yOffset;
 	}
 
-	public int getSizeX() {
+	public float getSizeX() {
 		return sizeX;
 	}
 
-	public void setSizeX(int sizeX) {
+	public void setSizeX(float sizeX) {
 		this.sizeX = sizeX;
 	}
 
-	public int getSizeY() {
+	public float getSizeY() {
 		return sizeY;
 	}
 
-	public void setSizeY(int sizeY) {
+	public void setSizeY(float sizeY) {
 		this.sizeY = sizeY;
 	}
 
-	public int getxAdvance() {
+	public float getxAdvance() {
 		return xAdvance;
 	}
 
-	public void setxAdvance(int xAdvance) {
+	public void setxAdvance(float xAdvance) {
 		this.xAdvance = xAdvance;
 	}
 }

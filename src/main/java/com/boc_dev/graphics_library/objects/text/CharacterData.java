@@ -20,6 +20,7 @@ public class CharacterData {
 	private static final String SPLITTER = " ";
 	private static final String NUMBER_SEPARATOR = ",";
 	private final File textDescriptionFile;
+	private final float base;
 
 	// padding values from file
 	private int[] padding = new int[4];
@@ -42,6 +43,8 @@ public class CharacterData {
 		// load next line and get image width
 		processNextLine();
 		int imageWidth = getValueOfVariable("scaleW");
+		// get base. Used to normalise size of text to 1 from file input
+		this.base = getValueOfVariable("base");
 
 		// read next 2 lines and discard
 		processNextLine();
@@ -82,14 +85,24 @@ public class CharacterData {
 		}
 		float xTex = ((float)(getValueOfVariable("x") + (padding[PAD_LEFT] - DESIRED_PADDING))) / imageSize;
 		float yTex = ((float)(getValueOfVariable("y") + (padding[PAD_TOP] - DESIRED_PADDING))) / imageSize;
-		int width = getValueOfVariable("width") - (paddingWidth - (2 * DESIRED_PADDING));
-		int height = getValueOfVariable("height") - ((paddingHeight) - (2 * DESIRED_PADDING));
-		float xTexSize = ((float) width) / imageSize;
-		float yTexSize = ((float) height) / imageSize;
-		int xOff = (getValueOfVariable("xoffset") + padding[PAD_LEFT] - DESIRED_PADDING);
-		int yOff = (getValueOfVariable("yoffset") + (padding[PAD_TOP] - DESIRED_PADDING));
-		int xAdvance = (getValueOfVariable("xadvance") - paddingWidth);
-		return new Character(id, xTex, yTex, xTexSize, yTexSize, xOff, yOff, width, height, xAdvance);
+		float width = getValueOfVariable("width") - (paddingWidth - (2 * DESIRED_PADDING));
+		float height = getValueOfVariable("height") - ((paddingHeight) - (2 * DESIRED_PADDING));
+		float xTexSize = width / imageSize;
+		float yTexSize = height / imageSize;
+		float xOff = (getValueOfVariable("xoffset") + padding[PAD_LEFT] - DESIRED_PADDING);
+		float yOff = (getValueOfVariable("yoffset") + (padding[PAD_TOP] - DESIRED_PADDING));
+		float xAdvance = (getValueOfVariable("xadvance") - paddingWidth);
+		return new Character(id,
+				xTex,
+				yTex,
+				xTexSize,
+				yTexSize,
+				xOff,
+				yOff,
+				width,
+				height,
+				xAdvance,
+				base);
 	}
 
 	private void getPadding() {

@@ -173,10 +173,15 @@ public class BasicMeshCreator {
 				character = characterData.getCharacter(35);
 			}
 
-			int x = cursorX + character.getxOffset();
-			int y = cursorY + character.getyOffset();
-			int maxX = x + character.getSizeX();
-			int maxY = y + character.getSizeY();
+			float x = cursorX + character.getxOffset();
+			float y = cursorY + character.getyOffset();
+			float maxX = x + character.getSizeX();
+			float maxY = y + character.getSizeY();
+
+			x /= character.getBase();
+			y /= character.getBase();
+			maxX /= character.getBase();
+			maxY /= character.getBase();
 
 			// now center the values
 			float properX = (2 * x) - 1;
@@ -207,7 +212,6 @@ public class BasicMeshCreator {
 			cursorX += character.getxAdvance();
 
 		}
-
 
 
 		return new SingleMesh(vertices, indices, rendererObject);
@@ -355,7 +359,7 @@ public class BasicMeshCreator {
 		// the normals
 		// vertex's are in order. every 3 makes up a traingle
 		// therefore, get every 3 vertex's and calc all the normals together
-		for (int x = 0; x < vertexPositions.length - 3; x+=6) {
+		for (int x = 0; x < vertexPositions.length - 3; x += 6) {
 
 			build(vertex, x, new Vec2f(0, 0), new Vec2f(0, 1), new Vec2f(1, 1));
 

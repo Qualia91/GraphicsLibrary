@@ -224,7 +224,6 @@ public class Window implements Subscribable {
 		textureManager.create("/textures/no_texture.png");
 		materialManager.create("/textures/no_texture.png", defaultMaterialId);
 		fontManager.create("montserrat_light");
-		System.out.println("A");
 		meshManager.create();
 		modelManager.create(defaultMaterialId);
 

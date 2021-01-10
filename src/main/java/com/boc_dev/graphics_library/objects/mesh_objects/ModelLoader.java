@@ -20,7 +20,7 @@ public class ModelLoader {
 
 		File directory = new File(localappdata + "\\LockdownGameEngine\\models\\");
 		if (! directory.exists()){
-			directory.mkdir();
+			directory.mkdirs();
 		}
 
 		// create temp model file to help with loading models from resources

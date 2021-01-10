@@ -1,5 +1,6 @@
 package com.boc_dev.graphics_library.objects.materials;
 
+import com.boc_dev.graphics_library.utils.FileUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -86,12 +87,7 @@ public class LoadedTexture implements Texture {
 	public void create() throws IOException {
 		String imagePath = texturePath.split("[.]")[1];
 
-        InputStream resourceAsStream = getClass().getResourceAsStream(texturePath);
-
-		if (resourceAsStream == null) {
-			// try to find it in the user input folder via environment variable
-			resourceAsStream = new FileInputStream(System.getenv("GRAPHICS_LIB_DATA") + "\\" + texturePath);
-		}
+		InputStream resourceAsStream = new FileUtils().loadFile(texturePath);
 
 		ByteBuffer imageData = ioResourceToByteBuffer(imagePath, 1024, resourceAsStream);
 

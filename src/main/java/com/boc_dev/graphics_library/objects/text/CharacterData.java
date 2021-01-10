@@ -1,9 +1,6 @@
 package com.boc_dev.graphics_library.objects.text;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +16,7 @@ public class CharacterData {
 	private static final int DESIRED_PADDING = 3;
 	private static final String SPLITTER = " ";
 	private static final String NUMBER_SEPARATOR = ",";
-	private final File textDescriptionFile;
+	private final String textDescription;
 	private final float base;
 
 	// padding values from file
@@ -31,11 +28,11 @@ public class CharacterData {
 	private final Map<String, String> values = new HashMap<>();
 	private int spaceWidth;
 
-	public CharacterData(File textDescriptionFile) {
+	public CharacterData(String descriptor, InputStream is) {
 
-		this.textDescriptionFile = textDescriptionFile;
+		this.textDescription = descriptor;
 
-		openFile(textDescriptionFile);
+		openFile(is);
 
 		// load first line and get the padding values
 		getPadding();
@@ -170,9 +167,9 @@ public class CharacterData {
 	/**
 	 * Opens the font file, ready for reading
 	 */
-	private void openFile(File file) {
+	private void openFile(InputStream is) {
 		try {
-			reader = new BufferedReader(new FileReader(file));
+			reader = new BufferedReader(new InputStreamReader(is));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Couldn't read font meta file!");
@@ -191,6 +188,6 @@ public class CharacterData {
 	}
 
 	public String getStringDescriptor() {
-		return textDescriptionFile.toString();
+		return textDescription;
 	}
 }

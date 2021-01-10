@@ -10,6 +10,7 @@ import com.boc_dev.graphics_library.objects.text.FontAlignment;
 import com.boc_dev.maths.objects.vector.Vec3f;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 
 public class MeshManager {
@@ -30,7 +31,7 @@ public class MeshManager {
 		return meshStringDescriptorToMeshMap.getOrDefault(stringDescriptor, meshStringDescriptorToMeshMap.get("DEFAULT"));
 	}
 
-	public void create() throws IOException {
+	public void create() throws IOException, URISyntaxException {
 
 		// create basic meshes as default
 		Mesh circle = basicMeshCreator.createCircle(50, new OpenGlMesh());
@@ -79,7 +80,7 @@ public class MeshManager {
 		meshStringDescriptorToMeshMap.remove(stringId);
 	}
 
-	public void createMesh(String filePath) throws IOException {
+	public void createMesh(String filePath) throws IOException, URISyntaxException {
 		// if mesh already made, just continue
 		if (meshStringDescriptorToMeshMap.containsKey(filePath)) return;
 		Mesh mesh = meshLoader.loadModel(filePath, new OpenGlMesh());

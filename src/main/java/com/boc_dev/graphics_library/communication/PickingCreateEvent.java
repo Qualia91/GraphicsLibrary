@@ -8,6 +8,7 @@ import com.boc_dev.graphics_library.objects.render_scene.InstanceObject;
 import com.boc_dev.graphics_library.objects.render_scene.RenderGraph;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class PickingCreateEvent implements RenderUpdateEvent<String> {
@@ -44,7 +45,7 @@ public class PickingCreateEvent implements RenderUpdateEvent<String> {
 		else {
 			try {
 				window.getMeshManager().createMesh(meshString);
-			} catch (IOException e) {
+			} catch (IOException | URISyntaxException e) {
 				System.err.println("Mesh " + meshString + " not found, using default for mesh");
 			}
 			window.getRenderGraphs().get(layerName).getPickingMeshes().put(meshString, instanceObjects);

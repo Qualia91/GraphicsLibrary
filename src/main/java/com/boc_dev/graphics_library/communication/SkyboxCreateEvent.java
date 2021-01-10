@@ -7,6 +7,7 @@ import com.boc_dev.graphics_library.objects.mesh_objects.Model;
 import com.boc_dev.graphics_library.objects.render_scene.RenderGraph;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class SkyboxCreateEvent implements RenderUpdateEvent<Model> {
 
@@ -42,7 +43,7 @@ public class SkyboxCreateEvent implements RenderUpdateEvent<Model> {
 
 		try {
 			window.getMeshManager().createMesh(model.getMeshString());
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			System.err.println("Mesh " + model.getMeshString() + " not found, using default for model " + model.getStringID());
 		}
 		window.getModelManager().addModel(model);

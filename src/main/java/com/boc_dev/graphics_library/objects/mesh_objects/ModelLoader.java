@@ -1,28 +1,35 @@
 package com.boc_dev.graphics_library.objects.mesh_objects;
 
 import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.RendererObject;
+import com.boc_dev.graphics_library.utils.FileUtils;
 import com.boc_dev.maths.objects.vector.Vec2f;
 import com.boc_dev.maths.objects.vector.Vec3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.assimp.*;
+import org.lwjgl.system.MemoryUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public class ModelLoader {
 
-	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException {
-
+	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException, URISyntaxException {
 
 		String lib_data_file_path = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
 
 		String default_data_file_path = "";
-		if (getClass().getResource("/" + filePath) != null) {
-			File file = new File(getClass().getResource("/" + filePath).getFile());
+		URL url = getClass().getResource("/" + filePath);
+		if (url != null) {
+			URI uri = url.toURI();
+			File file = new File(uri);
 
 			if (file.exists()) {
 				default_data_file_path = file.getAbsolutePath();
+				System.out.println("HERE");
+			} else {
+				System.out.println(file.toString());
 			}
 		}
 
@@ -30,7 +37,7 @@ public class ModelLoader {
 			lib_data_file_path = default_data_file_path;
 		}
 
-		// load 3d model data
+
 		AIScene aiScene = Assimp.aiImportFile(lib_data_file_path, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
 
 		if (aiScene == null) {

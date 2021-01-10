@@ -28,6 +28,7 @@ import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -142,7 +143,7 @@ public class Window implements Subscribable {
 		return glfwWindowShouldClose(windowHandler);
 	}
 
-	public void init(WindowInitialisationParameters windowInitialisationParameters) throws IOException {
+	public void init(WindowInitialisationParameters windowInitialisationParameters) throws IOException, URISyntaxException {
 
 		this.windowInitialisationParameters = windowInitialisationParameters;
 
@@ -222,9 +223,10 @@ public class Window implements Subscribable {
 		UUID defaultMaterialId = UUID.randomUUID();
 		textureManager.create("/textures/no_texture.png");
 		materialManager.create("/textures/no_texture.png", defaultMaterialId);
+		fontManager.create("montserrat_light");
+		System.out.println("A");
 		meshManager.create();
 		modelManager.create(defaultMaterialId);
-		fontManager.create("montserrat_light");
 
 		// cull back faces
 		GL11.glEnable(GLES20.GL_CULL_FACE);

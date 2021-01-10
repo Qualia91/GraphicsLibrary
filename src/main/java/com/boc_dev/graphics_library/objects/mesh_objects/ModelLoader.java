@@ -4,18 +4,13 @@ import com.boc_dev.graphics_library.objects.mesh_objects.renderer_objects.Render
 import com.boc_dev.graphics_library.utils.FileUtils;
 import com.boc_dev.maths.objects.vector.Vec2f;
 import com.boc_dev.maths.objects.vector.Vec3f;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.assimp.*;
-import org.lwjgl.system.MemoryUtil;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 public class ModelLoader {
 
-	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException, URISyntaxException {
+	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException {
 
 		FileUtils fileUtils = new FileUtils();
 
@@ -31,37 +26,11 @@ public class ModelLoader {
 		// create temp model file to help with loading models from resources
 		File file = new File(localappdata + "\\LockdownGameEngine\\" + filePath.trim());
 
-		try {
-			if (file.createNewFile()) {
-				System.out.println("File created: " + localappdata + "\\LockdownGameEngine\\" + filePath.trim());
-			}
-		} catch (Exception e) {
-			System.out.println();
-		}
+		// create file
+		file.createNewFile();
 
 		// check if file exits. If it doesn't
 		fileUtils.copyInputStreamToFile(inputStream, file);
-
-//		String lib_data_file_path = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
-//
-//		String default_data_file_path = "";
-//		URL url = getClass().getResource("/" + filePath);
-//		if (url != null) {
-//			URI uri = url.toURI();
-//			File file = new File(uri);
-//
-//			if (file.exists()) {
-//				default_data_file_path = file.getAbsolutePath();
-//				System.out.println("HERE");
-//			} else {
-//				System.out.println(file.toString());
-//			}
-//		}
-//
-//		if (!new File(lib_data_file_path).exists()) {
-//			lib_data_file_path = default_data_file_path;
-//		}
-
 
 		AIScene aiScene = Assimp.aiImportFile(file.getAbsolutePath(), Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
 

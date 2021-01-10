@@ -17,28 +17,53 @@ public class ModelLoader {
 
 	public Mesh loadModel(String filePath, RendererObject rendererObject) throws IOException, URISyntaxException {
 
-		String lib_data_file_path = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
+		FileUtils fileUtils = new FileUtils();
 
-		String default_data_file_path = "";
-		URL url = getClass().getResource("/" + filePath);
-		if (url != null) {
-			URI uri = url.toURI();
-			File file = new File(uri);
+		InputStream inputStream = fileUtils.loadFile("/" + filePath);
 
-			if (file.exists()) {
-				default_data_file_path = file.getAbsolutePath();
-				System.out.println("HERE");
-			} else {
-				System.out.println(file.toString());
+		String localappdata = System.getenv("LOCALAPPDATA");
+
+		File directory = new File(localappdata + "\\LockdownGameEngine\\models\\");
+		if (! directory.exists()){
+			directory.mkdir();
+		}
+
+		// create temp model file to help with loading models from resources
+		File file = new File(localappdata + "\\LockdownGameEngine\\" + filePath.trim());
+
+		try {
+			if (file.createNewFile()) {
+				System.out.println("File created: " + localappdata + "\\LockdownGameEngine\\" + filePath.trim());
 			}
+		} catch (Exception e) {
+			System.out.println();
 		}
 
-		if (!new File(lib_data_file_path).exists()) {
-			lib_data_file_path = default_data_file_path;
-		}
+		// check if file exits. If it doesn't
+		fileUtils.copyInputStreamToFile(inputStream, file);
+
+//		String lib_data_file_path = System.getenv("GRAPHICS_LIB_DATA") + "\\" + filePath;
+//
+//		String default_data_file_path = "";
+//		URL url = getClass().getResource("/" + filePath);
+//		if (url != null) {
+//			URI uri = url.toURI();
+//			File file = new File(uri);
+//
+//			if (file.exists()) {
+//				default_data_file_path = file.getAbsolutePath();
+//				System.out.println("HERE");
+//			} else {
+//				System.out.println(file.toString());
+//			}
+//		}
+//
+//		if (!new File(lib_data_file_path).exists()) {
+//			lib_data_file_path = default_data_file_path;
+//		}
 
 
-		AIScene aiScene = Assimp.aiImportFile(lib_data_file_path, Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
+		AIScene aiScene = Assimp.aiImportFile(file.getAbsolutePath(), Assimp.aiProcess_JoinIdenticalVertices | Assimp.aiProcess_Triangulate | Assimp.aiProcess_CalcTangentSpace);
 
 		if (aiScene == null) {
 			throw new IOException(Assimp.aiGetErrorString());

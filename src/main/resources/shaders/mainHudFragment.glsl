@@ -1,4 +1,4 @@
-#version 460 core
+#version 430 core
 
 in vec2 passTextureCoord;
 in vec3 passVertexNormal;

@@ -1,7 +1,6 @@
 package com.boc_dev.graphics_library.utils;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

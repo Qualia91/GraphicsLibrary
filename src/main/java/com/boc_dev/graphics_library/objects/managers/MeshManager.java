@@ -73,7 +73,10 @@ public class MeshManager {
 	}
 
 	public void removeTextMesh(String stringId) {
-		if (!meshStringDescriptorToMeshMap.containsKey(stringId)) return;
+		if (!meshStringDescriptorToMeshMap.containsKey(stringId)) {
+			System.out.println("Cant find " + stringId + " in mesh map");
+			return;
+		}
 
 		Mesh mesh = meshStringDescriptorToMeshMap.get(stringId);
 		mesh.destroy();

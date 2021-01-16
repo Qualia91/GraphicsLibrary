@@ -38,10 +38,15 @@ public class TextRemoveEvent implements RenderUpdateEvent<String> {
 		// check if font exists
 		if (window.getRenderGraphs().get(layerName).getTextMeshes().containsKey(fontName)) {
 			// find text instance via uuid as hash code and equals is overridden in text instance
-			window.getRenderGraphs().get(layerName).getTextMeshes().get(fontName).removeIf(tIns -> tIns.getUuid().equals(uuid));
+			if (!window.getRenderGraphs().get(layerName).getTextMeshes().get(fontName).removeIf(tIns -> tIns.getUuid().equals(uuid))) {
+				System.out.println("Cant find model to delete");
+			}
 			// now destroy text mesh
 			window.getMeshManager().removeTextMesh(uuid.toString());
+		} else {
+			System.out.println("Font doesn't exits, cant delete: " + layerName + " " + text + " " + fontName);
 		}
+
 
 		// keep font loaded, its pretty small and i doubt people will load up millions of fonts (famous last words?)
 

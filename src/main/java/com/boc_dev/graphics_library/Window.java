@@ -324,6 +324,9 @@ public class Window implements Subscribable {
 //		LOGGER.getStringBuilder().append("Time: ").append(System.currentTimeMillis()).append("\n");
 		STATS.beginRender(System.currentTimeMillis());
 
+		// this makes sure next scene is on top of last scene
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 		for (Scene sceneLayer : sceneLayers) {
 
 			RenderGraph renderGraph = this.renderGraphs.get(sceneLayer.getName());
